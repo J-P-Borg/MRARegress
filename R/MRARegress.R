@@ -1,4 +1,4 @@
-#'@title "MRAregress" :  Tools to infer connectivity in biological networks -- Main program
+#'@title "MRARegress" :  Tools to infer connectivity in biological networks -- Main program
 #'
 #'@description : this function checks the input data and computes the connectivity matrix
 #'

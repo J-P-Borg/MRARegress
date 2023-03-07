@@ -2,7 +2,7 @@
 % Please edit documentation in R/MRARegress.R
 \name{MRARegress}
 \alias{MRARegress}
-\title{"MRAregress" :  Tools to infer connectivity in biological networks -- Main program}
+\title{"MRARegress" :  Tools to infer connectivity in biological networks -- Main program}
 \usage{
 MRARegress(
   nbBase,

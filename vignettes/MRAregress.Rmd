@@ -1,5 +1,5 @@
 ---
-title: "'MRAregress' </br> Tools to infer connectivity in biological networks"
+title: "'MRARegress' </br> Tools to infer connectivity in biological networks"
 
 author:
   - name: Jean-Pierre Borg
@@ -8,18 +8,18 @@ author:
     email: jean-pierre.borg@inserm.fr   /   jeanpierre.borg@orange.fr
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 abstract: > 
- <p> MRAregress is used to infer connectivity in biological networks, able of achieving a steady state after being perturbed.
+ <p> MRARegress is used to infer connectivity in biological networks, able of achieving a steady state after being perturbed.
    The inference is obtained by using methods based on Multilinear Regression applied to Modular Response Analysis (MRA) principles (Kholodenko, PNAS, 2002).
    These methods are described by (Borg et al, 2022).  
    Perturbations are applied to the nodes of a network and the corresponding measurements are done when the steady state is reached. 
    If the nodes are gene transcripts, for instance, these measurements may represent their abundance. 
    
    Many visualization and data summary functions are proposed to help represent biological networks.<br/><br/>
-   MRAregress package version: `r packageVersion("MRAregress")`
+   MRARegress package version: `r packageVersion("MRARegress")`
 output: rmarkdown::html_vignette
 
 vignette: >
-  %\VignetteIndexEntry{MRAregress}
+  %\VignetteIndexEntry{MRARegress}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -34,7 +34,7 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 ```{r setup}
-library(MRAregress)
+library(MRARegress)
 ```
 \
 
@@ -43,7 +43,7 @@ library(MRAregress)
 
 ## What is it for? 
 
-'MRAregress' is used to infer connectivity in biological networks, able of achieving a steady state after being perturbed,
+'MRARegress' is used to infer connectivity in biological networks, able of achieving a steady state after being perturbed,
 *i.e.* to know if a node (a gene, a transcript, a protein, or even a molecule) affects the action of another one.
 This package provides many ways to know about these interactions.
  
@@ -68,7 +68,7 @@ HUGO gene symbols (even for proteins) must be used to ensure matching LR*db*, Re
 From these values, the package computes the "Connectivity Matrix" (r),
 where r[i,j] represents the action of node j on node i (r[i,j] > 0 means amplification, r[i,j] < 0 means inhibition and r[i,j] = 0 means that
 node j does not influence node i).\
-More information is required: see the Reference Manual ("?MRAregress").
+More information is required: see the Reference Manual ("?MRARegress").
 
 ## How does it work? 
 
@@ -90,7 +90,7 @@ So, Multiple Linear Regression methods allow the computation of $r_{i,j}$ from (
 \
 We provide several handy functions to explore the data thru different plots (tables, heatmaps, or networks).
 
-`MRAregress` package functions have many parameters that can be changed by the user to fit specific needs (see Reference Manual for details). 
+`MRARegress` package functions have many parameters that can be changed by the user to fit specific needs (see Reference Manual for details). 
 \
 \
 
@@ -134,13 +134,13 @@ The black lines correspond to the "True Positive" edges (an edge between nodes A
 ## Parallel mode settings
 
 Users may have to process many networks at a time. They can then reduce computation time by using several processors in parallel.
-This is transparent to `MRAregress`. Parallelization has to be done outside `MRAregress`.
+This is transparent to `MRARegress`. Parallelization has to be done outside `MRARegress`.
 
 ### Notes:
 
 * For operating systems that can fork, such as all the UNIX-like systems,
 it might be preferable to use the library `doMC` that is faster (less
-overhead). This is transparent to `MRAregress`.
+overhead). This is transparent to `MRARegress`.
 
 * In case you need to reproduce results exactly and since statistical
 model parameter learning involves the generation of randomized expression

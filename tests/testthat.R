@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
-library(MRAregress)
+library(MRARegress)
 
-test_check("MRAregress")
+test_check("MRARegress")
