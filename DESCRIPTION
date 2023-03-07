@@ -1,0 +1,20 @@
+Package: MRAregress
+Title: Tools to infer connectivity in biological networks
+Version: 0.0.0.9000
+Authors@R: 
+    person("Jean-Pierre", "BORG", , "jean-pierre.borg@inserm.fr", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: The MRAregress package provides tools to infer connectivity among a the entities composing a biological system. The inference is obtained by using methods based on Multilinear Regression applied to Modular Response Analysis (MRA) principles (Kholodenko, PNAS, 2002). These methods are described in (Borg et al, 2022). They enable to achieve better results than classical MRA, in the presence of measurement noise and/or medium size networks.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+LazyData: true
