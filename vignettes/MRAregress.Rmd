@@ -174,16 +174,16 @@ This is the code used to generate the connectivity matrix and the map of the 6-n
 Here, we load the data
 
 ```{r eval=FALSE}
-data(MapExper)
 data(MatExp)
-data(NodeNames)
 ```  
 and we call "MRARegress" to get the Connectivity Matrix (saved as "MatrCc"), then we call "DrawGraph" to draw the network. The drawing quality is manually improved (moving nodes, bending edges).
 
 ```{r }
-MatrCc	<- MRARegress (1, MapExper, MatExp, NodeNames) 			# KnlgMap = NULL and Method = "TLR"  (default values)
-# r 	<- round(MatrCc, 3)
-DrawGraph (MatrCc)
+MatrCc	<- MRARegress (MatExp)					# Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
+if (! is.null(MatrCc)) {
+	r 	<- round(MatrCc, 3)
+	DrawGraph (MatrCc)
+}
 ```
 
 \ \ 
@@ -207,9 +207,11 @@ the discovered network, the missing and the wrong edges. The drawing quality is 
 
 ```{r }
 DrawGraph (Solution)									# Draws the first image
-MatrCc		<- MRARegress (1, MapExper2, MatExp2) 		# NodeNames = NULL, KnlgMap = NULL and Method = "TLR"  (default values)
-MatrCcDig	<- Classify(MatrCc)							# Classes = c(0,1), Method = "TLR", Lbda = NULL (default values)
-DrawScore (MatrCcDig, Solution)							# Draws the second image
+MatrCc	<- MRARegress (MatExp2)							# Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
+if (! is.null(MatrCc)) {
+	MatrCcDig	<- Classify(MatrCc)						# Classes = c(0,1), Method = "TLR", Lbda = NULL (default values)
+	DrawScore (MatrCcDig, Solution)						# Draws the second image
+}
 ```
 
 \

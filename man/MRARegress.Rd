@@ -5,37 +5,52 @@
 \title{"MRARegress" :  Tools to infer connectivity in biological networks -- Main program}
 \usage{
 MRARegress(
-  nbBase,
-  MapExper,
   MatExp,
-  NodeNames = NULL,
+  Perturb = NULL,
+  NodeName = NULL,
   KnlgMap = NULL,
-  Method = "TLR"
+  Method = "TLR",
+  MapExper = NULL,
+  Verbose = FALSE
 )
 }
 \arguments{
-\item{nbBase}{Number                Number of replicas concerning the basal state (ie. non perturbed system). nbBase >= 1.}
+\item{MatExp}{Matrix of numbers    The "Expression Matrix", nbN rows (number of nodes), nbPc + nbBase columns. No default value.
+(nbPc = number of conducted perturbations, nbBase = number of "non perturbed" sets of measurements, called "basal" columns).
+MatExp[i,j] represents the measurement of node i when no perturbation is applied to the network, if column "j" is a "basal" column
+MatExp[i,j] represents the measurement of node i when perturbation designated by "Perturb[j] is applied to the network.
+As the values taken into account to compute the connectivity matrix are "DeltaXij", ie the difference between
+the measurement of node i when perturbation "Perturb[j] is applied to the network and the measurement of node i without any perturbation,
+we will use nbP = nbBase*nbPc as the "number of perturbations" in the package.
+The number of perturbations must be large enough to allow the computation of the connectivity matrix (see "Details"). MatExp[i,j] must be >= 0.}
 
-\item{MapExper}{Matrix of {0, 1, x}    The "Experimental Map". The Nb rows represent the nodes (genes, proteins etc...) and the Np columns represent the perturbations.
-If a perturbation is repeated several times ("replicas"), the corresponding columns must be added and Np increased accordingly.
-MapExper[i,j] = 1 means that the perturbation j perturbs the node i,
-MapExper[i,j] = 0 means that the perturbation j does not perturb the node i,
-MapExper[i,j] = x means that we do not know if the perturbation j perturbs the node i or not.}
+\item{Perturb}{Vector of strings    Refers to the name of the perturbations and the nodes they act upon. nbPc + nbBase values. Default value is NULL.
+If Perturb is NOT NULL, a mandatory syntax must be used. Each item is a string of one of the following values :
+- "Base"    : the corresponding columns of MatExp is a "basal" column. It contains the measurements of the nodes when no perturbation
+is applied to the network. Many "basal" columns may exist, see below.
+- "perturbation name -> node name" : "perturbation name" is the name of the perturbation and "node name", the name of the node the perturbation acts upon.
+The name of the node must be one item of the vector "NodeName" (strict equality, case sensitive).
+Many identical items may exist (designating technical replicas). Various perturbations may act upon the same node.
+If "MapExper" is NULL, a perturbation must act upon one node only.
+The columns of "t(Perturb)" (ie "Perturb transposed") must exactly match those of MatExp.
+If Perturb is NULL (default value), the number of perturbations must equal the number of nodes.There is only one basal column (the first one),
+the perturbations are called "P1", "P2" ... and "P1" is supposed to act on the first node, "P2" on the second node etc...}
 
-\item{MatExp}{Matrix of numbers    The "Expression Matrix", Nb rows, Np+nbBase columns.
-MatExp[i,1..nbBase] represents the measurement of node i when no perturbation is applied to the network,
-MatExp[i,j], j>nbBase,  represents the measurement of node i when perturbation j-nbBase is applied to the network.}
+\item{NodeName}{Vector of strings    The name of the nodes (use HUGO gene symbols, even for proteins). nbN values.  Default value is NULL.
+If NOT NULL, the rows of "NodeName" must exactly match those of MatExp.
+If NULL, the nodes will be named "N1", "N2", "N3" etc...}
 
-\item{NodeNames}{Vector of strings    The name of the nodes (use HUGO gene symbols, even for proteins). If NULL, the nodes will be named "1", "2", "3" etc...}
-
-\item{KnlgMap}{Matrix of {0, 1, x}    The "Knowledge Map". The Nb rows and Nb columns represent the nodes.
-KnlgMap[i,j] = 1 means that we know that there is an edge between node j and node i
-KnlgMap[i,j] = 0 means that we know that there is no edge between node j and node i
-KnlgMap[i,j] = x means that we do not know if there is an edge between node j and node i.
+\item{KnlgMap}{Matrix of {0, 1, -1, x}    The "Knowledge Map". The nbN rows and nbN columns represent the nodes.  Default value is NULL.
+KnlgMap[i,j] =  1 means that we know that there is an oriented edge between node j and node i (node j ==> node i),
+KnlgMap[i,j] = -1 means that we know that there is an oriented edge between node i and node j (node i ==> node j),
+KnlgMap[i,j] =  0 means that we know that there is no edge between node j and node i,
+KnlgMap[i,j] =  x means that we do not know if there is an edge between node j and node i.
 KnlgMap[i,i] is not defined and may be set to 0.
-Choose NULL if you don't have a priori information about the network connectivity.}
+Choose NULL if you don't have a priori information about the network connectivity.
+If NOT NULL, the rows and the columns of "KnlgMap" must exactly match the rows of MatExp.}
 
-\item{Method}{String                The method to use to compute the connectivity matrix. Method to choose among the available methods:
+\item{Method}{String                The method to use to compute the connectivity matrix. Default value is "TLR".
+Method to choose among the available methods:
 - TLR: a simple Multiple Linear Regression method which minimizes the Least Square Error (default value),
 - LASSO: a shrinkage estimator,
 - RIDGE: a shrinkage estimator,
@@ -45,11 +60,43 @@ Choose NULL if you don't have a priori information about the network connectivit
 - CLR: another method based on Mutual Information,
 - RMNET: another method based on Mutual Information,
 - Random Forest: a method used in Machine Learning.}
+
+\item{MapExper}{Matrix of numbers    The "Experience Map" matrix : nbM rows (number of parameters), nbPc columns (number of conducted perturbations). Default value is NULL.
+In the document "MaRédaction.docx", a strong asumption is made, called "H6" :
+-  nbM = nbN  (the number of parameters equals the number of nodes),
+-  Every perturbation acts exactly upon one different node (ie.  ∂φ_i/∂p_j ≠ 0 if and only if i = j),
+-  A set of such perturbations acting upon every node is available.
+If "H6" is true, MapExper must be NULL. If not, MapExper must be filled, and the perturbations "proportional" to a reference pertubation,
+ie the coordinates of the perturbations be 0 or proportional to those of the reference.
+If NOT NULL, this matrix contains the coordinates of the perturbations on the base of the parameters regarding to those of a perturbation
+chosen as a reference. For instance, if "P0" is the reference, with coordinates (x0_1, x0_2, ... x0_M), the coordinates of perturbation "P1"
+must be 0 or proportional to those of P0 (ie : x1_j = 0 or x1_j = k1*x0_j). Idem for "P2".
+The column of MapExper corresponding to    "P0" must contain (1, 1, .. 1), the column corresponding to "P1" must contain (k1, 0, k1, .., k1)
+and the column corresponding to "P2" (k2, k2, .., k2). We have assumed that x1_2 = 0 and that the other coordinates are not null.}
+
+\item{Verbose}{Logical                Default    value : FALSE.
+If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{		Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has Nb rows and Nb columns.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
+							Returns NULL in case of error or warning.
 }\if{html}{\out{</div>}}
 }
 \description{
-: this function checks the input data and computes the connectivity matrix
+: this function checks the input data and computes the connectivity matrix, according to the document "MaRédaction.docx".
+
+The function MRARegress computes the connectivity matrix, according to the document "MaRédaction.docx".
+The input data are described above.
+}
+\details{
+\if{html}{\out{<div class="sourceCode">}}\preformatted{						nbN : number of nodes,
+								nbP : number of perturbations, ie nbBase*nbPc (see "MaRedaction.docx" for the conditions relative to the perturbations),
+								nbM : number of parameters.
+								If MapExper is NULL, it is mandatory that nbP >= nbN
+								If MapExper is NOT NULL and perturbations are proportional, it is mandatory that nbP >= nbN - 1 + nbM.
+
+								Imported libraries :
+								- stringr		processing of strings
+								- stats			lm, as.formula
+}\if{html}{\out{</div>}}
 }

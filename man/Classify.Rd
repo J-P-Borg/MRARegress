@@ -28,6 +28,7 @@ For instance, if Method = "TLR" and Lbda = "NULL", the value 0.25 will be given 
 }
 \value{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{	Matrix of numbers		Returns the "Classified Connectivity Matrix" ("rDig") if no error occured. This matrix has Nb rows and Nb columns.
+									Returns NULL in case of error or warning.
 }\if{html}{\out{</div>}}
 }
 \description{
