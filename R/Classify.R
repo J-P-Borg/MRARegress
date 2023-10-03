@@ -1,6 +1,6 @@
-#'@title "Classify" :  Classifies the connectivity coefficients
+#'@title "Classify" :  Discretizes and classifies the connectivity coefficients
 #'
-#'@description : this function classifies the connectivity coefficients, according to a set of classes \cr
+#'@description : this function discretizes the connectivity coefficients, then classifies them according to a set of classes \cr
 #'	For instance \{-1, 0, 1\} or \{0, 1\}. The classification method may depend on the method used to compute the connectivity coefficients.
 #'
 #'@param r			Matrix of numbers		The connectivity matrix (delivered by "MRARegress")

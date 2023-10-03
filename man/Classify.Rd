@@ -2,7 +2,7 @@
 % Please edit documentation in R/Classify.R
 \name{Classify}
 \alias{Classify}
-\title{"Classify" :  Classifies the connectivity coefficients}
+\title{"Classify" :  Discretizes and classifies the connectivity coefficients}
 \usage{
 Classify(r, Classes, Method = "TLR", Lbda = NULL)
 }
@@ -32,6 +32,6 @@ For instance, if Method = "TLR" and Lbda = "NULL", the value 0.25 will be given 
 }\if{html}{\out{</div>}}
 }
 \description{
-: this function classifies the connectivity coefficients, according to a set of classes \cr
+: this function discretizes the connectivity coefficients, then classifies them according to a set of classes \cr
 For instance \{-1, 0, 1\} or \{0, 1\}. The classification method may depend on the method used to compute the connectivity coefficients.
 }

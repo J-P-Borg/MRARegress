@@ -15,7 +15,7 @@
 #'@param Ref		Matrix of numbers		The "Reference Matrix"
 #'@param Classes	Vector					A vector showing the classes (for instance: c(0,1))
 #'
-#'@return			List	A list containing the "Confusion Matrix" and classical coefficients, such as NRi, NDi, precision, sensitivity, specificity, F1 score.
+#'@return			List	A list containing the "Confusion Matrix" and classical coefficients, such as NRi, NDi, precision, sensitivity, specificity, F1 score (TP/(TP+0.5*(FN+FP))).
 #'@export
 #'
 

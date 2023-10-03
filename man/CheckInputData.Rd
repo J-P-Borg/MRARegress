@@ -2,9 +2,24 @@
 % Please edit documentation in R/MRARegress.R
 \name{CheckInputData}
 \alias{CheckInputData}
-\title{Check the input data for function MRARegress}
+\title{Checks the input data for function MRARegress}
 \usage{
-CheckInputData(MatExp, Perturb, NodeName, KnlgMap, Method, MapExper)
+CheckInputData(
+  MatExp,
+  Perturb,
+  NodeName,
+  KnlgMap,
+  Method,
+  Hyp_Lbda,
+  Hyp_Mu,
+  Hyp_Step,
+  Hyp_Eps,
+  Hyp_Cvx,
+  MapExper,
+  ParNode,
+  Relative,
+  Verbose
+)
 }
 \arguments{
 \item{MatExp}{The "Expression Matrix".}
@@ -15,9 +30,25 @@ CheckInputData(MatExp, Perturb, NodeName, KnlgMap, Method, MapExper)
 
 \item{KnlgMap}{The "Knowledge Map".}
 
-\item{Method}{The method to use to compute the connectivity matrix.}
+\item{Method}{The method used to compute the connectivity matrix.}
+
+\item{Hyp_Lbda}{Hyper parameter needed by the LASSO, RIDGE, Elastic Net methods.}
+
+\item{Hyp_Mu}{Hyper parameter μ of the method 'Elastic Net'}
+
+\item{Hyp_Step}{Hyper parameter μ of the method 'Step'}
+
+\item{Hyp_Eps}{Hyper parameter ε of the method 'aracne'}
+
+\item{Hyp_Cvx}{Hyper parameter used by KnlgMap}
 
 \item{MapExper}{The "Experience Map" matrix}
+
+\item{ParNode}{The "Parameters /Nodes relation" matrix}
+
+\item{Relative}{"Relative or absolute" values for the Global Response Matrix ("R")}
+
+\item{Verbose}{If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
 }
 \value{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{		A message if an error is detected and returns NULL otherwise.

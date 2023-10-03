@@ -10,93 +10,181 @@ MRARegress(
   NodeName = NULL,
   KnlgMap = NULL,
   Method = "TLR",
+  Hyp_Lbda = NULL,
+  Hyp_Mu = 1,
+  Hyp_Step = "Fo",
+  Hyp_Eps = 0,
+  Hyp_Cvx = 0,
   MapExper = NULL,
+  ParNode = NULL,
+  Relative = TRUE,
   Verbose = FALSE
 )
 }
 \arguments{
 \item{MatExp}{Matrix of numbers    The "Expression Matrix", nbN rows (number of nodes), nbPc + nbBase columns. No default value.
-(nbPc = number of conducted perturbations, nbBase = number of "non perturbed" sets of measurements, called "basal" columns).
+(nbPc = number of conducted perturbations (including replicas), taking into account the number of nodes, ie, if we apply a perturbation,
+say "KO" for example, on EACH node, nbPc equals the number of nodes. nbBase = number of "non perturbed" sets of measurements, called "basal" columns).
 MatExp[i,j] represents the measurement of node i when no perturbation is applied to the network, if column "j" is a "basal" column
 MatExp[i,j] represents the measurement of node i when perturbation designated by "Perturb[j] is applied to the network.
-As the values taken into account to compute the connectivity matrix are "DeltaXij", ie the difference between
+As the values taken into account to compute the connectivity matrix are "DeltaXij" (if "Relative" = FALSE, see below), ie the difference between
 the measurement of node i when perturbation "Perturb[j] is applied to the network and the measurement of node i without any perturbation,
-we will use nbP = nbBase*nbPc as the "number of perturbations" in the package.
-The number of perturbations must be large enough to allow the computation of the connectivity matrix (see "Details"). MatExp[i,j] must be >= 0.}
+we will use nbP = nbBase*nbPc as the "number of actual perturbations" in the package. Same thing if "Relative" = TRUE.
+The number of perturbations must be large enough to allow the computation of the connectivity matrix (see "Details").}
 
-\item{Perturb}{Vector of strings    Refers to the name of the perturbations and the nodes they act upon. nbPc + nbBase values. Default value is NULL.
+\item{Perturb}{Vector of strings    Refers to the name of the perturbations (and the nodes they act upon, if "H6" is TRUE : see "MapExper"). nbPc + nbBase values. Default value is NULL.
+If Perturb is NULL, nbN = nbPc is mandatory.
 If Perturb is NOT NULL, a mandatory syntax must be used. Each item is a string of one of the following values :
 - "Base"    : the corresponding columns of MatExp is a "basal" column. It contains the measurements of the nodes when no perturbation
 is applied to the network. Many "basal" columns may exist, see below.
-- "perturbation name -> node name" : "perturbation name" is the name of the perturbation and "node name", the name of the node the perturbation acts upon.
+- if "H6" is TRUE : "perturbation name -> node name" : "perturbation name" is the name of the perturbation and "node name", the name of the node
+the perturbation acts upon (if not, an error message "Syntax Error" is displayed).
+Beware, the separation mark, between "perturbation name" and "node name", is composed of two characters ("minus" : '-' and "superior" : '>'),
+with no space between them. It is not the "arrow" character '→'.
 The name of the node must be one item of the vector "NodeName" (strict equality, case sensitive).
 Many identical items may exist (designating technical replicas). Various perturbations may act upon the same node.
-If "MapExper" is NULL, a perturbation must act upon one node only.
-The columns of "t(Perturb)" (ie "Perturb transposed") must exactly match those of MatExp.
-If Perturb is NULL (default value), the number of perturbations must equal the number of nodes.There is only one basal column (the first one),
-the perturbations are called "P1", "P2" ... and "P1" is supposed to act on the first node, "P2" on the second node etc...}
+If "MapExper" is NULL ("H6" true), a perturbation must act upon one node only.
+If "MapExper" is NULL, every node must be perturbed.
+- if "H6" is FALSE : "perturbation name" : "perturbation name" is the name of the perturbation.
+"perturbation name -> node name" is allowed, but the relation "-> node name" is ignored, only the perturbation name is relevant.
+"MapExper" must be NOT NULL, only one "basal" column is authorized. All other data of "Perturb" are used only to name the perturbations.
+The relations "perturbations/parameters" are indicated with MapExper.
+The columns of "t(Perturb)" (ie "Perturb transposed") must exactly match those of MatExp (number and position).
+If Perturb is NULL (default value), the number of perturbations must equal the number of nodes if "H6" is true.There is only one basal column (the first one),
+the perturbations are called "Q1", "Q2" ... and, if "H6" is true, "Q1" is supposed to act on the first node, "Q2" on the second node etc...
+If several measurements correspond to the same perturbation ("replicas"), then the corresponding lines of "Perturb"    must be identical.}
 
 \item{NodeName}{Vector of strings    The name of the nodes (use HUGO gene symbols, even for proteins). nbN values.  Default value is NULL.
-If NOT NULL, the rows of "NodeName" must exactly match those of MatExp.
+If NOT NULL, the rows of "NodeName" must exactly match those of MatExp (number and position).
 If NULL, the nodes will be named "N1", "N2", "N3" etc...}
 
-\item{KnlgMap}{Matrix of {0, 1, -1, x}    The "Knowledge Map". The nbN rows and nbN columns represent the nodes.  Default value is NULL.
-KnlgMap[i,j] =  1 means that we know that there is an oriented edge between node j and node i (node j ==> node i),
-KnlgMap[i,j] = -1 means that we know that there is an oriented edge between node i and node j (node i ==> node j),
-KnlgMap[i,j] =  0 means that we know that there is no edge between node j and node i,
-KnlgMap[i,j] =  x means that we do not know if there is an edge between node j and node i.
-KnlgMap[i,i] is not defined and may be set to 0.
+\item{KnlgMap}{Matrix of {"0", "1", "-1", "x"}    The "Knowledge Map". The nbN rows and nbN columns represent the nodes.  Default value is NULL.
+KnlgMap[i,j] =  "1" or KnlgMap[i,j] = "-1". We know that there is an oriented edge between node j and node i (node j ==> node i),
+and node j amplifies the action of node i ("1") or inhibits this action ("-1").
+KnlgMap[i,j] =  "0" means that we know that there is no edge between node j and node i,
+KnlgMap[i,j] =  "x" means that we do not know if there is an edge between node j and node i.
 Choose NULL if you don't have a priori information about the network connectivity.
-If NOT NULL, the rows and the columns of "KnlgMap" must exactly match the rows of MatExp.}
+If NOT NULL, the rows and the columns of "KnlgMap" must exactly match the rows of MatExp (number and position).
+If NOT NULL, the parameter "Method" (see below) must equal "TLR" and "H6" must be TRUE (see param. MapExper).}
 
-\item{Method}{String                The method to use to compute the connectivity matrix. Default value is "TLR".
+\item{Method}{String                The method used to compute the connectivity matrix. Default value is "TLR".
 Method to choose among the available methods:
 - TLR: a simple Multiple Linear Regression method which minimizes the Least Square Error (default value),
-- LASSO: a shrinkage estimator,
-- RIDGE: a shrinkage estimator,
-- Elastic Net: a shrinkage estimator,
+- LASSO: a shrinkage estimator (library glmnet),
+- RIDGE: a shrinkage estimator (library glmnet),
+- Elastic Net: a shrinkage estimator (library glmnet),
 - STEP: a variable selection scheme,
-- ARACNE: a method based on Mutual Information,
-- CLR: another method based on Mutual Information,
-- RMNET: another method based on Mutual Information,
-- Random Forest: a method used in Machine Learning.}
+- ARACNE: a method based on Mutual Information (ref : "Package 'minet', 'Mutual Information NETworks', version 3.59.0, date 2014-07,
+by Patrick E. Meyer, Frederic Lafitte, Gianluca Bontempi)
+- CLR: another method based on Mutual Information (ref : "Package 'minet' : see above),
+- MRNET: another method based on Mutual Information (ref : "Package 'minet' : see above),
+- Random Forest: a method used in Machine Learning (ref : "Package 'randomForest', 'Breiman and Cutler's Random Forests for Classification
+and Regression', version 4.7-1.1, date 2022-01-24, by Leo Breiman, Adele Cutler, Andy Liaw, Matthew Wiener)
+- Order2 : this method uses a polynomial (order 2) regression approach to compute the rij. "H6" myst be TRUE to use this method.
+The number of perturbations must be sufficient to use this method, ie nbP >= nbN^2.(nbN-1).}
+
+\item{Hyp_Lbda}{Number (>= 0)        Hyper parameter needed by the LASSO method. Default value is NULL.
+If NULL, the LASSO method computes the best value for this parameter, according an algorithm of glmnet.}
+
+\item{Hyp_Mu}{Number (0 <= Hyp_Mu <= 1) Hyper parameter μ of the method ElasticNet -- Hyp_Mu = 0 : RIDGE, Hyp_Mu = 1 : LASSO (default value), else (between 0 and 1) : Elastic Net.}
+
+\item{Hyp_Step}{String                Mandatory if Method = "STEP" (default = "Fo")
+- "Fo"        : "STEP Forward"
+- "Ba"        : "STEP Backward"
+- "Bo"        : "STEP Both"}
+
+\item{Hyp_Eps}{Number (>= 0)        Hyper parameter needed by the ARACNE method. Default value is 0.
+Numeric value indicating the threshold used when removing an edge : for each triplet of nodes (i,j,k),
+the weakest edge, say (ij), is removed if its weight is below min{(ik),(jk)}- Hyp_Eps}
+
+\item{Hyp_Cvx}{Number (>= 0)        Hyper parameter used by the KnlgMap. Default value is 0.
+KnlgMap[i,j] =  "1" means r[i,j] >=  Hyp_Cvx
+KnlgMap[i,j] = "-1" means r[i,j] <= -Hyp_Cvx}
 
 \item{MapExper}{Matrix of numbers    The "Experience Map" matrix : nbM rows (number of parameters), nbPc columns (number of conducted perturbations). Default value is NULL.
-In the document "MaRédaction.docx", a strong asumption is made, called "H6" :
+In the document "Projet de mémoire de thèse - 1° partie", a strong asumption is made, called "H6" :
 -  nbM = nbN  (the number of parameters equals the number of nodes),
 -  Every perturbation acts exactly upon one different node (ie.  ∂φ_i/∂p_j ≠ 0 if and only if i = j),
 -  A set of such perturbations acting upon every node is available.
-If "H6" is true, MapExper must be NULL. If not, MapExper must be filled, and the perturbations "proportional" to a reference pertubation,
-ie the coordinates of the perturbations be 0 or proportional to those of the reference.
-If NOT NULL, this matrix contains the coordinates of the perturbations on the base of the parameters regarding to those of a perturbation
-chosen as a reference. For instance, if "P0" is the reference, with coordinates (x0_1, x0_2, ... x0_M), the coordinates of perturbation "P1"
-must be 0 or proportional to those of P0 (ie : x1_j = 0 or x1_j = k1*x0_j). Idem for "P2".
-The column of MapExper corresponding to    "P0" must contain (1, 1, .. 1), the column corresponding to "P1" must contain (k1, 0, k1, .., k1)
-and the column corresponding to "P2" (k2, k2, .., k2). We have assumed that x1_2 = 0 and that the other coordinates are not null.}
+If "H6" is true, MapExper must be NULL. If "H6" is false, MapExper must be filled, and the perturbations
+"proportional" to a reference pertubation,
+ie the coordinates of the perturbations (vs. parameters) be 0 or proportional to those of the reference.
+If NOT NULL, this matrix contains the coordinates of the perturbations on the base of the parameters regarding those of a perturbation
+chosen as a reference. For instance, if "Q0" is the reference, with coordinates (x0_1, x0_2, ... x0_M), the coordinates of perturbation "Q1"
+must be 0 or proportional to those of Q0 (ie : x1_j = 0 or x1_j = k1*x0_j). Idem for "Q2" etc.
+The column of MapExper corresponding to    "Q0" must contain (1, 1, .. 1), the column corresponding to "Q1" must contain (k1, 0, k1, .., k1) if
+we assume that x1_2 equals 0 and the other coordinates are not null etc...}
+
+\item{ParNode}{Matrix of numbers    The "Parameters /Nodes relation" matrix : nbN rows (number of nodes) and nbM columns (number of parameters). Default value is Identity matrix.
+If NOT NULL, the only values allowed are 0 and 1.
+- ParNode[i,j] =  0 means  (∂φ_i)/(∂p_j ) = 0
+- ParNode[i,j] =  1 means  (∂φ_i)/(∂p_j ) ≠ 0}
+
+\item{Relative}{Logical                "Relative or absolute" values for the Global Response Matrix ("R"). Default value is TRUE.
+If TRUE (default value), Ri,j = 2*(Xi(P+∆Pj)-Xi(P)) / (Xi(P+∆Pj)+Xi(P)).
+If FALSE, Ri,j = Xi(P+∆Pj)-Xi(P). See the document ""Projet de mémoire de thèse - 1° partie".}
 
 \item{Verbose}{Logical                Default    value : FALSE.
 If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
-							Returns NULL in case of error or warning.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List				A list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :
 }\if{html}{\out{</div>}}
+
+r			Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
+Returns NULL in case of error or warning.
+Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)\emph{(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
+The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :
+- the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i
+- the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5}si,j,j * (DeltaXi,j)^2 with j != i
+- the last (nbN-2)\emph{(nbN-1)/2 coefficients correspond to the "product part" (ie. si,j,k) :
+si,j,k * (DeltaXi,j)\emph{DeltaXi,k) with j : 1 .. (nbN-1), j != i and k : (j+1) .. nbN, k!= i.
+For example, if nbN=4 and i=1, this part is : s1,2,3}D1,2}D1,3, s1,2,4\emph{D1,2}D1,4, s1,3,4\emph{D1,3}D1,4 (since s1,2,3 = s1,3,3 etc..).
+where we note Di,j the term DeltaXi,j.
+If nbN=4 and i=2, this part is : s2,1,3\emph{D2,1}D2,3, s2,1,4\emph{D2,1}D2,4, s2,3,4\emph{D2,3}D2,4 (idem, s2,1,3 = s2,3,1 etc...).
+ANOVA		Matrix of numbers	Returns the "ANOVA values", as described in "Statistical Design and Analysis of Experiments" (R.L. Mason et al, 2003), for the
+various methods, except "ARACNE", "CLR", "MRNET".
+- A matrix
+This matrix has 5 rows ("SSR", "SSE", "LOF", "Pure", "TSS")
+and 11 columns ("df/m", "df/M", "Sum/m", "Sum/M", "Mean/m", "Mean/M", "F/m", "F/M," "pVal/m", "pVal/M", "nbrNdes")
+where : SSR (or SCE) represents the variance explained by the regression, SSE (or SCR) is the estimation error,
+LOF ("Lack Of Fit") is the error due to maladjustement of the model (linear, polynomial...), Pure is due to measurement noise,
+TSS (or SCT) is the total variation of error, and
+df stands for degrees of freedom, /m and /M : minimum and maximum value for the different nodes, Sum is the sum designed by the row,
+Mean equals Sum/df, F is a Fisher variable used to compute the p Value of the result (see "Projet de mémoire de thèse - 1° partie", § 4.4.3).
+nbrNdes is the number of nodes whose p Value exceeds a threshold (0.25 for F-SSR and 0.05 for F-LOF).
+- Two sentences explaining the results F-SSR and 0.05 for F-LOF.
+Input		List				A list composed of two lists : "Variables" and "InputPar", for internal use and to communicate with the other modules of the package MRARegress.
+"Variables" is a list of important variables used by the program (nbN, nbM, H6, nbBase, nbPc, nbP, PerturbN, PerturbR1, PerturbR2, MatD,
+MatInc, FirstTrial, Keys).
+"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
 }
 \description{
 : this function checks the input data and computes the connectivity matrix, according to the document "MaRédaction.docx".
+It has been tested with networks from 3 to 1000 nodes and 3 to 2000 perturbations.
+
+Warnings may be generated during the CVXR library import.
 
 The function MRARegress computes the connectivity matrix, according to the document "MaRédaction.docx".
 The input data are described above.
 }
 \details{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{						nbN : number of nodes,
-								nbP : number of perturbations, ie nbBase*nbPc (see "MaRedaction.docx" for the conditions relative to the perturbations),
+								nbP : number of perturbations, ie nbBase*nbPc, calles éQ" in the document "Projet de mémoire de thèse - 1° partie"
 								nbM : number of parameters.
 								If MapExper is NULL, it is mandatory that nbP >= nbN
 								If MapExper is NOT NULL and perturbations are proportional, it is mandatory that nbP >= nbN - 1 + nbM.
+								The rank of the system must be equal to the number of the unknowns (nbN or nbN-1+nbM) : the nbP perturbations must be "independant". 
+								See "Projet de mémoire de thèse - 1° partie".
+								This document provides many examples to explain these parameters.
 
 								Imported libraries :
-								- stringr		processing of strings
+								- stringr		processing of strings, str_replace_all
 								- stats			lm, as.formula
+								- glmnet		cv.glmnet
+								- dplyr			rename
+								- BiocManager	may be necessary to import minet
+								- minet			aracne, clr, mrnet, build.mim
+								- randomForest	randomForest, importance
 }\if{html}{\out{</div>}}
 }

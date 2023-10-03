@@ -10,7 +10,7 @@ date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 abstract: > 
  <p> MRARegress is used to infer connectivity in biological networks, able of achieving a steady state after being perturbed.
    The inference is obtained by using methods based on Multilinear Regression applied to Modular Response Analysis (MRA) principles (Kholodenko, PNAS, 2002).
-   These methods are described by (Borg et al, 2022).  
+   These methods are described by (Borg et al, 2023).  
    Perturbations are applied to the nodes of a network and the corresponding measurements are done when the steady state is reached. 
    If the nodes are gene transcripts, for instance, these measurements may represent their abundance. 
    
@@ -60,22 +60,22 @@ The package must know the number of nodes and their names (optionally), and for 
 The number of perturbations may not be the same for every node.
 
 Genes, transcripts, proteins, or molecules must be represented as rows of the "Expression Matrix" (MatExp) and the perturbations as columns:\
-- MatExp[i,0] represents the value of the measurement of node i, when no perturbation is applied to the network ("control value of node i"),\
-- MatExp[i,j], j > 0, represents the value of the measurement of node i, when a perturbation is applied to node j.
+- MatExp[i,1] represents the value of the measurement of node i, when no perturbation is applied to the network ("control value of node i"),\
+- MatExp[i,j], j > 1, represents the value of the measurement of node i, when a perturbation is applied to node j-1.
 
 HUGO gene symbols (even for proteins) must be used to ensure matching LR*db*, Reactome, and GOBP contents.
 
 From these values, the package computes the "Connectivity Matrix" (r),
 where r[i,j] represents the action of node j on node i (r[i,j] > 0 means amplification, r[i,j] < 0 means inhibition and r[i,j] = 0 means that
 node j does not influence node i).\
-More information is required: see the Reference Manual ("?MRARegress").
+More information is required: see the Reference Manual ("MRARegress").
 
 ## How does it work? 
 
 The figure below shows a 3-nodes network:\
 - Figure (A) represents the non-perturbed network ("Control"),\
 - Figure (B) represents the network when a perturbation ($p_1$) affecting only node 1 is applied,\
-- then a perturbation ($p_2$) affecting only node 2 (fig. C) and a perturbation ($p_3$) affecting only node 3 (fig. D) are applied. See (Borg et al, 2022) for details.
+- then a perturbation ($p_2$) affecting only node 2 (fig. C) and a perturbation ($p_3$) affecting only node 3 (fig. D) are applied. See (Borg et al, 2023) for details.
 
 \
 ![workflow](../man/figures/3Nodes_network.png)
@@ -151,16 +151,16 @@ matrices, you might want to use `set.seed()`. In a parallel mode,
 
 ## How to use the "package"?
 
-1/ After having got the "Expression Matrix", the User must call the MRARegress::MRARegress function, which returns the "Connectivity Matrix" (r).\
-2/ Then the User may call a "visualization function", using "r" as a parameter. This function may be :\
+1/ After having made the measurements and got the "Expression Matrix", the User must call the MRARegress::MRARegress function, which returns the "Connectivity Matrix" ($r) and other results.\
+2/ Then the User may call a "visualization function", using the previous results as a parameter. This function may be :\
 -  MRARegress::rCI, which computes the confidence intervals of the r[i,j],\
 -  MRARegress::DrawHeat, which represents "r" as a "matrix heat chart",\
 -  MRARegress::DrawGraph, which displays "r" as a graph where the nodes are the genes (for instance) and an edge A $\rightarrow$ B reflects the action of node A on node B (amplification),\
 	a dashed line (with a "T" arrow  between A and B) reflects an inhibition of node B by node A.\
 -  MRARegress::DrawGraphML, which records an XML file, describing "r" as a graph in GraphML format,\
--  MRARegress::Classify, which classifies the connectivity coefficients,\
+-  MRARegress::Classify, which discretizes the connectivity coefficients, according to a classification rule,\
 -  MRARegress::Score, which computes the performance of the method versus a "reference" got by other ways,\
--  MRARegress::DrawScore, which displays the performance as a graph showing "True Positive", "False Positive", and "False Negative" edges.\
+-  MRARegress::DrawDiscr, which displays the performance as a graph showing "True Positive", "False Positive", and "False Negative" edges.\
 -  MRARegress::RocPR, which displays the ROC curve, the PR curve, the areas under these curves (AuROC and AuPR), the p-value of these areas.\
 The availability of these functions will depend on the input data supplied to the package.\
 \
@@ -174,15 +174,15 @@ This is the code used to generate the connectivity matrix and the map of the 6-n
 Here, we load the data
 
 ```{r eval=FALSE}
-data(MatExp)
+data(MatExp1)
 ```  
 and we call "MRARegress" to get the Connectivity Matrix (saved as "MatrCc"), then we call "DrawGraph" to draw the network. The drawing quality is manually improved (moving nodes, bending edges).
 
 ```{r }
-MatrCc	<- MRARegress (MatExp)					# Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
+MatrCc	<- MRARegress (MatExp1)					# Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
 if (! is.null(MatrCc)) {
-	r 	<- round(MatrCc, 3)
-	DrawGraph (MatrCc)
+	r 	<- round(MatrCc$r, 3)					# MRARegress returns other values. See documentation for details.
+	DrawGraph (r)
 }
 ```
 
@@ -198,19 +198,20 @@ We know the exact structure of the network in this case, so we can compute class
 Here, we load the data for this example
 
 ```{r eval=FALSE}
-data(MapExper2)
 data(MatExp2)
+data(Perturb2)
 data(Solution)
 ```  
-and we call again "MRARegress" to get the Connectivity Matrix (saved as "MatrCc"), then we call "Classify" to detect the edges and "DrawScore" to draw 
+and we call again "MRARegress" to get the Connectivity Matrix (saved as "MatrCc$r"), then we call "Classify" to detect the edges and "DrawDiscr" to draw 
 the discovered network, the missing and the wrong edges. The drawing quality is also manually improved.
 
 ```{r }
 DrawGraph (Solution)									# Draws the first image
-MatrCc	<- MRARegress (MatExp2)							# Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
+MatrCc	<- MRARegress (MatExp2, Perturb2)				# NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
+														# MatExp2 has 10 rows and 21 columns. Perturb is mandatory.
 if (! is.null(MatrCc)) {
-	MatrCcDig	<- Classify(MatrCc)						# Classes = c(0,1), Method = "TLR", Lbda = NULL (default values)
-	DrawScore (MatrCcDig, Solution)						# Draws the second image
+	MatrCcDiscr	<- Classify(MatrCc)						# Classes = c(0,1), Method = "TLR", Lbda = NULL (default values)
+	DrawDiscr (MatrCcDiscr, Solution)					# Draws the second image
 }
 ```
 

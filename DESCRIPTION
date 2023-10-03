@@ -11,7 +11,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports:
     stringr,
-    stats
+    stats,
+    glmnet,
+    dplyr,
+    BiocManager,
+    minet,
+    randomForest,
+    CVXR,
+    magrittr,
+    rootSolve
 Suggests: 
     knitr,
     rmarkdown,
@@ -19,5 +27,6 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1.0)
 LazyData: true
+LazyDataCompression:xz

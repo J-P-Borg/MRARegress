@@ -14,7 +14,7 @@ Score(rDig, Ref, Classes)
 \item{Classes}{Vector                    A vector showing the classes (for instance: c(0,1))}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{	List	A list containing the "Confusion Matrix" and classical coefficients, such as NRi, NDi, precision, sensitivity, specificity, F1 score.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{	List	A list containing the "Confusion Matrix" and classical coefficients, such as NRi, NDi, precision, sensitivity, specificity, F1 score (TP/(TP+0.5*(FN+FP))).
 }\if{html}{\out{</div>}}
 }
 \description{
