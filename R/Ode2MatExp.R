@@ -46,7 +46,7 @@ MExp	<- function (nbN, Perturbs, P0, func, st) {
 	
 	for (iPert in 1:nbP) {
 		for (iNode in 1:nbN) {
-			val	<- paste("P", iNode, letters[iPert], "->N", iNode, sep="")		# valid up to 26 perturbs. otherwise, use "sequence_letters" in MRARegress
+			val	<- paste("Q", iNode, letters[iPert], "->N", iNode, sep="")		# valid up to 26 perturbs. otherwise, use "sequence_letters" in MRARegress
 			Nom[ind]	<- val
 			ind	<- ind+1
 		}
