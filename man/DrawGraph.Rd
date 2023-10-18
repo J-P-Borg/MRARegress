@@ -2,19 +2,44 @@
 % Please edit documentation in R/DrawGraph.R
 \name{DrawGraph}
 \alias{DrawGraph}
-\title{"DrawGraph" :   displays "r" as a graph}
+\title{"DrawGraph" :   Displays "r" as a graph}
 \usage{
-DrawGraph(r)
+DrawGraph(Ret, Title = NULL, Thr = 0.1)
 }
 \arguments{
-\item{r}{Matrix of numbers        The connectivity matrix (delivered by "MRARegress")}
+\item{Ret}{List or Matrix        list of informations delivered by "MRARegress" or square matrix of numbers.
+If 'Ret' is a list of informations delivered by "MRARegress", DrawGraph uses 'Ret$r' (connectivity matrix)
+and 'Ret$InputPar$NodeName' (name of the nodes).
+If 'Ret' is a square matrix, it corresponds to a connectivity matrix, and the names of the nodes are the names of the columns if defined,
+or a sequence of numbers if not.}
+
+\item{Title}{String                Title of the graph. Default value is NULL.}
+
+\item{Thr}{Number (>= 0)        A threshold to determine edge existence. Default value is 0.1.
+An edge is drawn between nodes 'i' and 'j' iff connectivity coefficient is >= Thr (ie \|MatrCc[i,j]\| >= Thr)}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{No return
-Displays the graph associated with the connectivity matrix.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List					NULL in case of error or a list of informations ("theGraph", "Variables"). For internal use only.
 }\if{html}{\out{</div>}}
+
+theGraph	List of dataframes 		nodes (list of nodes), edges (list of edges : source, target, interaction, value).
+Variables	List					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
 }
 \description{
-: this function represents the Connectivity Matrix "r" as a graph where the nodes are the genes (for instance) \
-and an edge A $\\rightarrow$ B reflects the action of node A on node B (amplification), while a dashed line (with a "T" arrow  betwwen A and B) reflects an inhibition of node B by node A.
+: this function represents the Connectivity Matrix "r" as a graph where the nodes are the genes (for instance)
+and an edge A $\\rightarrow$ B reflects the action of node A on node B (amplification), while a dashed line (with a "T" arrow  betwwen A and B) reflects an inhibition
+of node B by node A.
+The graph is a "valued oriented graph", and values, next to edges, mean the "strength" of this action.
+
+Displays the graph associated with the connectivity matrix.
+The input data are described above and the outputs below.
+}
+\details{
+\if{html}{\out{<div class="sourceCode">}}\preformatted{							Imported libraries :
+							- BiocManager (version 1.30.22). To install this version, R version >= 4.3 is mandatory
+							- RCy3							Communication with Cytoscape
+							- utils	compareVersion			To check Cytoscape version
+
+							Cytoscape (version >= 3.6.1) must be installed and running.
+}\if{html}{\out{</div>}}
 }

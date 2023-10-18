@@ -2,18 +2,44 @@
 % Please edit documentation in R/DrawGraphML.R
 \name{DrawGraphML}
 \alias{DrawGraphML}
-\title{"DrawGraphML" :   records an XML file, describing "r" as a graph in GraphML format}
+\title{"DrawGraphML" :  Creates a XML file, describing "r" as a graph in GraphML format}
 \usage{
-DrawGraphML(r)
+DrawGraphML(Ret, File, Thr = 0.1)
 }
 \arguments{
-\item{r}{Matrix of numbers        The connectivity matrix (delivered by "MRARegress")}
+\item{Ret}{List or Matrix        list of informations delivered by "MRARegress" or square matrix of numbers.
+If 'Ret' is a list of informations delivered by "MRARegress", DrawGraphML uses 'Ret$r' (connectivity matrix) and
+'Ret$InputPar$NodeName' (name of the nodes).
+If 'Ret' is a square matrix, it corresponds to a connectivity matrix, and the names of the nodes are the names of the columns if defined,
+or a sequence of numbers if not.}
+
+\item{File}{String                Name of the file to write. DrawGraphML adds the extension ".graphml" if necessary.
+If the file exists, an error is displayed and DrawGrahML stops.}
+
+\item{Thr}{Number (>= 0)        A threshold to determine edge existence. Default value is 0.1.
+An edge is drawn between nodes 'i' and 'j' iff connectivity coefficient is >= Thr (ie \|MatrCc[i,j]\| >= Thr)}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{File	An XML file, describing "r" as a graph in GraphML format.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List					NULL in case of error or a list of informations ("XML", "theGraph", "Variables").
 }\if{html}{\out{</div>}}
+
+XML			String					The name of the xml file created.
+theGraph	List of dataframes 		nodes (list of nodes), edges (list of edges : source, target, interaction, value).
+Variables	List					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
 }
 \description{
-:  records an XML file, describing "r" as a graph in GraphML format.
-This file may be used directly by drawing software, like Cytoscape or iGraph.
+:  this function creates a XML file, describing "r" as a graph in GraphML format.
+The nodes are the genes (for instance) and an edge A $\\rightarrow$ B reflects the action of node A on node B (amplification),
+while a dashed line (with a "T" arrow  betwwen A and B) reflects an inhibition of node B by node A.
+The graph is a "valued oriented graph", and values, associated to edges, mean the "strength" of this action.
+This file may be used directly by visualization tools, like Cytoscape, iGraph, Google Charts, Tableau, Grafana, Chartist.js, FusionCharts, Datawrapper,
+Infogram, ChartBlocks, and D3.js. These tools offer a variety of visualization styles, are easy to use, and can handle large data sets.
+
+Creates a XML file, describing "r" as a graph in GraphML format.
+The input data are described above and the outputs below.
+}
+\details{
+\if{html}{\out{<div class="sourceCode">}}\preformatted{							Imported libraries :
+							- stringr				To use str_detect()
+}\if{html}{\out{</div>}}
 }

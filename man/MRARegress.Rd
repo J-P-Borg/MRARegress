@@ -128,7 +128,7 @@ If FALSE, Ri,j = Xi(P+∆Pj)-Xi(P). See the document ""Projet de mémoire de th�
 If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{List				A list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List				NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :
 }\if{html}{\out{</div>}}
 
 r			Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
@@ -166,7 +166,7 @@ It has been tested with networks from 3 to 1000 nodes and 3 to 2000 perturbation
 Warnings may be generated during the CVXR library import.
 
 The function MRARegress computes the connectivity matrix, according to the document "MaRédaction.docx".
-The input data are described above.
+The input data are described above and the outputs below.
 }
 \details{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{						nbN : number of nodes,
@@ -186,5 +186,8 @@ The input data are described above.
 								- BiocManager	may be necessary to import minet
 								- minet			aracne, clr, mrnet, build.mim
 								- randomForest	randomForest, importance
+								- CVXR			convex optimization
+								- magrittr		pipes
+								- rootSolve		solve for the roots of n nonlinear equations (Order2)
 }\if{html}{\out{</div>}}
 }

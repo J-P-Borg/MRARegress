@@ -12,7 +12,7 @@ usethis::use_data(NodeNames)					# Generates the file "NodeNames.rda" in ..\Data
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatExp1.rda")
 usethis::use_data(MatExp1)
 
-load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Solution.rda")
+load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Solution_10_1.rda")
 usethis::use_data(Solution)
 
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatExp2.rda")

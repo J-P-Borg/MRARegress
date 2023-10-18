@@ -113,6 +113,9 @@
 #'										- BiocManager	may be necessary to import minet
 #'										- minet			aracne, clr, mrnet, build.mim
 #'										- randomForest	randomForest, importance
+#'										- CVXR			convex optimization
+#'										- magrittr		pipes
+#'										- rootSolve		solve for the roots of n nonlinear equations (Order2)
 #'
 
 #'@import stringr
@@ -133,9 +136,9 @@
 #'@name			MRARegress
 #'
 #'@description	The function MRARegress computes the connectivity matrix, according to the document "MaRédaction.docx".
-#'				The input data are described above.
+#'				The input data are described above and the outputs below.
 #'
-#'@return		List				A list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :
+#'@return		List				NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :
 #'	r			Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
 #'									Returns NULL in case of error or warning.
 #'	Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)*(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
@@ -183,7 +186,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		err	<-  CheckInputData (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda, Hyp_Mu, Hyp_Step, Hyp_Eps, Hyp_Cvx, MapExper, ParNode, Relative, Verbose)
 		if (! is.null(err)) {
 			message (err)
-			return (toReturn)			
+			return (NULL)
 		}
 
 		# Variables declaration
@@ -231,7 +234,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 			if (is.null(ParNode)) {
 				if (nbN != nbM) {
 					message ("If ParNode is NULL, the number of nodes and parameters must be equal !")
-					return (toReturn)
+					return (NULL)
 				}		
 				ParNode	 <- matrix(0, nrow=nbN, ncol=nbM)					# To describe the links between parameters and nodes
 				diag(ParNode)	<- 1
@@ -270,7 +273,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		if (is.null(Perturb)) {
 			if (H6 && (nbN != nbPc)) {
 				message ("if Perturb is NULL and H6 TRUE, the number of nodes must be equal to the number of perturbations !")
-				return (toReturn)
+				return (NULL)
 			}			
 			PerturbN[ ,1]	<- as.character(seq(1, nbPc, by=1))
 			PerturbN[ ,1]	<- paste("Q", PerturbN[ ,1], sep="")			# Name of the pertubation
@@ -294,13 +297,13 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 				if (H6) {
 					if (is.na(unPert[[1]][2])) {
 						message ("Syntax Error")
-						return (toReturn)
+						return (NULL)
 					}
 					idx		<- which(NodeName == unPert[[1]][2])			# Index of the node the perturbation acts upon
 	
 					if (length(idx) != 1) {
 						message ("Unknown node !")
-						return (toReturn)
+						return (NULL)
 					} else {
 						idx	<- as.integer(idx)
 						PerturbN[iPc,2]	<- idx
@@ -318,7 +321,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 				iOld	<- match(PertName, PerturbN[1:(iPc-1), 1])			# Perturbation found
 				if (H6 && idx != PerturbN[iOld, 2]) {
 					message ("A perturbation acts upon many nodes (forbidden if H6 TRUE) !")
-					return (toReturn)
+					return (NULL)
 				}
 				iOld	<- which(PerturbR1 == PertName)
 				PerturbR2[[iOld]]	<- c(PerturbR2[[iOld]], iPc)
@@ -340,14 +343,14 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		for (iPar in 1:nbM) {
 			if (sum(MapExper[iPar, ]) == 0) {
 				message ("A parameter or a node is not perturbed !")
-				return (toReturn)
+				return (NULL)
 			}
 		}
 
 		for (iNode in 1:nbN) {
 			if (sum(ParNode[iNode, ]) == 0) {
 				message ("A node is not perturbed !")
-				return (toReturn)
+				return (NULL)
 			}
 		}
 
@@ -415,7 +418,6 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		}
 
 		# Returning input values, used by other modules of the package
-		
 		Variables	<- list(nbN=nbN, nbM=nbM, H6=H6, nbBase=nbBase, nbPc=nbPc, nbP=nbP, PerturbN=PerturbN, PerturbR1=PerturbR1, PerturbR2=PerturbR2, 
 							MatD=MatD, MatInc=MatInc, FirstTrial=FirstTrial, Keys=Keys)
 		InputPar	<- list(MatExp=MatExp, Perturb=Perturb, NodeName=NodeName, KnlgMap=KnlgMap, Method=Method, 
@@ -506,7 +508,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					
 					if (qr(MatU0)$rank < nbN-1+nbInc) {
 						message ("The rank of the system is not sufficient !")
-						return (toReturn)
+						return (NULL)
 					}
 					FirstTrial	<- FALSE
 				}			
@@ -584,7 +586,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					if (qr(MatV0)$rank < (nbN-1)*(2+(nbN-2)/2)) {
 						message ("The rank of the system is not sufficient with this method !")
 						cat ("Rank : ", qr(MatV0)$rank, " Needs :", (nbN-1)*(2+(nbN-2)/2), "\n")
-						return (toReturn)
+						return (NULL)
 					}
 					
 					if (Verbose) {
@@ -772,13 +774,15 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		toReturn$Input	<- Input
 		
 		return (toReturn)
-	},		# warning	
+	},		# warning
+
 	error = function (e) {
 		message ("Error detected !")
 		print(e)
 	}		# error
   )			# tryCatch
-  return (toReturn)
+
+  return (NULL)
 }		# MRARegress
 
 

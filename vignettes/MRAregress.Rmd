@@ -179,10 +179,9 @@ data(MatExp1)
 and we call "MRARegress" to get the Connectivity Matrix (saved as "MatrCc"), then we call "DrawGraph" to draw the network. The drawing quality is manually improved (moving nodes, bending edges).
 
 ```{r }
-MatrCc	<- MRARegress (MatExp1)					# Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
-if (! is.null(MatrCc)) {
-	r 	<- round(MatrCc$r, 3)					# MRARegress returns other values. See documentation for details.
-	DrawGraph (r)
+Ret	<- MRARegress (MatExp1)					# Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
+if (! is.null(Ret)) {
+	Dg	<- DrawGraph (Ret)
 }
 ```
 
@@ -200,17 +199,17 @@ Here, we load the data for this example
 ```{r eval=FALSE}
 data(MatExp2)
 data(Perturb2)
-data(Solution)
+data(Solution_10_1)
 ```  
 and we call again "MRARegress" to get the Connectivity Matrix (saved as "MatrCc$r"), then we call "Classify" to detect the edges and "DrawDiscr" to draw 
 the discovered network, the missing and the wrong edges. The drawing quality is also manually improved.
 
 ```{r }
-DrawGraph (Solution)									# Draws the first image
-MatrCc	<- MRARegress (MatExp2, Perturb2)				# NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
+Dg	<- DrawGraph (Solution)								# Draws the first image
+Ret	<- MRARegress (MatExp2, Perturb2)					# NodeName = NULL, KnlgMap = NULL, Method = "TLR", MapExper = NULL, Verbose = FALSE (default values)
 														# MatExp2 has 10 rows and 21 columns. Perturb is mandatory.
-if (! is.null(MatrCc)) {
-	MatrCcDiscr	<- Classify(MatrCc)						# Classes = c(0,1), Method = "TLR", Lbda = NULL (default values)
+if (! is.null(Ret)) {
+	MatrCcDiscr	<- Classify(Ret)						# Classes = c(0,1), Method = "TLR", Lbda = NULL (default values)
 	DrawDiscr (MatrCcDiscr, Solution)					# Draws the second image
 }
 ```
