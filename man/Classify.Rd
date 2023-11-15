@@ -2,36 +2,97 @@
 % Please edit documentation in R/Classify.R
 \name{Classify}
 \alias{Classify}
-\title{"Classify" :  Discretizes and classifies the connectivity coefficients}
+\title{"Classify" :  Classifies the connectivity coefficients}
 \usage{
-Classify(r, Classes, Method = "TLR", Lbda = NULL)
+Classify(
+  Ret,
+  Classes = c(0, 1),
+  MethDiscr = NULL,
+  Lbda = NULL,
+  Verbose = FALSE
+)
 }
 \arguments{
-\item{r}{Matrix of numbers        The connectivity matrix (delivered by "MRARegress")}
+\item{Ret}{List or Matrix            list of informations delivered by "MRARegress" or matrix of numbers.
+If 'Ret' is a list of informations delivered by "MRARegress", Classify uses 'Ret$r' (connectivity matrix).}
 
-\item{Classes}{Vector                    A vector showing the classes (for instance: c(0,1), default value)}
+\item{Classes}{Vector                A vector showing the classes to define (for instance, c(0,1) : default value, or c(-1, 0, 1)). Values must be increasing.}
 
-\item{Method}{String                    The method to use to compute the connectivity matrix. Method to choose among the available methods: \cr
-- TLR: a simple Multiple Linear Regression method which minimizes the Least Square Error (default value), \cr
-- LASSO: a shrinkage estimator, \cr
-- RIDGE: a shrinkage estimator, \cr
-- Elastic Net: a shrinkage estimator, \cr
-- STEP: a variable selection scheme, \cr
-- ARACNE: a method based on Mutual Information, \cr
-- CLR: another method based on Mutual Information, \cr
-- RMNET: another method based on Mutual Information, \cr
-- Random Forest: a method used in Machine Learning.}
+\item{MethDiscr}{String                The method to use to classify the matrix. Default is NULL.
+If Ret is a list of informations delivered by "MRARegress" AND MethDiscr is NULL AND there are two classes (Classes = c(0,1)),
+this method will depend on the method used to compute the connectivity matrix (Ret$Input$InputPar$Method), namely :
+- TLR:     rDig[i,j] = 1 if abs(Ret$r[i,j]) > Lbda * max(abs(Ret$r[i,j])) else rDig[i,j] = 0
+(rDig is the result of "Classify" and Lbda an hyper-parameter. See below)
+- LASSO:             rDig[i,j] = 1 if abs(Ret$r[i,j]) > Lbda  else rDig[i,j] = 0
+- RIDGE:             rDig[i,j] = 1 if abs(Ret$r[i,j]) > Lbda  else rDig[i,j] = 0
+- Elastic Net:        rDig[i,j] = 1 if abs(Ret$r[i,j]) > Lbda  else rDig[i,j] = 0
+- STEP:             rDig[i,j] = 1 if abs(Ret$r[i,j]) > Lbda  else rDig[i,j] = 0
+- ARACNE:            rDig[i,j] = 1 if abs(Ret$r[i,j]) is in the  Lbda \% top values  else rDig[i,j] = 0
+- CLR:                 rDig[i,j] = 1 if abs(Ret$r[i,j]) is in the  Lbda \% top values  else rDig[i,j] = 0
+- RMNET:             rDig[i,j] = 1 if abs(Ret$r[i,j]) is in the  Lbda \% top values  else rDig[i,j] = 0
+- Random Forest:     rDig[i,j] = 1 if abs(Ret$r[i,j]) is in the  Lbda \% top values  else rDig[i,j] = 0
+Else,
+MethDiscr must be defined among the following methods :
+- Threshold        rDig[i,j] will be put into a class, comparing Ret$r[i,j] (or Ret[i,j]) to a threshold (see "Details" below)
+- Top            rDig[i,j] will be put into a class, comparing Ret$r[i,j] (or Ret[i,j]) to a percentage of the assigned values (see "Details" below)}
 
-\item{Lbda}{Number                    An hyper-parameter specific to the method.\cr
-If "NULL" (default value), Lbda will get the default value specific to the method, if this value is defined.\cr
-For instance, if Method = "TLR" and Lbda = "NULL", the value 0.25 will be given to Lbda.}
+\item{Lbda}{Vector or Number    An hyper-parameter specific to the method. It's a number if there are two classes and a vector if there are more. Default is NULL.
+If Ret is a list of informations delivered by "MRARegress" AND Lbda is NULL AND Classes = c(0,1),
+Lbda default value is specific to the method used to compute the connectivity matrix, namely :
+- TLR:                 Lbda = 0.25
+- LASSO:             Lbda = 0
+- RIDGE:             Lbda = 0
+- Elastic Net:        Lbda = 0
+- STEP:             Lbda = 0
+- ARACNE:            Lbda = 20
+- CLR:                 Lbda = 20
+- RMNET:             Lbda = 20
+- Random Forest:     Lbda = 20
+Else, Lbda must be defined.
+If there are more than two classes, Lbda[1] determines the first class, Lbda[2] determines the second class, and so on (see "Details" below).
+The length of the vector Lbda needs to equal the number of classes minus one.
+If MethDiscr = "Threshold", Lbda values must be in increasing order.
+If MethDiscr = "Top", Lbda values must be in decreasing order.}
+
+\item{Verbose}{Logical                Default    value : FALSE.
+If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{	Matrix of numbers		Returns the "Classified Connectivity Matrix" ("rDig") if no error occured. This matrix has Nb rows and Nb columns.
-									Returns NULL in case of error or warning.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List					NULL in case of error or a list of informations ("rDig", "Input").
 }\if{html}{\out{</div>}}
+
+rDig		Matrix of numbers		Returns the input matrix classified if no error occured, ie, each element of the input matrix is replaced by the class to which
+this item belongs. This matrix has the same number of rows and columns than the input matrix.
+Input		List					list of the input parameters values + "Method" and "ThresholdPar" (used to classify). NULL values are not replaced.
 }
 \description{
-: this function discretizes the connectivity coefficients, then classifies them according to a set of classes \cr
+: this function discretizes the connectivity coefficients, then classifies them according to a set of classes
 For instance \{-1, 0, 1\} or \{0, 1\}. The classification method may depend on the method used to compute the connectivity coefficients.
+
+Classifies the connectivity coefficients.
+The input data are described above and the outputs below.
+}
+\details{
+\if{html}{\out{<div class="sourceCode">}}\preformatted{						Examples : let  Res = MRARegress(MatExp)  (Method = "TLR" : default value)  and  Sqr be a matrix
+								- A = Classify(Res) means Classes = c(0,1), A$rDig\[i,j\] = 1 if abs(Res$r\[i,j\] > 0.25 * max(abs(Res$r\[i,j\])) else A$rDig\[i,j\] = 0
+								- A = Classify(Res, Lbda=0.5) means Classes = c(0,1), A$rDig\[i,j\] = 1 if abs(Res$r\[i,j\] > 0.5 * max(abs(Res$r\[i,j\])) else A$rDig\[i,j\] = 0
+								- A = Classify(Res, MethDiscr="Top", Lbda=10) means Classes = c(0,1), A$rDig\[i,j\] = 1 if Res$r\[i,j\] belongs to the top 10\% values, else 0
+								(note that, when MethDiscr is NOT NULL, like here, we test Res$r and not abs(Res$r))
+								- A = Classify(Res, Classes=c(-1,0,1), Lbda=10)  : incorrect. If there are more than two classes, MethDiscr and Lbda must be defined.
+								- A = Classify(Res, Classes=c(-1,0,1), MethDiscr="Threshold", Lbda=0.3)  : incorrect. The length of the vector Lbda needs to equal 2.
+								- A = Classify(Res, classes=c(-1,0,1), MethDiscr="Threshold", Lbda=c(-0.3,0.25)) means :
+								A$rDig\[i,j\] = -1 if Res$r\[i,j\] <= -0.3  * max(abs(Res$r\[i,j\]))
+								A$rDig\[i,j\] =  0 if Res$r\[i,j\] >  -0.3  * max(abs(Res$r\[i,j\])) AND Res$r\[i,j\] <= 0.25 * max(abs(Res$r\[i,j\]))
+								A$rDig\[i,j\] =  1 if Res$r\[i,j\] >   0.25 * max(abs(Res$r\[i,j\]))
+								- B = Classify(Sqr)  : incorrect. If the parameter "Ret" is a matrix, MethDiscr and Lbda must be specified.
+								- B = Classify(Sqr, MethDiscr="Threshold", Lbda=0.3) means Classes = c(0,1), B$rDig\[i,j\] = 1 if Sqr\[i,j\] > 0.3 * max(abs(Sqr\[i,j\])) else 0
+								- B = Classify(Sqr, classes=c(-1,0,1), MethDiscr="Threshold", Lbda=c(-0.3,0.25)) means :
+								B$rDig\[i,j\] = -1 if Sqr\[i,j\] <= -0.3  * max(abs(Sqr\[i,j\]))
+								B$rDig\[i,j\] =  0 if Sqr\[i,j\] >  -0.3  * max(abs(Sqr\[i,j\])) AND Sqr\[i,j\] <= 0.25 * max(abs(Sqr\[i,j\]))
+								B$rDig\[i,j\] =  1 if Sqr\[i,j\] >   0.25 * max(abs(Sqr\[i,j\]))
+								- B = Classify(Sqr, classes=c(-1,0,1), MethDiscr="Top", Lbda=c(50,10)) means :
+								B$rDig\[i,j\] =  1 if Sqr\[i,j\] belongs to the top 10\%
+								B$rDig\[i,j\] =  0 if Sqr\[i,j\] belongs to the interval \[top 10\%, top 50\%\[
+								otherwise, B$rDig\[i,j\] = -1 
+}\if{html}{\out{</div>}}
 }

@@ -140,7 +140,6 @@
 #'
 #'@return		List				NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :
 #'	r			Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
-#'									Returns NULL in case of error or warning.
 #'	Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)*(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
 #'									The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :				
 #'									 - the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i
@@ -249,6 +248,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		# Results
 		MatrCc		<- array(dim=c(nbN,nbN))								# Computed Connectivity Matrix (toReturn "r")
 		FirstTrial	<- TRUE													# If TRUE, results have been got without use of (∂φi)/(∂pj)
+		MatrCcCol	<- vector(length=nbN)									# Columns' names of the connectivity matrix (MatrCc)
 		
 		rL 			<- vector(length=nbN)									# Result of Lasso method (ie sol. of Yi = Ai * Ui)		
 		MatV		<- matrix(0, nrow=nbP, ncol=(nbN-1)*(2+(nbN-2)/2))		# Used by the method "Order2" : Y as a function of V			
@@ -376,6 +376,25 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 			print(ParNode)
 		}
 
+		# Columns' names of the connectivity matrix (MatrCc)
+		# Association between a node and the pertubation(s) acting on it
+		
+		for (iNode in 1:nbN) {
+			cc	<- ""
+			for (j in 1:nbPc) {
+				if (PerturbN[j,2] == iNode) {
+					cc	<- paste(cc, PerturbN[j,1], "; ", sep="")
+				}
+			}
+			cc	<- str_sub(cc, start=1, end=str_length(cc)-2)	# removes the final '; ' 
+			MatrCcCol[iNode]	<- cc
+			
+			if (Verbose) {
+				cat("MatrCcCol \n")
+				print(MatrCcCol)
+			}
+		}	
+		
 		# Construction of the "Matrix Delta" (MatD)
 		for (iBase in 1:nbBase) {
 			for (iPc in 1:nbPc) {
@@ -685,6 +704,10 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 			}		# for iNode
 		}			# else ARACNE ...
 
+		# Rows and columns name
+		rownames(MatrCc)	<- NodeName
+		colnames(MatrCc)	<- MatrCcCol
+		
 		# Results of ANOVA
 		Anova["SSR", "df/m"]	<-	min(Anovas["SSR", "df", ])
 		Anova["SSR", "df/M"]	<-	max(Anovas["SSR", "df", ])

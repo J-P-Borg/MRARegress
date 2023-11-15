@@ -132,7 +132,6 @@ If TRUE, additional printings are made. These printings are for internal use onl
 }\if{html}{\out{</div>}}
 
 r			Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
-Returns NULL in case of error or warning.
 Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)\emph{(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
 The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :
 - the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i

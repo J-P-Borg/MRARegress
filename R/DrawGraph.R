@@ -69,10 +69,10 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 		# Variables declaration
 		if (is.matrix(Ret)) {
 			nbN			<- dim(Ret)[1]									# Number of nodes (nb. of rows)
-			if (is.null (colnames(Ret))) {
+			if (is.null (rownames(Ret))) {
 				nodesName	<- as.character(seq(1:nbN))					# Name of the nodes
 			} else {
-				nodesName	<- colnames(Ret)							# Name of the nodes
+				nodesName	<- rownames(Ret)							# Name of the nodes
 			}
 			MatrCc		<- Ret											# Connectivity matrix
 		} else {
@@ -169,6 +169,10 @@ CheckInputDataDG	<- function (Ret, Title, Thr) {
   tryCatch (
 	expr = {
 		# Test input data : Ret or Matr
+		if (is.vector(Ret, mode="numeric")) {
+			return ("Ret must not be a vector !")
+		}
+		
 		if (is.matrix(Ret)) {
 			if (dim(Ret)[1] != dim(Ret)[2])
 				return ("If 'Ret' is a matrix, it must be a square matrix !")			

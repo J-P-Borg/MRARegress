@@ -138,8 +138,10 @@ test_that ("Input Data - Test 12", {
 MatExp		<- matrix(c(1,2,3, 11,21,31, 12,22,32, 13,23,33, 14,24,34, 15,25,35, 16,26,36), nrow=3)
 Perturb		<- c("Base", "A->N1", "A->N1", "A->N1", "B->N2", "C->N3", "C->N3")
 MatrCc		<- matrix(c(-1,0.5,-1, 2,-1,2, -1,0.5,-1), nrow=3)
+Res			<- MRARegress(MatExp, Perturb, Relative=FALSE)$r
+dimnames(Res)		<- NULL
 test_that ("Input Data - Test 13", {
-	expect_equal (MRARegress(MatExp, Perturb, Relative=FALSE)$r, MatrCc,  tolerance=1E-9)
+	expect_equal (Res, MatrCc,  tolerance=1E-9)
 })
 
 MatExp		<- matrix(c(1,2,3, 11,21,31, 12,22,32, 13,23,33, 14,24,34, 15,25,35, 16,26,36), nrow=3)
@@ -289,9 +291,11 @@ MatD0		<- matrix(0, nrow=3, ncol=3)
 for (iNode in 1:3) {
 	MatD0[ ,iNode]	<- MatExp[ ,iNode+1] - MatExp[ ,1]
 }
+Res			<- MRARegress (MatExp, Relative=FALSE)$r
+dimnames(Res)	<- NULL						# MatrCc has no names
 
 test_that("Functional test - Test 7.2.1", {
-  expect_equal (MRARegress (MatExp, Relative=FALSE)$r %*% MatD0, MatrCc, tolerance=1E-9)
+  expect_equal (Res %*% MatD0, MatrCc, tolerance=1E-9)
 })
 
 #	First example (Vignette) : 6 MAP Kinase network
@@ -305,9 +309,11 @@ Row5		<- c(-3.411608e-05, -1.859338e-05, -4.348831e-06, -5.244209e-01, -1.000000
 Row6		<- c(-1.591421e-05, -8.644637e-06, -1.991402e-06,  9.807480e-01, -1.381415e+00, -1.00000000)
 MatrCc1		<- rbind(Row1, Row2, Row3, Row4, Row5, Row6)
 dimnames(MatrCc1)	<- NULL						# The returned matrix by MRARegress has no names
+Res			<- MRARegress (MatExp1)$r
+dimnames(Res)		<- NULL
 
 test_that("Functional test - Example 1 (MAP Kinase)", {
-  expect_equal (MRARegress (MatExp1)$r, MatrCc1, tolerance=1E-4)
+  expect_equal (Res, MatrCc1, tolerance=1E-4)
 })
 
 
@@ -328,9 +334,11 @@ Row9		<- c(-0.20612300, -0.15611072, -0.11378455,  0.05751696, -0.12909957, -0.1
 Row10		<- c( 0.16569299,  0.17120122,  0.19413016, -0.02001577,  0.06362728,  0.149321003,  0.15511302,  0.28691314,  0.885958137, -1.00000000)
 MatrCc2		<- rbind(Row1, Row2, Row3, Row4, Row5, Row6, Row7, Row8, Row9, Row10)
 dimnames(MatrCc2)	<- NULL						# The returned matrix by MRARegress has no names
+Res			<- MRARegress (MatExp2, Perturb2)$r
+dimnames(Res)		<- NULL
 
 test_that("Functional test - Example 2 (DC4 InSilico-10-1)", {
-  expect_equal (MRARegress (MatExp2, Perturb2)$r, MatrCc2, tolerance=1E-4)
+  expect_equal (Res, MatrCc2, tolerance=1E-4)
 })
 
 
@@ -372,8 +380,10 @@ X25		<- 0.98*X2
 # First, we cheat with the program. We suppose H6 is true.
 MExt1		<- matrix(c(X1,X2, X11,X21, X12,X22), nrow=2)
 MatrCc1		<- matrix(c(-1,1, 0.12665,-1), nrow=2)
+Res			<- MRARegress (MExt1, Relative=FALSE)$r
+dimnames(Res)	<- NULL
 test_that("H6 is FALSE, we cheat", {
-	expect_equal (MRARegress (MExt1, Relative=FALSE)$r, MatrCc1, tolerance=1E-4)
+	expect_equal (Res, MatrCc1, tolerance=1E-4)
 })
 
 # Then, we suppose H6 is false.
@@ -383,8 +393,10 @@ MOper2		<- matrix(c(1,0, 2.010101,0, 0,3), nrow=2)
 Pert2		<- c("Base", "P1->N1", "P5->N2", "P4->N2")
 PNode2		<- matrix(1, nrow=2, ncol=2)
 MatrCc2		<- matrix(c(-1,1, 1,-1), nrow=2)
+Res			<- MRARegress (MExt2, Pert2, MapExper=MOper2, ParNode=PNode2, Relative=FALSE)$r
+dimnames(Res)	<- NULL
 test_that("Perturbations lead to the same equation, H6 False", {
-  expect_equal (MRARegress (MExt2, Pert2, MapExper=MOper2, ParNode=PNode2, Relative=FALSE)$r, MatrCc2, tolerance=1E-4)	
+  expect_equal (Res, MatrCc2, tolerance=1E-4)	
 })
 
 #	At last, we have three independant perturbations.
@@ -392,8 +404,10 @@ MExt3		<- matrix(c(X1,X2, X11,X21, X13,X23, X14,X24), nrow=2)
 MOper3		<- matrix(c(1,0, 0,2, 0,3), nrow=2)
 Pert3		<- c("Base", "P1->N1", "P3->N2", "P4->N2")
 MatrCc3		<- matrix(c(-1,-0.683685, -1.46266,-1), nrow=2)
+Res			<- MRARegress (MExt3, Pert3, MapExper=MOper3, ParNode=PNode2, Relative=FALSE)$r
+dimnames(Res)	<- NULL
 test_that("H6 is FALSE, we don't cheat", {
-	expect_equal (MRARegress (MExt3, Pert3, MapExper=MOper3, ParNode=PNode2, Relative=FALSE)$r, MatrCc3, tolerance=1E-4)
+	expect_equal (Res, MatrCc3, tolerance=1E-4)
 })
 
 
@@ -403,8 +417,12 @@ MExt1		<- matrix(c(1,1,1,1, 12,18,7,21,  4,9,6,12, 10,18,2,13, 2,9,1,4), nrow=4)
 MExt2		<- matrix(c(1,1,1,1, 3,1,6,9,  12,18,7,21, 4,9,6,12,  12,18,7,21, 4,9,6,12), nrow=4)
 Pert2		<- c("Base", "Base", "P1->N1", "P2->N2", "P'1->N3", "P'2->N4")
 # Remark : we have introduced P'1=P1 and P'2=P2 so as to tell the programm that the new perturbations generated act upon nodes N3 and N4, to avoid an error when checking the input parameters.
+Res1		<- MRARegress (MExt1, Relative=FALSE)$r
+dimnames(Res1)	<- NULL
+Res2		<- MRARegress (MExt2, Pert2, Relative=FALSE)$r
+dimnames(Res2)	<- NULL
 test_that("Two basal columns", {
-	expect_equal (MRARegress (MExt1, Relative=FALSE)$r, MRARegress (MExt2, Pert2, Relative=FALSE)$r, tolerance=1E-4)
+	expect_equal (Res1, Res2, tolerance=1E-4)
 })
 
 
@@ -413,14 +431,22 @@ test_that("Two basal columns", {
 MExt1		<- matrix(c(1,1,1,1,   12,18,7,21,  4,9,6,12, 10,18,2,13, 2,9,1,4), nrow=4)
 MExt2		<- matrix(c(12,18,7,21,  4,9,6,12, 10,18,2,13, 1,1,1,1,   2,9,1,4), nrow=4)
 Pert2		<- c("P1->N1", "P2->N2", "P3->N3", "Base", "P4->N4")
+Res1		<- MRARegress (MExt1, Relative=FALSE)$r
+dimnames(Res1)	<- NULL
+Res2		<- MRARegress (MExt2, Pert2, Relative=FALSE)$r
+dimnames(Res2)	<- NULL
 test_that("The basal column is not the first one", {
-	expect_equal (MRARegress (MExt1, Relative=FALSE)$r, MRARegress (MExt2, Pert2, Relative=FALSE)$r, tolerance=1E-4)
+	expect_equal (Res1, Res2, tolerance=1E-4)
 })
 
 MExt2		<- matrix(c(12,18,7,21, 1,1,1,1, 4,9,6,12,  12,18,7,21, 3,1,6,9, 4,9,6,12), nrow=4)
 Pert2		<- c("P1->N1", "Base", "P2->N2", "P'1->N3", "Base", "P'2->N4")
+Res1		<- MRARegress (MExt1, Relative=FALSE)$r
+dimnames(Res1)	<- NULL
+Res2		<- MRARegress (MExt2, Pert2, Relative=FALSE)$r
+dimnames(Res2)	<- NULL
 test_that("The basal column is not the first one", {
-	expect_equal (MRARegress (MExt1, Relative=FALSE)$r, MRARegress (MExt2, Pert2, Relative=FALSE)$r, tolerance=1E-4)
+	expect_equal (Res1, Res2, tolerance=1E-4)
 })
 
 
@@ -438,6 +464,7 @@ load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\
 
 #	Method = "TLR"
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="TLR")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_TLR_10_1.rda")	# Expected result, in MatrCc_TLR_10_1
 dimnames(MatrCc_TLR_10_1)	<- NULL						# The returned matrix by MRARegress has no names
@@ -446,6 +473,7 @@ test_that("TLR_InSilico_10_1", {
 })
 
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="TLR", Verbose=TRUE)$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 test_that("TLR_InSilico_10_1, Verbose", {
 	expect_equal (Res, MatrCc_TLR_10_1, tolerance=1E-4)
@@ -454,6 +482,7 @@ test_that("TLR_InSilico_10_1, Verbose", {
 #	Method = "Elastic Net"
 set.seed(12345)
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="Elastic Net", Hyp_Mu=0.3)$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_ENet_03_10_1.rda")	#Expected result, in MatrCc_ENet_03_10_1
 dimnames(MatrCc_ENet_03_10_1)	<- NULL						# The returned matrix by MRARegress has no names
@@ -464,6 +493,7 @@ test_that("Elastic Net_InSilico_10_1", {
 #	Method = "RIDGE"
 set.seed(12345)
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="RIDGE")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_RIDGE_10_1.rda")	#Expected result, in MatrCc_ENet_03_10_1
 dimnames(MatrCc_ENet_03_10_1)	<- NULL						# The returned matrix by MRARegress has no names
@@ -474,6 +504,7 @@ test_that("RIDGE_InSilico_10_1", {
 #	Method = "LASSO"
 set.seed(130747)								# Value used by the test
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="LASSO")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_LASSO_10_1.rda")	# Expected result, in MatrCc_LASSO_10_1
 dimnames(MatrCc_LASSO_10_1)	<- NULL						# The returned matrix by MRARegress has no names
@@ -483,6 +514,7 @@ test_that("LASSO_InSilico_10_1", {
 
 #	Method = "STEP-Fo"
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="STEP")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Fo_10_1.rda")	# Expected result, in MatrCc_STEP_Fo_10_1
 dimnames(MatrCc_STEP_Fo_10_1)	<- NULL					# The returned matrix by MRARegress has no names
@@ -492,6 +524,7 @@ test_that("STEP_Fo_InSilico_10_1", {
 
 #	Method = "STEP-Ba"
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="STEP", Hyp_Step="Ba")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Ba_10_1.rda")	# Expected result, in MatrCc_STEP_Ba_10_1
 dimnames(MatrCc_STEP_Ba_10_1)	<- NULL					# The returned matrix by MRARegress has no names
@@ -501,6 +534,7 @@ test_that("STEP_Ba_InSilico_10_1", {
 
 #	Method = "STEP-Bo"
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="STEP", Hyp_Step="Bo")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Bo_10_1.rda")	# Expected result, in MatrCc_STEP_Bo_10_1
 dimnames(MatrCc_STEP_Bo_10_1)	<- NULL					# The returned matrix by MRARegress has no names
@@ -510,6 +544,7 @@ test_that("STEP_Bo_InSilico_10_1", {
 
 #	Method = "ARACNE"
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="ARACNE")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_ARACNE_10_1.rda")		# Expected result, in MatrCc_ARACNE_10_1
 dimnames(MatrCc_ARACNE_10_1)	<- NULL					# The returned matrix by MRARegress has no names
@@ -519,6 +554,7 @@ test_that("ARACNE_InSilico_10_1", {
 
 #	Method = "CLR"
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="CLR")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_CLR_10_1.rda")		# Expected result, in MatrCc_CLR_10_1
 dimnames(MatrCc_CLR_10_1)	<- NULL						# The returned matrix by MRARegress has no names
@@ -528,6 +564,7 @@ test_that("CLR_InSilico_10_1", {
 
 #	Method = "MRNET"
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="MRNET")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_MRNET_10_1.rda")		# Expected result, in MatrCc_MRNET_10_1
 dimnames(MatrCc_MRNET_10_1)	<- NULL					# The returned matrix by MRARegress has no names
@@ -538,6 +575,7 @@ test_that("MRNET_InSilico_10_1", {
 #	Method "Random Forest"
 set.seed(130747)
 Res			<- MRARegress(MatExp_10_1, Perturb2, Method="Random Forest")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_RForest_10_1.rda")	# Expected result, in MatrCc_RForest_10_1
 dimnames(MatrCc_RForest_10_1)	<- NULL					# The returned matrix by MRARegress has no names
@@ -550,6 +588,7 @@ load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\
 
 #	Method = "TLR"
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="TLR")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_TLR_10_5.rda")	# Expected result, in MatrCc_TLR_10_5
 dimnames(MatrCc_TLR_10_5)	<- NULL						# The returned matrix by MRARegress has no names
@@ -560,6 +599,7 @@ test_that("TLR_InSilico_10_5", {
 #	Method = "LASSO"
 set.seed(130747)								# Value used by the test
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="LASSO")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_LASSO_10_5.rda")	# Expected result, in MatrCc_LASSO_10_5
 dimnames(MatrCc_LASSO_10_5)	<- NULL						# The returned matrix by MRARegress has no names
@@ -569,6 +609,7 @@ test_that("LASSO_InSilico_10_5", {
 
 #	Method = "STEP-Fo"
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="STEP")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Fo_10_5.rda")	# Expected result, in MatrCc_STEP_Fo_10_5
 dimnames(MatrCc_STEP_Fo_10_5)	<- NULL					# The returned matrix by MRARegress has no names
@@ -578,6 +619,7 @@ test_that("STEP_Fo_InSilico_10_5", {
 
 #	Method = "STEP-Ba"
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="STEP", Hyp_Step="Ba")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Ba_10_5.rda")	# Expected result, in MatrCc_STEP_Ba_10_5
 dimnames(MatrCc_STEP_Ba_10_5)	<- NULL					# The returned matrix by MRARegress has no names
@@ -587,6 +629,7 @@ test_that("STEP_Ba_InSilico_10_5", {
 
 #	Method = "STEP-Bo"
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="STEP", Hyp_Step="Bo")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Bo_10_5.rda")	# Expected result, in MatrCc_STEP_Bo_10_5
 dimnames(MatrCc_STEP_Bo_10_5)	<- NULL					# The returned matrix by MRARegress has no names
@@ -596,6 +639,7 @@ test_that("STEP_Bo_InSilico_10_5", {
 
 #	Method = "ARACNE"
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="ARACNE")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_ARACNE_10_5.rda")		# Expected result, in MatrCc_ARACNE_10_5
 dimnames(MatrCc_ARACNE_10_5)	<- NULL					# The returned matrix by MRARegress has no names
@@ -605,6 +649,7 @@ test_that("ARACNE_InSilico_10_5", {
 
 #	Method = "CLR"
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="CLR")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_CLR_10_5.rda")		# Expected result, in MatrCc_CLR_10_5
 dimnames(MatrCc_CLR_10_5)	<- NULL						# The returned matrix by MRARegress has no names
@@ -614,6 +659,7 @@ test_that("CLR_InSilico_10_5", {
 
 #	Method = "MRNET"
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="MRNET")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_MRNET_10_5.rda")		# Expected result, in MatrCc_MRNET_10_5
 dimnames(MatrCc_MRNET_10_5)	<- NULL					# The returned matrix by MRARegress has no names
@@ -624,6 +670,7 @@ test_that("MRNET_InSilico_10_5", {
 #	Method "Random Forest"
 set.seed(130747)
 Res			<- MRARegress(MatExp_10_5, Perturb2, Method="Random Forest")$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_RForest_10_5.rda")	# Expected result, in MatrCc_RForest_10_5
 dimnames(MatrCc_RForest_10_5)	<- NULL					# The returned matrix by MRARegress has no names
@@ -635,6 +682,7 @@ test_that("RForest_InSilico_10_5", {
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatR_Frank_TF30_TA0_1_R1.rda")#	MatRN2, noise 10%
 v	<- MatR2MatExp(MatRN2, 30, 2)						# Computes the MatExp and Perturb matrices, used by MRARegress
 Res	<- MRARegress(v$Exp, v$Pert)$r
+dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Matr_Frank_TF30_TA0_1_rcc1.rda")	# Expected result, in MatrCc
 dimnames(MatrCc)	<- NULL								# The returned matrix by MRARegress has no names
@@ -683,14 +731,18 @@ v	<- MatR2MatExp(MatRN2, 30, 2)					# Computes the MatExp and Perturb matrices, 
 
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\KnlgMap_TF30_TA0_1_R1_10Knwn.rda")		#	Knlg_10
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCVXR_TF30_TA0_1_R1_10Knwn.rda")		#	Matr_K10
+Res		<- MRARegress(v$Exp, v$Pert, KnlgMap=Knlg_10)$r
+dimnames(Res)	<- NULL
 test_that("FRANK_30_Known_10%", {
-	expect_equal (MRARegress(v$Exp, v$Pert, KnlgMap=Knlg_10)$r, Matr_K10, tolerance=1E-4)
+	expect_equal (Res, Matr_K10, tolerance=1E-4)
 })
 
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\KnlgMap_TF30_TA0_1_R1_40Knwn.rda")		#	Knlg_40
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCVXR_TF30_TA0_1_R1_40Knwn.rda")		#	Matr_K40
+Res		<- MRARegress(v$Exp, v$Pert, KnlgMap=Knlg_40)$r
+dimnames(Res)	<- NULL
 test_that("FRANK_30_Known_40%", {
-	expect_equal (MRARegress(v$Exp, v$Pert, KnlgMap=Knlg_40)$r, Matr_K40, tolerance=1E-4)
+	expect_equal (Res, Matr_K40, tolerance=1E-4)
 })
 
 
@@ -879,7 +931,6 @@ test_that("Order1 - 6 Genes network, no replicate - ANOVA", {
 })
 
 
-
 # Comparer à Solution6K.rda avec les différentes méthodes et calculer la distance (absolu, relatif)
 # MonDoc paragraphe 3.4.3, l478
  
@@ -890,24 +941,112 @@ load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Pat3nds_O2.rda")		# Pat3nds_O2
 
 MatExpJP_3	<- matrix(c(2.133728, 6.819618, 7.235918,   2.132878, 6.817047, 7.233394,  2.134409, 6.815775, 7.232144,  2.134481, 6.821894, 7.231744), nrow=3)
+Res			<- MRARegress(MatExpJP_3, Relative=FALSE)$r
+dimnames(Res)	<- NULL
 test_that("Order1 - Thomaseth 3 nodes network", {
-	expect_equal (MRARegress(MatExpJP_3, Relative=FALSE)$r, Pat3nds_O1, tolerance=1E-4)
+	expect_equal (Res, Pat3nds_O1, tolerance=1E-4)
 })
 
 MExpPat_10	<- matrix(c(2.133728,6.819618,7.235918,2.214443,7.061827,7.471919,2.071154,7.187810,7.593163,2.064243,6.608409,7.633927,
 						2.043932,6.546210,6.965091,2.208236,6.418148,6.836690,2.215755,7.065726,6.797877,
 						2.002126,6.950560,8.012930,2.147944,7.449084,7.841187,2.139687,6.837609,7.888627), nrow=3)
 ExperPat	<- matrix(c(1,0,0, 0,1,0, 0,0,1, -1,0,0, 0,-1,0, 0,0,-1, 0,1,1, 1,1,0, 1,0,1), nrow=3)		#	Réseau 3 noeuds (Thomaseth), O1, Pert= plan expé Patrice 10%
-
+Res			<- MRARegress(MExpPat_10, MapExper=ExperPat, Relative=FALSE)$r
+dimnames(Res)	<- NULL
 test_that("Order1 - Thomaseth 3 nodes network Plan Expé Patrice", {
-	expect_equal (MRARegress(MExpPat_10, MapExper=ExperPat, Relative=FALSE)$r, Pat3nds_O1, tolerance=1E-2)
+	expect_equal (Res, Pat3nds_O1, tolerance=1E-2)
 })
 
+
+Res			<- MRARegress(MExpPat_10, MapExper=ExperPat, Method="Order2", Relative=FALSE)$r
+dimnames(Res)	<- NULL
 test_that("Order2 - Thomaseth 3 nodes network Plan Expé Patrice", {
-	expect_equal (MRARegress(MExpPat_10, MapExper=ExperPat, Method="Order2", Relative=FALSE)$r, Pat3nds_O1, tolerance=1E-3)
+	expect_equal (Res, Pat3nds_O1, tolerance=1E-3)
 })
 
 # save (Pat3nds_O2, file="C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Pat3nds_O2.rda")		#	Réseau 3 noeuds (Thomaseth), O2, Pert= 10%
 test_that("Order2 - Thomaseth 3 nodes network Plan Expé Patrice", {
 	expect_equal (MRARegress(MExpPat_10, MapExper=ExperPat, Method="Order2", Relative=FALSE)$Order2, Pat3nds_O2, tolerance=1E-4)
+})
+
+
+#	Four nodes network, described in the article "aiMeRA: A generic modular response analysis R package and its application to estrogen and
+#	retinoic acid receptors crosstalk", Gabriel Jimenez-Dominguez et al, bioRxiv, 31/01/2020
+#	(aiMeRA_Manual.pdf)
+load ("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRARegress\\data-raw\\Jimenez_Fig3.rda")		# data
+Nodes <- c('LCOR', 'RIP140', 'Hoxa5', 'Luciferase')
+Pert  <- c('Base', 'E2+RA+siLCoR->LCOR', 'E2+RA+siRIP140->RIP140', 'E2->Hoxa5', 'RA->Luciferase')		# Base = 'E2+RA'
+Data1 <- data$mean[c('LCoR','RIP140','Hoxa5','Luciferase'), ]
+MatExp_Jim 	<- Data1[ ,c('E2+RA', 'E2+RA+siLCoR', 'E2+RA+siRIP140', 'E2', 'RA')]
+Expected 	<- matrix(c(-1,-2.67,0.54,0.29, 0.05,-1,-1.47,-0.99, 0.04,3,-1,-0.07, -0.25,1.98,-0.68,-1), nrow=4)
+Res	  <- round(MRARegress(MatExp_Jim, Pert, Nodes)$r,2)
+dimnames(Res)	<- NULL
+test_that("Réseau Jimenez", {
+	expect_equal (Res,Expected, tolerance=1E-9)
+})
+
+
+#	Test rows'names and cols'names of MatrCc
+Nodes1		<- c("Nod1", "Nod2", "Nod3")
+MExt1		<- matrix(c(1,1,1, 1,0,0, 0,2,0, 0,0,3), nrow=3)
+Expected	<- matrix(c(-1,1.5,4/3, 1.8,-1,1, 1.6,1,-1), nrow=3)
+rownames(Expected)	<- Nodes1
+colnames(Expected)	<- c("PNod1", "PNod2", "PNod3")
+
+#	Pertubations are indicated in the correct order
+Perts1		<- c("Base", "PNod1->Nod1", "PNod2->Nod2", "PNod3->Nod3")
+Res			<- MRARegress(MExt1, Perts1, Nodes1)$r
+test_that("Perturbations are indicated in the correct order", {
+  expect_equal (Res, Expected, tolerance=1E-4)	
+})
+
+
+# Base at the end
+MExt1b		<- matrix(c(1,0,0, 0,2,0, 0,0,3, 1,1,1), nrow=3)
+Perts1b		<- c("PNod1->Nod1", "PNod2->Nod2", "PNod3->Nod3","Base")
+Res			<- MRARegress(MExt1b, Perts1b, Nodes1)$r
+test_that("Base at the end", {
+  expect_equal (Res, Expected, tolerance=1E-4)	
+})
+
+
+#	Pertubations are indicated in disorder
+MExt2		<- matrix(c(1,1,1, 0,2,0,  1,0,0, 0,0,3), nrow=3)
+Perts2		<- c("Base", "PNod2->Nod2", "PNod1->Nod1", "PNod3->Nod3")
+Res			<- MRARegress(MExt2, Perts2, Nodes1)$r
+test_that("Pertubations are indicated in disorder", {
+  expect_equal (Res, Expected, tolerance=1E-4)	
+})
+
+#	MExt and perturbations don't match
+Res			<- MRARegress(MExt2, Perts1, Nodes1)$r
+test_that("MExt and perturbations don't match", {
+  expect_false (isTRUE(all.equal(Res, Expected)))
+})
+
+#	Base and pertubations are indicated in disorder
+MExt3		<- matrix(c(0,0,3, 0,2,0, 1,0,0, 1,1,1), nrow=3)
+Perts3		<- c("PNod3->Nod3", "PNod2->Nod2", "PNod1->Nod1", "Base")
+Res			<- MRARegress(MExt3, Perts3, Nodes1)$r
+test_that("Base and pertubations are indicated in disorder", {
+  expect_equal (Res, Expected, tolerance=1E-4)	
+})
+
+#	Many pertubations
+MExt4		<- matrix(c(1,1,1, 1,0,0, 0,2,0, 0,0,3, 0,0,3.1), nrow=3)
+Expected	<- matrix(c(-1,1.506060,4/3, 1.81162,-1,1, 1.6037298,0.9999256,-1), nrow=3)
+rownames(Expected)	<- Nodes1
+colnames(Expected)	<- c("PNod1", "PNod2", "PNod3; P2Nod3")
+
+Perts4		<- c("Base", "PNod1->Nod1", "PNod2->Nod2", "PNod3->Nod3", "P2Nod3->Nod3")
+Res			<- MRARegress(MExt4, Perts4, Nodes1)$r
+test_that("Many perturbations -1", {
+  expect_equal (Res, Expected, tolerance=1E-4)	
+})
+
+MExt5		<- matrix(c(0,0,3, 0,2,0, 1,0,0, 1,1,1, 0,0,3.1), nrow=3)
+Perts5		<- c("PNod3->Nod3", "PNod2->Nod2", "PNod1->Nod1", "Base", "P2Nod3->Nod3")
+Res			<- MRARegress(MExt5, Perts5, Nodes1)$r
+test_that("Many perturbations -2", {
+  expect_equal (Res, Expected, tolerance=1E-4)	
 })

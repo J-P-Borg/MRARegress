@@ -54,7 +54,7 @@ test_that("Incorrect threshold -8", {
 
 
 #
-#	Examples of networks
+#	PART TWO : Examples of networks
 #
 #	1/ 3 perturbations acting on 3 nodes independantly. No a priori knowledge (§ 7.2.1)
 #
@@ -76,6 +76,8 @@ test_that("6 MAP kinases", {
 
 #	3/ Second example (Vignette) : Dream Challenge 4 (InSilico-10-1 network)  (article fig 4A)
 #
+data(MatExp2)
+data(Perturb2)
 Ret		<- MRARegress (MatExp2, Perturb2)
 Matr	<- Ret$r
 diag(Matr)	<- 0
@@ -91,4 +93,17 @@ data (Solution_10_1)				# InSilico_10_1
 RetDG	<- DrawGraph (Solution, Title="Solution :InSilico-10-1")
 test_that("Solution :InSilico-10-1", {
   expect_equal (RetDG$Variables[[2]], 10, tolerance=1E-4)			# 10 nodes (DrawGraph did well)
+})
+
+#	5/ Gabriel Jimenez network
+#
+load ("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRARegress\\data-raw\\Jimenez_Fig3.rda")		# data
+Nodes <- c('LCOR', 'RIP140', 'Hoxa5', 'Luciferase')
+Pert  <- c('Base', 'E2+RA+siLCoR->LCOR', 'E2+RA+siRIP140->RIP140', 'E2->Hoxa5', 'RA->Luciferase')		# Base = 'E2+RA'
+Data1 <- data$mean[c('LCoR','RIP140','Hoxa5','Luciferase'), ]
+MatExp_Jim 	<- Data1[ ,c('E2+RA', 'E2+RA+siLCoR', 'E2+RA+siRIP140', 'E2', 'RA')]
+Res	  <- MRARegress(MatExp_Jim, Pert, Nodes)
+RetDG	<- DrawGraph (Res, "aiMeRA User's Guide", 0.01)
+test_that("aiMeRA", {
+  expect_equal (length(RetDG$theGraph[[2]]$value), 12, tolerance=1E-4)			# 18 edges (DrawGraph did well)
 })
