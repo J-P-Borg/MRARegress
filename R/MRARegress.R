@@ -719,7 +719,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		Anova["SSR", "F/M"]		<-	max(Anovas["SSR", "F", ])
 		Anova["SSR", "pVal/m"]	<-	min(Anovas["SSR", "pVal", ])
 		Anova["SSR", "pVal/M"]	<-	max(Anovas["SSR", "pVal", ])
-		Anova["SSR", "nbrNdes"]	<-	length(which(Anova["SSR", "pVal/M"] > tlrSSR))
+		Anova["SSR", "nbrNdes"]	<-	length(which(Anovas["SSR", "pVal", ] >= tlrSSR))			# length(which(Anova["SSR", "pVal/M"] > tlrSSR))
 
 		Anova["SSE", "df/m"]	<-	min(Anovas["SSE", "df", ])
 		Anova["SSE", "df/M"]	<-	max(Anovas["SSE", "df", ])
@@ -742,7 +742,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		Anova["LOF", "F/M"]		<-	max(Anovas["LOF", "F", ])
 		Anova["LOF", "pVal/m"]	<-	min(Anovas["LOF", "pVal", ], na.rm=TRUE)
 		Anova["LOF", "pVal/M"]	<-	max(Anovas["LOF", "pVal", ], na.rm=TRUE)
-		Anova["LOF", "nbrNdes"]	<-	length(which(Anova["LOF", "pVal/M"] > tlrLOF))		
+		Anova["LOF", "nbrNdes"]	<-	length(which(Anovas["LOF", "pVal", ] < tlrLOF))				# length(which(Anova["LOF", "pVal/M"] > tlrLOF))
 		
 		Anova["Pure", "df/m"]	<-	min(Anovas["Pure", "df", ])
 		Anova["Pure", "df/M"]	<-	max(Anovas["Pure", "df", ])
@@ -771,9 +771,9 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		if (! bLOF) {
 			strLOF	<-	"Unable to compute LOF\n"
 		} else if (Anova["LOF", "nbrNdes"] > 0) {
-			strLOF	<- paste("Residual errors correspond to the noise level of the measurements for ", Anova["LOF", "nbrNdes"], " nodes out of ", nbN, "!\n")
+			strLOF	<- paste("Residual errors do not correspond to the noise level of the measurements for ", Anova["LOF", "nbrNdes"], " nodes out of ", nbN, "!\n")
 		} else {
-			strLOF	<-	"Residual errors are NOT explained by the noise level !\n"
+			strLOF	<-	"Residual errors are explained by the noise level !\n"
 		}
 		
 		AnovaOut	<- list(Anova, strSSR, strLOF)
@@ -1172,4 +1172,3 @@ sequence_letters <- function(n) {
 #' @return			A vector, with the values squared
 #'
 fcarre	= function(x) {x^2}
-

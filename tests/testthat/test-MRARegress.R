@@ -283,7 +283,7 @@ test_that("Input Data - Test 33", {
 #	PART THREE : check results vs known results (see "My Document")
 #
 
-#	§ 7.2.1 : 3 perturbations acting on 3 nodes independantly. No a priori knowledge.
+#	§ 5.2.1 : 3 perturbations acting on 3 nodes independantly. No a priori knowledge.
 
 MatExp		<- matrix(c(1,2,3, 11,21,31, 12,22,32, 13,23,33),nrow=3)	# 3 nodes, 3 perturbations, Base : 1st column
 MatrCc		<- matrix(0, nrow=3, ncol=3)
@@ -293,9 +293,18 @@ for (iNode in 1:3) {
 }
 Res			<- MRARegress (MatExp, Relative=FALSE)$r
 dimnames(Res)	<- NULL						# MatrCc has no names
-
-test_that("Functional test - Test 7.2.1", {
+test_that("Functional test - Test 5.2.1/1", {
   expect_equal (Res %*% MatD0, MatrCc, tolerance=1E-9)
+})
+
+#	Many perturbations and replicates
+
+MExp2		<- matrix(c(1,2,3, 11,21,31, 12,22,32, 13,23,33, 14,24,34, 15,25,35, 16,26,36),nrow=3)
+Pert2 		<- c("Base", "Q1 -> N1", "Q2 -> N1", "Q3 -> N1", "Q4 -> N2", "Q5 -> N2", "Q6 -> N3")
+Res2 		<- MRARegress(MExp2, Pert2, Relative=FALSE)$r
+dimnames(Res2)	<- NULL						# MatrCc has no names
+test_that("Functional test - Test 5.2.1/2", {
+  expect_equal (Res2 %*% MatD0, MatrCc, tolerance=1E-9)
 })
 
 #	First example (Vignette) : 6 MAP Kinase network
@@ -975,7 +984,7 @@ test_that("Order2 - Thomaseth 3 nodes network Plan Expé Patrice", {
 #	(aiMeRA_Manual.pdf)
 load ("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRARegress\\data-raw\\Jimenez_Fig3.rda")		# data
 Nodes <- c('LCOR', 'RIP140', 'Hoxa5', 'Luciferase')
-Pert  <- c('Base', 'E2+RA+siLCoR->LCOR', 'E2+RA+siRIP140->RIP140', 'E2->Hoxa5', 'RA->Luciferase')		# Base = 'E2+RA'
+Pert  <- c('Base', 'E2+RA+siLCoR->LCOR', 'E2+RA+siRIP140->RIP140', 'E2->Hoxa5', 'RA->Luciferase')					# Base = 'E2+RA'
 Data1 <- data$mean[c('LCoR','RIP140','Hoxa5','Luciferase'), ]
 MatExp_Jim 	<- Data1[ ,c('E2+RA', 'E2+RA+siLCoR', 'E2+RA+siRIP140', 'E2', 'RA')]
 Expected 	<- matrix(c(-1,-2.67,0.54,0.29, 0.05,-1,-1.47,-0.99, 0.04,3,-1,-0.07, -0.25,1.98,-0.68,-1), nrow=4)
@@ -984,6 +993,19 @@ dimnames(Res)	<- NULL
 test_that("Réseau Jimenez", {
 	expect_equal (Res,Expected, tolerance=1E-9)
 })
+
+
+#	Another solution for this network
+load ("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRARegress\\data-raw\\Demo_4nds.rda")			# Demo : MatExp matrix
+Nodes <- c('LCOR', 'RIP140', 'Hoxa5', 'Luciferase')
+Pert  <- c('Base', 'E2+RA+siLCoR->LCOR', 'E2+RA+siRIP140->RIP140', 'E2->Hoxa5', 'RA->Luciferase')					# Base = 'E2+RA'
+Expected 	<- matrix(c(-1,-2.67,0.54,0.29, 0.05,-1,-1.47,-0.99, 0.04,3,-1,-0.07, -0.25,1.98,-0.68,-1), nrow=4)
+Res	  <- round(MRARegress(Demo, Pert, Nodes)$r,2)
+dimnames(Res)	<- NULL
+test_that("Réseau Jimenez", {
+	expect_equal (Res,Expected, tolerance=1E-9)
+})
+
 
 
 #	Test rows'names and cols'names of MatrCc
