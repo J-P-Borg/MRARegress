@@ -96,26 +96,27 @@
 #'@param Verbose	Logical				Default	value : FALSE.
 #'										If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
 #'
-#'@details								nbN : number of nodes,
-#'										nbP : number of perturbations, ie nbBase*nbPc, calles éQ" in the document "Projet de mémoire de thèse - 1° partie"
-#'										nbM : number of parameters.
-#'										If MapExper is NULL, it is mandatory that nbP >= nbN
-#'										If MapExper is NOT NULL and perturbations are proportional, it is mandatory that nbP >= nbN - 1 + nbM.
-#'										The rank of the system must be equal to the number of the unknowns (nbN or nbN-1+nbM) : the nbP perturbations must be "independant". 
-#'										See "Projet de mémoire de thèse - 1° partie".
-#'										This document provides many examples to explain these parameters.
+#'@details			
+#'					nbN : number of nodes,
+#'					nbP : number of perturbations, ie nbBase*nbPc, calles éQ" in the document "Projet de mémoire de thèse - 1° partie"
+#'					nbM : number of parameters.
+#'						If MapExper is NULL, it is mandatory that nbP >= nbN
+#'						If MapExper is NOT NULL and perturbations are proportional, it is mandatory that nbP >= nbN - 1 + nbM.
+#'						The rank of the system must be equal to the number of the unknowns (nbN or nbN-1+nbM) : the nbP perturbations must be "independant". 
+#'					See "Projet de mémoire de thèse - 1° partie".
+#'					This document provides many examples to explain these parameters.
 #'
-#'										Imported libraries :
-#'										- stringr		processing of strings, str_replace_all
-#'										- stats			lm, as.formula
-#'										- glmnet		cv.glmnet
-#'										- dplyr			rename
-#'										- BiocManager	may be necessary to import minet
-#'										- minet			aracne, clr, mrnet, build.mim
-#'										- randomForest	randomForest, importance
-#'										- CVXR			convex optimization
-#'										- magrittr		pipes
-#'										- rootSolve		solve for the roots of n nonlinear equations (Order2)
+#'					Imported libraries :
+#'						- stringr		processing of strings, str_replace_all
+#'						- stats			lm, as.formula
+#'						- glmnet		cv.glmnet
+#'						- dplyr			rename
+#'						- BiocManager	may be necessary to import minet
+#'						- minet			aracne, clr, mrnet, build.mim
+#'						- randomForest	randomForest, importance
+#'						- CVXR			convex optimization
+#'						- magrittr		pipes
+#'						- rootSolve		solve for the roots of n nonlinear equations (Order2)
 #'
 
 #'@import stringr
@@ -138,12 +139,12 @@
 #'@description	The function MRARegress computes the connectivity matrix, according to the document "MaRédaction.docx".
 #'				The input data are described above and the outputs below.
 #'
-#'@return		List				NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :
+#'@return		List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :  	
 #'	r			Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
 #'	Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)*(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
-#'									The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :				
-#'									 - the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i
-#'									 - the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5*si,j,j * (DeltaXi,j)^2 with j != i
+#'					The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :
+#'						- the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i.
+#'									 - the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5*si,j,j * (DeltaXi,j)^2 with j != i.
 #'									 - the last (nbN-2)*(nbN-1)/2 coefficients correspond to the "product part" (ie. si,j,k) : 
 #'										si,j,k * (DeltaXi,j)*DeltaXi,k) with j : 1 .. (nbN-1), j != i and k : (j+1) .. nbN, k!= i.
 #'										For example, if nbN=4 and i=1, this part is : s1,2,3*D1,2*D1,3, s1,2,4*D1,2*D1,4, s1,3,4*D1,3*D1,4 (since s1,2,3 = s1,3,3 etc..).
