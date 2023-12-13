@@ -158,7 +158,7 @@ Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verb
 			}
 		}		
 
-		InputPar	<- list (Ret=Ret, Classes=Classes, MethDiscr=MethDiscr, Lbda=Lbda, Verbose=Verbose)
+		InputPar	<- list (MatrCc=MatrCc, Classes=Classes, MethDiscr=MethDiscr, Lbda=Lbda, Verbose=Verbose)
 
 		if (Method == "Threshold") {
 			fThresh <- function (x) {Thresh (x, ThresholdPar)}
@@ -206,7 +206,7 @@ Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verb
 #' Checks the input data for function Classify
 #'
 #' This function checks the input data for function Classify.
-#' The parameters are same as those of Classify.
+#' The parameters are the same as those of Classify.
 #'
 #'@param Ret		list of informations delivered by "MRARegress" or a matrix.
 #'@param Classes	A vector showing the classes to define.
@@ -281,13 +281,13 @@ CheckInputDataCY	<- function (Ret, Classes, MethDiscr, Lbda, Verbose) {
 	},		# expr
 	
 	warning = function (e) {
-		message ("DrawGraph : check input parameters : Warning detected !")
+		message ("Classify : check input parameters : Warning detected !")
 		print(e)	
 		return ("Warning")
 	},		# warning
 	
 	error = function (e) {
-		message ("DrawGraph : check input parameters : Error detected !")
+		message ("Classify : check input parameters : Error detected !")
 		print(e)
 	}		# error
   )			# tryCatch

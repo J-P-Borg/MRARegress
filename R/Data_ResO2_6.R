@@ -1,0 +1,18 @@
+#' Institut de Recherche en Cancérologie de Montpellier (IRCM)
+#' Cancer Bioinformatics and Systems Biology
+#'
+#' A subset of data used by the unit tests of MRARegress
+#'
+#' @format ## `ResO2_6`
+#' A matrix with 6 rows and 20 columns : the "Order 2 Connectivity Matrix", coefficients got by Order 2 method.
+#' Six nodes network "Kinases MKK, MKKK et MAPK + bi-phosphorylated forms", described in the articles "Inferring dynamic architecture of cellular 
+#' networks using time series of gene expression, protein and metabolite data" Eduardo Sontag et al, 2004 and "Untangling the wires: 
+#' A strategy to trace functional interactions in signaling and gene networks" Boris N. Kholodenko et al, PNAS 2002 
+#'		ResO2_6\[i,j\] :
+#'			row i : concerns node i
+#'			col j : j in {1,5}   : coefficients corresponding to the "linear part" (ie. ri,j with j != i	--		ri,j * DeltaXi,j)
+#'					j in {6,10}  : coefficients corresponding to the "quadratic part" (ie. si,j,j with j != i --	si,j,j * (DeltaXi,j)^2
+#'					j in {11,20} : coefficient  corresponding to the "product part" (ie. si,j,k, with j != i, k != i, k > j --  si,j,k * (DeltaXi,j)*DeltaXi,k)
+#'					(Example for i=1 : s1,2,3, s1,2,4, s1,2,5, s1,2,6, s1,3,4, s1,3,5, s1,3,6, s1,4,5, s1,4,6, s1,5,6)
+
+"ResO2_6"

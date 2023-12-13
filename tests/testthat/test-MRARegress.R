@@ -472,7 +472,7 @@ load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\
 ###		library("glmnet", lib="C:\\Users\\jean-pierre.borg\\IRCM\\glmnet414\\MyEnv")
 
 #	Method = "TLR"
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="TLR")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="TLR")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_TLR_10_1.rda")	# Expected result, in MatrCc_TLR_10_1
@@ -481,7 +481,7 @@ test_that("TLR_InSilico_10_1", {
 	expect_equal (Res, MatrCc_TLR_10_1, tolerance=1E-4)
 })
 
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="TLR", Verbose=TRUE)$r
+Res			<- MRARegress(MatExp, Perturb2, Method="TLR", Verbose=TRUE)$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 test_that("TLR_InSilico_10_1, Verbose", {
@@ -490,7 +490,7 @@ test_that("TLR_InSilico_10_1, Verbose", {
 
 #	Method = "Elastic Net"
 set.seed(12345)
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="Elastic Net", Hyp_Mu=0.3)$r
+Res			<- MRARegress(MatExp, Perturb2, Method="Elastic Net", Hyp_Mu=0.3)$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_ENet_03_10_1.rda")	#Expected result, in MatrCc_ENet_03_10_1
@@ -501,7 +501,7 @@ test_that("Elastic Net_InSilico_10_1", {
 
 #	Method = "RIDGE"
 set.seed(12345)
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="RIDGE")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="RIDGE")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_RIDGE_10_1.rda")	#Expected result, in MatrCc_ENet_03_10_1
@@ -512,7 +512,7 @@ test_that("RIDGE_InSilico_10_1", {
 
 #	Method = "LASSO"
 set.seed(130747)								# Value used by the test
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="LASSO")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="LASSO")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_LASSO_10_1.rda")	# Expected result, in MatrCc_LASSO_10_1
@@ -522,7 +522,7 @@ test_that("LASSO_InSilico_10_1", {
 })
 
 #	Method = "STEP-Fo"
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="STEP")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="STEP")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Fo_10_1.rda")	# Expected result, in MatrCc_STEP_Fo_10_1
@@ -532,7 +532,7 @@ test_that("STEP_Fo_InSilico_10_1", {
 })
 
 #	Method = "STEP-Ba"
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="STEP", Hyp_Step="Ba")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="STEP", Hyp_Step="Ba")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Ba_10_1.rda")	# Expected result, in MatrCc_STEP_Ba_10_1
@@ -542,7 +542,7 @@ test_that("STEP_Ba_InSilico_10_1", {
 })
 
 #	Method = "STEP-Bo"
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="STEP", Hyp_Step="Bo")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="STEP", Hyp_Step="Bo")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Bo_10_1.rda")	# Expected result, in MatrCc_STEP_Bo_10_1
@@ -552,7 +552,7 @@ test_that("STEP_Bo_InSilico_10_1", {
 })
 
 #	Method = "ARACNE"
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="ARACNE")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="ARACNE")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_ARACNE_10_1.rda")		# Expected result, in MatrCc_ARACNE_10_1
@@ -562,7 +562,7 @@ test_that("ARACNE_InSilico_10_1", {
 })
 
 #	Method = "CLR"
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="CLR")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="CLR")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_CLR_10_1.rda")		# Expected result, in MatrCc_CLR_10_1
@@ -572,7 +572,7 @@ test_that("CLR_InSilico_10_1", {
 })
 
 #	Method = "MRNET"
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="MRNET")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="MRNET")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_MRNET_10_1.rda")		# Expected result, in MatrCc_MRNET_10_1
@@ -583,7 +583,7 @@ test_that("MRNET_InSilico_10_1", {
 
 #	Method "Random Forest"
 set.seed(130747)
-Res			<- MRARegress(MatExp_10_1, Perturb2, Method="Random Forest")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="Random Forest")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_RForest_10_1.rda")	# Expected result, in MatrCc_RForest_10_1
@@ -596,7 +596,7 @@ test_that("RForest_InSilico_10_1", {
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatExp_10_5.rda")
 
 #	Method = "TLR"
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="TLR")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="TLR")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_TLR_10_5.rda")	# Expected result, in MatrCc_TLR_10_5
@@ -607,7 +607,7 @@ test_that("TLR_InSilico_10_5", {
 
 #	Method = "LASSO"
 set.seed(130747)								# Value used by the test
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="LASSO")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="LASSO")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_LASSO_10_5.rda")	# Expected result, in MatrCc_LASSO_10_5
@@ -617,7 +617,7 @@ test_that("LASSO_InSilico_10_5", {
 })
 
 #	Method = "STEP-Fo"
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="STEP")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="STEP")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Fo_10_5.rda")	# Expected result, in MatrCc_STEP_Fo_10_5
@@ -627,7 +627,7 @@ test_that("STEP_Fo_InSilico_10_5", {
 })
 
 #	Method = "STEP-Ba"
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="STEP", Hyp_Step="Ba")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="STEP", Hyp_Step="Ba")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Ba_10_5.rda")	# Expected result, in MatrCc_STEP_Ba_10_5
@@ -637,7 +637,7 @@ test_that("STEP_Ba_InSilico_10_5", {
 })
 
 #	Method = "STEP-Bo"
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="STEP", Hyp_Step="Bo")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="STEP", Hyp_Step="Bo")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_STEP_Bo_10_5.rda")	# Expected result, in MatrCc_STEP_Bo_10_5
@@ -647,7 +647,7 @@ test_that("STEP_Bo_InSilico_10_5", {
 })
 
 #	Method = "ARACNE"
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="ARACNE")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="ARACNE")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_ARACNE_10_5.rda")		# Expected result, in MatrCc_ARACNE_10_5
@@ -657,7 +657,7 @@ test_that("ARACNE_InSilico_10_5", {
 })
 
 #	Method = "CLR"
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="CLR")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="CLR")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_CLR_10_5.rda")		# Expected result, in MatrCc_CLR_10_5
@@ -667,7 +667,7 @@ test_that("CLR_InSilico_10_5", {
 })
 
 #	Method = "MRNET"
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="MRNET")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="MRNET")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_MRNET_10_5.rda")		# Expected result, in MatrCc_MRNET_10_5
@@ -678,7 +678,7 @@ test_that("MRNET_InSilico_10_5", {
 
 #	Method "Random Forest"
 set.seed(130747)
-Res			<- MRARegress(MatExp_10_5, Perturb2, Method="Random Forest")$r
+Res			<- MRARegress(MatExp, Perturb2, Method="Random Forest")$r
 dimnames(Res)	<- NULL
 diag(Res)	<- 0
 load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\MatrCc_RForest_10_5.rda")	# Expected result, in MatrCc_RForest_10_5

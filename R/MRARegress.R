@@ -699,7 +699,9 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 
 				# 5/ Results
 				if (Verbose) {
-					cat ("iNode", iNode, "p", nbN-1, "n", nbRowsY0, "m", nbMeas, " Anovas \n")
+					cat ("iNode", iNode, "p", nbN-1, "n", nbRowsY0, "m", nbMeas, "ZMean", ZMean,"ZEst\n")
+					print (ZEst)
+					cat ("Anovas\n")
 					print (Anovas[ , ,iNode])
 				}
 			}		# for iNode
@@ -813,7 +815,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 #' Checks the input data for function MRARegress
 #'
 #' This function checks the input data for function MRARegress.
-#' The parameters are same as those of MRARegress.
+#' The parameters are the same as those of MRARegress.
 #'
 #'@param MatExp		The "Expression Matrix".
 #'@param Perturb	Refers to the name of the perturbations and the nodes they act upon.
@@ -1107,13 +1109,15 @@ fRForest	<- function (MatU, MatY, seqLetters, nbN) {
 		
 		nrep		<- round(nbLmin/nr)
 		MatB		<- MatA
-		for (i in 1:nrep) {									# to have enough rows
-			MatB	<- rbind(MatB, MatA)
+		if (nrep > 1) {
+			for (i in 1:nrep) {									# to have enough rows
+				MatB	<- rbind(MatB, MatA)
+			}
 		}
 		colnames(MatB)	<- c("Y", seqLetters)
 		
 		rf			<- randomForest(Y ~ ., data=MatB, importance=TRUE)
-		rL			<- importance(rf)[,1]/sum(importance(rf)[,1])
+		rL			<- importance(rf)[,1]/sum(abs(importance(rf)[,1]))
 				
 		return (rL)
 	},		# expr

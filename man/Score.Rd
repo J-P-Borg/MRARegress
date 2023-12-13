@@ -4,18 +4,29 @@
 \alias{Score}
 \title{"Score" :  Delivers the "Confusion Matrix" when a reference is available.}
 \usage{
-Score(rDig, Ref, Classes)
+Score(Ret, Ref, Classes = NULL, Verbose = FALSE)
 }
 \arguments{
-\item{rDig}{Matrix of numbers        The "Classified Connectivity Matrix" (delivered by "Classify")}
+\item{Ret}{list of informations delivered by "Classify" or matrix of integers or discrete values (letters, strings).
+If 'Ret' is a list of informations delivered by "Classify", Score uses 'Ret$rDig' (connectivity matrix classified) and 'Ret$Input$Classes' (classes) and
+the parameter 'Classes' is ignored.
+If 'Ret' is a matrix of numbers, the parameter 'Classes' is mandatory.}
 
-\item{Ref}{Matrix of numbers        The "Reference Matrix"}
+\item{Ref}{Matrix of integers or discrete values    The "Reference Matrix".}
 
-\item{Classes}{Vector                    A vector showing the classes (for instance: c(0,1))}
+\item{Classes}{Vector        A vector showing the classes (for instance: c(0,1)). Default value : NULL.}
+
+\item{Verbose}{Logical        Default    value : FALSE.
+If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{	List	A list containing the "Confusion Matrix" and classical coefficients, such as NRi, NDi, precision, sensitivity, specificity, F1 score (TP/(TP+0.5*(FN+FP))).
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List	NULL in case of error or a list containing the "Confusion Matrix", classical scoring coefficients and the Input values.
 }\if{html}{\out{</div>}}
+
+ConfMat		the 'Confusion Matrix'
+Scores		the 'scoring coefficients' :  NRi, NDi, Ti, Fi, PrecisionMC, RecallMC, F1MC score (2\emph{PrecisionMC}RecallMC/(PrecisionMC+RecallMC))
+Scores2		the 'scoring coefficients' if nbr. of classes = 2 (else : NULL) : Se, Sp, FPR, Dst, Pr, F1
+Input		List	list of the input parameters values. NULL values are not replaced.
 }
 \description{
 : this function computes the "Confusion Matrix" (CM) by comparing the "Classified Connectivity Matrix" delivered by MRARegress::Classify with the "Reference".\cr
@@ -26,5 +37,23 @@ For instance, if "Classes = c(0, 1)", then:\cr
 -  CM[1, 2] = FP  ("False Positive"),\cr
 -  CM[2, 1] = FN  ("False Negative"),\cr
 -  CM[2, 2] = TP  ("True Positive").\cr
-precision (TP/ND1), sensitivity (or sensibility or recall: TP/NR1), specificity (TN/NR0), F1 score (2\emph{precision}recall/(precision+recall)) combining precision and recall.
+Ti (number of "i" discovered that belong really to class 'i'), Fi (number of "i" discovered that don't belong to class 'i'),
+Precision_i or Accuracy_i (Ti/NDi), Recall_i (Ti/NRi). PrecisionMC = (∑_(i=1)^n▒〖Precision_i〗)⁄n. RecallMC = (∑_(i=1)^n▒〖Recall_i〗)⁄n   (n : number of classes) and
+F1 score (2\emph{precision}recall/(precision+recall)) combining precision and recall (MC means "Multi Class"). **MC is also called 'Balanced **'.
+If "Classes = c(0, 1)" : precision (TP/ND1), sensitivity (or sensibility or recall: TP/NR1), specificity (TN/NR0).
+In this case, NR1 is also called "P" and NR0 s called "N".
+All these values, suffixed by '_de', mean 'Diagonal Excluded'.
+
+Computes many scoring coefficients
+The input data are described above and the outputs below.
+}
+\details{
+\if{html}{\out{<div class="sourceCode">}}\preformatted{If there are two classes (for instance: c(0,1)), Se(nsitivity) is also called 'Sensibility', 'Recall', 'Hit Rate' or 'TPR' (True Positive Rate), Se =TP/P,
+		Sp(ecificity), 'Selectivity' or 'TNR' (TrueNegative Rate), Sp=TN/N, where P = NR1 and N = NR0,
+		Dst (Distance to the diagonal) Dst = Se+Sp-1, Pr(ecision) Pr=TP/(TP+FP).
+		We use also 1- Sp = FP/N  (Probability that a true negative will be declared positive). Also referred to as False Positive Rate (FPR) or False Positive Fraction (FPF) or Value (FPV)
+
+		Imported libraries :
+			- upstartr	to use "unaccent"
+}\if{html}{\out{</div>}}
 }

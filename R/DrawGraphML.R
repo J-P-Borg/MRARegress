@@ -176,7 +176,7 @@ DrawGraphML <- function (Ret, File, Thr=0.1) {
 #' Checks the input data for function DrawGraphML
 #'
 #' This function checks the input data for function DrawGraphML.
-#' The parameters are same as those of DrawGraphML.
+#' The parameters are the same as those of DrawGraphML.
 #'
 #'@param Ret		list of informations delivered by "MRARegress" or a square matrix.
 #'@param File		Name of the file to write.

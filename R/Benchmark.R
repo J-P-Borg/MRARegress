@@ -16,6 +16,11 @@
 #'
 
 Benchmark <- function(Calc, Ref) {
+	if (is.vector(Calc, mode="numeric"))
+		Calc	<- matrix(Calc, nrow=1)		# transformed into a matrix
+	if (is.vector(Ref, mode="numeric"))
+		Ref	<- matrix(Ref, nrow=1)			# transformed into a matrix
+		
 	if ((dim(Calc)[1] != dim(Ref)[1]) || (dim(Calc)[2] != dim(Ref)[2])) {
 		print("ERROR : Calc and Ref have different size !")
 		return(FALSE)

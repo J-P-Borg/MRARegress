@@ -56,5 +56,5 @@ CheckInputData(
 }
 \description{
 This function checks the input data for function MRARegress.
-The parameters are same as those of MRARegress.
+The parameters are the same as those of MRARegress.
 }

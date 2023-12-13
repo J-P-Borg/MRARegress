@@ -21,7 +21,8 @@ Imports:
     magrittr,
     rootSolve,
     RCy3,
-    utils
+    utils,
+    upstartr
 Suggests: 
     knitr,
     rmarkdown,

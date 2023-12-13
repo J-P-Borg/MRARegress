@@ -8,17 +8,373 @@
 #'				 -  CM\[1, 2\] = FP  ("False Positive"),\cr
 #'				 -  CM\[2, 1\] = FN  ("False Negative"),\cr
 #'				 -  CM\[2, 2\] = TP  ("True Positive").\cr
-#				This function supplies also classical coefficients, such as NRi (number of "i" in the reference), NDi (number of "i" discovered),
-#'				precision (TP/ND1), sensitivity (or sensibility or recall: TP/NR1), specificity (TN/NR0), F1 score (2*precision*recall/(precision+recall)) combining precision and recall.
+#				This function provides also classical coefficients, such as NRi (number of "i" in the reference), NDi (number of "i" discovered), 
+#'				Ti (number of "i" discovered that belong really to class 'i'), Fi (number of "i" discovered that don't belong to class 'i'),
+#'				Precision_i or Accuracy_i (Ti/NDi), Recall_i (Ti/NRi). PrecisionMC = (∑_(i=1)^n▒〖Precision_i〗)⁄n. RecallMC = (∑_(i=1)^n▒〖Recall_i〗)⁄n   (n : number of classes) and
+#'				F1 score (2*precision*recall/(precision+recall)) combining precision and recall (MC means "Multi Class"). **MC is also called 'Balanced **'.
+#'				If "Classes = c(0, 1)" : precision (TP/ND1), sensitivity (or sensibility or recall: TP/NR1), specificity (TN/NR0).
+#'				In this case, NR1 is also called "P" and NR0 s called "N".
+#'				All these values, suffixed by '_de', mean 'Diagonal Excluded'.
 #'
-#'@param rDig		Matrix of numbers		The "Classified Connectivity Matrix" (delivered by "Classify")
-#'@param Ref		Matrix of numbers		The "Reference Matrix"
-#'@param Classes	Vector					A vector showing the classes (for instance: c(0,1))
+#'@param Ret		list of informations delivered by "Classify" or matrix of integers or discrete values (letters, strings).
+#'					If 'Ret' is a list of informations delivered by "Classify", Score uses 'Ret$rDig' (connectivity matrix classified) and 'Ret$Input$Classes' (classes) and 
+#'					the parameter 'Classes' is ignored.
+#'					If 'Ret' is a matrix of numbers, the parameter 'Classes' is mandatory.
+#'@param Ref		Matrix of integers or discrete values	The "Reference Matrix".
+#'@param Classes	Vector		A vector showing the classes (for instance: c(0,1)). Default value : NULL.
+#'@param Verbose	Logical		Default	value : FALSE.
+#'								If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
 #'
-#'@return			List	A list containing the "Confusion Matrix" and classical coefficients, such as NRi, NDi, precision, sensitivity, specificity, F1 score (TP/(TP+0.5*(FN+FP))).
+#'@details		If there are two classes (for instance: c(0,1)), Se(nsitivity) is also called 'Sensibility', 'Recall', 'Hit Rate' or 'TPR' (True Positive Rate), Se =TP/P,
+#'				Sp(ecificity), 'Selectivity' or 'TNR' (TrueNegative Rate), Sp=TN/N, where P = NR1 and N = NR0,
+#'				Dst (Distance to the diagonal) Dst = Se+Sp-1, Pr(ecision) Pr=TP/(TP+FP).
+#'				We use also 1- Sp = FP/N  (Probability that a true negative will be declared positive). Also referred to as False Positive Rate (FPR) or False Positive Fraction (FPF) or Value (FPV)
+#'
+#'				Imported libraries :
+#'					- upstartr	to use "unaccent"
+#'
+
+#'@importFrom upstartr	unaccent
+
+#'@name			Score
+#'
+#'@description	Computes many scoring coefficients
+#'				The input data are described above and the outputs below.
+#'
+#'@return		List	NULL in case of error or a list containing the "Confusion Matrix", classical scoring coefficients and the Input values.
+#'	ConfMat		the 'Confusion Matrix'
+#'	Scores		the 'scoring coefficients' :  NRi, NDi, Ti, Fi, PrecisionMC, RecallMC, F1MC score (2*PrecisionMC*RecallMC/(PrecisionMC+RecallMC))
+#'	Scores2		the 'scoring coefficients' if nbr. of classes = 2 (else : NULL) : Se, Sp, FPR, Dst, Pr, F1
+#'  Input		List	list of the input parameters values. NULL values are not replaced.
+#'
+
 #'@export
 #'
 
-Score <- function (rDig, Ref, Classes) {
-  cat ("this method is not implemented yet !", "\n")
+
+Score <- function (Ret, Ref, Classes=NULL, Verbose = FALSE) {
+  tryCatch (
+		expr = {
+		cat ("START Score !", as.character(Sys.time()), "\n")
+
+		toReturn	<- list()				# Return values
+		toReturn[["ConfMat"]]		<- NULL
+		toReturn[["ConfMat_de"]]	<- NULL
+		toReturn[["Scores"]]		<- NULL
+		toReturn[["Scores_de"]]		<- NULL
+		toReturn[["Scores2"]]		<- NULL
+		toReturn[["Scores2_de"]]	<- NULL
+		toReturn[["Input"]]			<- NULL
+
+		A	<-  Ref							# Check existence of 'Ref'
+	
+		if (is.vector(Ret, mode="numeric"))
+			Ret	<- matrix(Ret, nrow=1)		# Transformed into a matrix
+
+ 		# Variables declaration
+		if (is.matrix(Ret)) {
+			Dig		<- Ret												# Classified Connectivity Matrix
+		} else {
+			Dig		<- Ret$rDig											# Classified Connectivity Matrix
+			Classes	<- Ret$Input[[1]]$Classes							# Classes to use
+		}
+		
+		nbRows		<- dim(Dig)[1]										# Number of rows  	(same nbr for Ref)
+		nbCols		<- dim(Dig)[2]										# Number of columns	(same nbr for Ref)
+		FClasses	<- factor(Classes)
+		nbClasses	<- length(Classes)									# Number of classes
+
+		# Check input data
+		err	<-  CheckInputDataSC (Ret, Ref, Classes, Verbose)
+		if (! is.null(err)) {
+			message (err)
+			return (NULL)
+		}
+		
+		toReturn$Input	<- list (Dig=Dig, Ref=Ref, Classes=Classes, Verbose=Verbose)
+
+		# Lookup of the non diagonal terms (NDiag), valid only if it is a square matrix.
+		Diag	<- NULL		# Index of terms belonging to the diagonal
+		for (i in 1:nbRows) {
+			Diag   <- cbind (Diag, (i-1)*nbRows + i)
+		}
+		Dig_de		<- Dig[-Diag]										# We exclude elements on the diagonal
+		Ref_de		<- Ref[-Diag]
+
+		# Confusion Matrix
+		FRef		<- factor(Ref)
+		FDig		<- factor(Dig)
+		for (i in nbClasses:1) {
+			levels(FClasses)[FClasses[i]]	<- i
+			levels(FRef)	[FClasses[i]]	<- i
+			levels(FDig)	[FClasses[i]]	<- i
+		}
+		
+		MatConf		<- matrix(0, nrow=nbClasses, ncol=nbClasses)		# The Confusion Matrix (rows = real values, columns = predicted values)
+		MatConf_de	<- matrix(0, nrow=nbClasses, ncol=nbClasses)		# The Confusion Matrix, diagonal excluded
+		for (i in 1:(nbRows*nbCols)) {
+			Real  <- as.integer(levels(FRef)[FRef[i]])					# Factor corresponding to Ref[iRow,iCol]
+			Disc  <- as.integer(levels(FDig)[FDig[i]])					# Factor corresponding to Dig[iRow,iCol]
+		
+			MatConf[Real,Disc]	<- MatConf[Real,Disc] + 1
+			
+			if (! (i %in% Diag))
+				MatConf_de[Real,Disc]	<- MatConf_de[Real,Disc] + 1
+				
+			if (Verbose) {
+				cat ('i',i, 'Ref',FRef[i], 'Dig',FDig[i], 'Real',Real, 'Disc',Disc, 'MatConf\n')
+				print (MatConf)
+				cat ('MatConf_de \n')
+				print (MatConf_de)
+			}
+		}
+
+		rownames(MatConf)		<- Classes
+		colnames(MatConf)		<- Classes
+		toReturn$ConfMat		<- MatConf
+
+		rownames(MatConf_de)	<- Classes
+		colnames(MatConf_de)	<- Classes
+		toReturn$ConfMat_de		<- MatConf_de
+		
+		if (Verbose) {
+			cat("Ref \n")
+			print(Ref)
+			cat("Dig \n")
+			print(Dig)
+		}
+		
+		# Multi Class Scores ("Balanced" Scores)
+		NR		<- vector(length=nbClasses)								# Number of "real" values (ie. Ref)
+		ND		<- vector(length=nbClasses)								# Number of "discovered" values (ie. Dig)
+		T		<- vector(length=nbClasses)								# Number of "real" values discovered
+		F		<- vector(length=nbClasses)								# Number of "real" values NOT discovered
+		PrecMC	<- vector(length=nbClasses)								# Precision of each class
+		RecMC	<- vector(length=nbClasses)								# Recall (or Sensitivity) of each class
+		F1sMC	<- vector(length=nbClasses)								# F1 of each class
+
+		NR_de	<- vector(length=nbClasses)								# Number of "real" values (ie. Ref)			-- Diagonal Excluded
+		ND_de	<- vector(length=nbClasses)								# Number of "discovered" values (ie. Dig)	-- Diagonal Excluded
+		T_de	<- vector(length=nbClasses)								# Number of "real" values discovered		-- Diagonal Excluded
+		F_de	<- vector(length=nbClasses)								# Number of "real" values NOT discovered	-- Diagonal Excluded
+		PrecMC_de	<- vector(length=nbClasses)							# Precision of each class					-- Diagonal Excluded
+		RecMC_de	<- vector(length=nbClasses)							# Recall  (or Sensitivity)of each class		-- Diagonal Excluded
+		F1sMC_de	<- vector(length=nbClasses)							# F1 of each class							-- Diagonal Excluded
+
+		for (iCl in 1:nbClasses) {
+			NR[iCl]	<- sum (ifelse(Ref == Classes[iCl], 1, 0))			# Real nbr of elements of class 'Classes[iCl]'
+			ND[iCl]	<- sum (ifelse(Dig == Classes[iCl], 1, 0))			# Discovered nbr of elements of class 'Classes[iCl]'
+			NR_de[iCl]	<- sum (ifelse(Ref_de == Classes[iCl], 1, 0))	# Real nbr of elements of class 'Classes[iCl]'			-- Diagonal excluded
+			ND_de[iCl]	<- sum (ifelse(Dig_de == Classes[iCl], 1, 0))	# Discovered nbr of elements of class 'Classes[iCl]'	-- Diagonal excluded
+			
+			RefCl		<- which (Ref == Classes[iCl])					# Elements of Ref equal to 'Classes[iCl]'
+			DigCl		<- which (Dig == Classes[iCl])					# Elements of Dig equal to 'Classes[iCl]'
+			RefCl_de	<- which (Ref_de == Classes[iCl])				# Elements of Ref equal to 'Classes[iCl]'	-- Diagonal excluded
+			DigCl_de	<- which (Dig_de == Classes[iCl])				# Elements of Dig equal to 'Classes[iCl]'	-- Diagonal excluded
+			if (Verbose) {
+				cat ("iCl",iCl, "RefCl \n")
+				print(RefCl)
+				cat ("iCl",iCl, "DigCl \n")
+				print(DigCl)
+				cat ("iCl",iCl, "RefCl_de \n")
+				print(RefCl_de)
+				cat ("iCl",iCl, "DigCl_de \n")
+				print(DigCl_de)
+			}
+
+			T[iCl]	<- length (intersect(RefCl, DigCl))					# Number of "real" values of class 'Classes[iCl]' discovered
+			F[iCl]	<- length (DigCl) - T[iCl] 							# Number of "real" values of class 'Classes[iCl]' NOT discovered
+			T_de[iCl]	<- length (intersect(RefCl_de, DigCl_de))		# Number of "real" values of class 'Classes[iCl]' discovered		-- Diagonal excluded
+			F_de[iCl]	<- length (DigCl_de) - T_de[iCl] 				# Number of "real" values of class 'Classes[iCl]' NOT discovered	-- Diagonal excluded
+
+			if (ND[iCl] > 0)											# Precision of each class
+				PrecMC[iCl]		<- T[iCl] / ND[iCl]
+			else
+				PrecMC[iCl]		<- NaN
+			if (NR[iCl] > 0)											# Recall (or Sensitivity) of each class
+				RecMC[iCl]		<- T[iCl] / NR[iCl]
+			else
+				RecMC[iCl]		<- NaN
+			if (! is.na(PrecMC[iCl]+RecMC[iCl]) && PrecMC[iCl]+RecMC[iCl] > 0)							# F1 score of each class
+				F1sMC[iCl]		<- 2 * PrecMC[iCl] * RecMC[iCl] / (PrecMC[iCl]+RecMC[iCl])
+			else
+				F1sMC[iCl]		<- NaN
+
+			if (ND_de[iCl] > 0)											# Precision of each class									-- Diagonal excluded
+				PrecMC_de[iCl]		<- T_de[iCl] / ND_de[iCl]
+			else
+				PrecMC_de[iCl]		<- NaN
+			if (NR_de[iCl] > 0)											# Recall  (or Sensitivity) of each class					-- Diagonal excluded
+				RecMC_de[iCl]		<- T_de[iCl] / NR_de[iCl]
+			else
+				RecMC_de[iCl]		<- NaN
+			if (! is.na(PrecMC_de[iCl]+RecMC_de[iCl]) && PrecMC_de[iCl]+RecMC_de[iCl] > 0)				# F1 score of each class	-- Diagonal excluded
+				F1sMC_de[iCl]		<- 2 * PrecMC_de[iCl] * RecMC_de[iCl] / (PrecMC_de[iCl]+RecMC_de[iCl])
+			else
+				F1sMC_de[iCl]		<- NaN
+				
+			if (Verbose) {
+				cat ("iCl",iCl, "Classes",Classes[iCl], "NR",NR[iCl], "ND",ND[iCl], "T",T[iCl], "F",F[iCl], "PrecMC", PrecMC[iCl], "RecMC", RecMC[iCl], "F1sMC", F1sMC[iCl], "\n")
+				cat ("NR_de",NR_de[iCl], "ND_de",ND_de[iCl], "T_de",T_de[iCl], "F_de",F_de[iCl], "PrecMC_de", PrecMC_de[iCl], "RecMC_de", RecMC_de[iCl], "F1sMC_de", F1sMC_de[iCl], "\n")
+			}
+		}
+
+		PrecisionMC		<- mean (PrecMC)			# na.rm = FALSE		Balanced Precision
+		RecallMC		<- mean (RecMC)				# na.rm = FALSE		Balanced Recall
+		F1MC			<- 2*PrecisionMC*RecallMC / (PrecisionMC+RecallMC) # Balanced F1
+
+		PrecisionMC_de	<- mean (PrecMC_de)			# na.rm = FALSE		Balanced Precision				-- Diagonal excluded
+		RecallMC_de		<- mean (RecMC_de)			# na.rm = FALSE		Balanced Recall					-- Diagonal excluded
+		F1MC_de			<- 2*PrecisionMC_de*RecallMC_de / (PrecisionMC_de+RecallMC_de) # Balanced F1	-- Diagonal excluded
+
+		Scores	<- list (NR=NR, ND=ND, T=T, F=F, PrecMC=PrecMC, RecMC=RecMC, F1sMC=F1sMC, PrecisionMC=PrecisionMC, RecallMC=RecallMC, F1MC=F1MC)
+		toReturn$Scores	<- Scores
+		
+		if (nbRows == nbCols) {
+			Scores_de	<- list (NR=NR_de, ND=ND_de, T=T_de, F=F_de, PrecMC=PrecMC_de, RecMC=RecMC_de, F1sMC=F1sMC_de, PrecisionMC=PrecisionMC_de, RecallMC=RecallMC_de, F1MC=F1MC_de)
+			toReturn$Scores_de	<- Scores_de			# Diagonal excluded
+		}
+
+		# Two Classes scores
+		ErrCl		<- FALSE
+		Scores2		<- NULL
+		Scores2_de	<- NULL
+		
+		if (nbClasses == 2) {
+			Cl1		<- str_to_upper(unaccent(Classes[1]))
+			Cl2		<- str_to_upper(unaccent(Classes[2]))
+			if ((Cl1 %in% list("0", "F", "FAUX", "FALSE", "WRONG", "BAD", "N", "NON", "NO", "A", "NEGATIF", "NEGATIVE", "ECHEC", "FAILURE")) &&
+				(Cl2 %in% list("1", "V", "VRAI", "EXACT", "T", "TRUE", "RIGHT", "GOOD", "O", "OUI", "Y", "YES", "SI", "B", "P", "POSITIF", "POSITIVE", "SUCCES", "SUCCESS"))) {
+				iClN	<- 1		# Index of the "No" class
+				iClY	<- 2		# Index of the "Yes" class				
+			} else if ((Cl2 %in% list("0", "F", "FAUX", "FALSE", "WRONG", "BAD", "N", "NON", "NO", "A", "NEGATIF", "NEGATIVE", "ECHEC", "FAILURE")) &&
+				(Cl1 %in% list("1", "V", "VRAI", "EXACT", "T", "TRUE", "RIGHT", "GOOD", "O", "OUI", "Y", "YES", "SI", "B", "P", "POSITIF", "POSITIVE", "SUCCES", "SUCCESS"))) {
+				iClN	<- 2		# Index of the "No" class
+				iClY	<- 1		# Index of the "Yes" class
+			} else {
+				ErrCl	<- TRUE
+			}				
+
+			if (ErrCl) {
+				message ("Unable to compute Scores for 2 classes !")
+				Scores2	<- NULL
+			} else {
+				N		<- NR[iClN]				# Real number of 'N' values
+				P		<- NR[iClY]				# Real number of 'P' values
+				TN		<- T [iClN]				# Nbr of real 'N' values discovered
+				TP		<- T [iClY]				# Nbr of real 'P' values discovered
+				FN		<- F [iClN]				# Nbr of real 'P' values NOT discovered
+				FP		<- F [iClY]				# Nbr of real 'N' values NOT discovered
+				Se		<- TP / P				# Sensitivity (or 'Recall')
+				Sp		<- TN / N				# Specificity
+				Dst 	<- Se + Sp - 1			# Distance to the diagonal (* by sqrt(2))
+				Pr		<- TP / (TP+FP)			# Precision
+				F1		<- 2*Pr*Se/(Pr+Se)		# F1 score
+				Scores2	<- list(N=N, P=P, TN=TN, TP=TP, FN=FN, FP=FP, Se=Se, Sp=Sp, Dst=Dst, Pr=Pr, F1=F1)
+
+				N_de	<- NR_de[iClN]			# Real number of 'N' values						-- Diagonal excluded
+				P_de	<- NR_de[iClY]			# Real number of 'P' values						-- Diagonal excluded
+				TN_de	<- T_de [iClN]			# Nbr of real 'N' values discovered				-- Diagonal excluded
+				TP_de	<- T_de [iClY]			# Nbr of real 'P' values discovered				-- Diagonal excluded
+				FN_de	<- F_de [iClN]			# Nbr of real 'P' values NOT discovered			-- Diagonal excluded
+				FP_de	<- F_de [iClY]			# Nbr of real 'N' values NOT discovered			-- Diagonal excluded
+				Se_de	<- TP_de / P_de			# Sensitivity (or 'Recall')						-- Diagonal excluded
+				Sp_de	<- TN_de / N_de			# Specificity									-- Diagonal excluded
+				Dst_de 	<- Se_de + Sp_de - 1	# Distance to the diagonal (* by sqrt(2))		-- Diagonal excluded
+				Pr_de	<- TP_de / (TP_de+FP_de)		# Precision								-- Diagonal excluded
+				F1_de	<- 2*Pr_de*Se_de/(Pr_de+Se_de)	# F1 score								-- Diagonal excluded
+				Scores2_de	<- list(N=N_de, P=P_de, TN=TN_de, TP=TP_de, FN=FN_de, FP=FP_de, Se=Se_de, Sp=Sp_de, Dst=Dst_de, Pr=Pr_de, F1=F1_de) # Diagonal excluded
+			}
+		}
+		toReturn$Scores2	<- Scores2
+		if (nbRows == nbCols)
+			toReturn$Scores2_de	<- Scores2_de
+		
+		cat ("DONE !", as.character(Sys.time()), "\n")
+		return (toReturn)
+	},		# expr
+		
+	warning = function (e) {
+		message ("Warning detected !")
+		print(e)
+		return (toReturn)
+	},		# warning
+	
+	error = function (e) {
+		message ("Error detected !")
+		print(e)
+	}		# error
+  )			# tryCatch
+  
+  return (NULL)
 }		# Score
+
+
+#' Checks the input data for function Score
+#'
+#' This function checks the input data for function Score.
+#' The parameters are the same as those of Score.
+#'
+#'@param Ret		list of informations delivered by "MRARegress" or a matrix.
+#'@param Ref		Matrix of integers or discrete values	The "Reference Matrix".
+#'@param Classes	Vector		A vector showing the classes (for instance: c(0,1))
+#'@param Verbose	If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
+#'
+
+#'
+#' @return 			A message if an error is detected and returns NULL otherwise.
+#'
+
+CheckInputDataSC	<- function (Ret, Ref, Classes, Verbose) {
+  tryCatch (
+	expr = {
+		# Test input data : Ret or Matr
+		if (is.matrix(Ret)) {
+			if (is.numeric(Ret)) {
+				if (! all(Ret == round(Ret)))
+					return ("If 'Ret' is a numeric matrix, it must contain integers only !")
+			}
+			Dig		<- Ret			
+		} else {	
+			Dig		<- Ret$rDig
+			Classes	<- Ret$Input[[1]]$Classes							# To check that 'Ret' is a valid outut of 'Classify'
+		}
+		
+		# Test 'Classes'
+		if (is.numeric(Classes)) {
+			if (! all(Classes == round(Classes)))
+				return ("If 'Classes' is a numeric matrix, it must contain integers only !")
+		}
+		if (length(Classes) < 2)
+			return ("Two classes at least !")
+
+		# Check that 'Dig', 'Ref' and 'Classes' are of the same data type
+		if (is.numeric(Classes)) {
+			if (! is.numeric(Dig) || ! all(Dig == round(Dig)))
+				return ("Values to check are not of the same data type as 'Classes' !")
+			if (! is.numeric(Ref) || ! all(Ref == round(Ref)))
+				return ("Values to check are not of the same data type as 'Classes' !")
+		}
+
+		# Check that all elements of Ref and Dig belong to 'Classes'
+		if (! (all(Dig %in% Classes) && all(Ref %in% Classes))) {
+			return ("Some elements of Ret or Ref don't belong to 'Classes' !")
+		}
+		
+		return (NULL)			# No error detected
+	},		# expr
+	
+	warning = function (e) {
+		message ("Score : check input parameters : Warning detected !")
+		print(e)	
+		return ("Warning")
+	},		# warning
+	
+	error = function (e) {
+		message ("Score : check input parameters : Error detected !")
+		print(e)
+	}		# error
+  )			# tryCatch
+  
+  return ("Error")
+}		# CheckInputDataSC

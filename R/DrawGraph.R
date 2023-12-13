@@ -154,7 +154,7 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 #' Checks the input data for function DrawGraph
 #'
 #' This function checks the input data for function DrawGraph.
-#' The parameters are same as those of DrawGraph.
+#' The parameters are the same as those of DrawGraph.
 #'
 #'@param Ret		list of informations delivered by "MRARegress" or a square matrix.
 #'@param Title		Title of the graph.

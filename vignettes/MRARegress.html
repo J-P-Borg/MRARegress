@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2023-12-05" />
+<meta name="date" content="2023-12-13" />
 
 <title>‘MRARegress’  Tools to infer connectivity in biological networks</title>
 
@@ -354,7 +354,7 @@ connectivity in biological networks</h1>
 Institut de Recherche en Cancérologie de Montpellier, Inserm,
 Montpellier, France<br><a class="author_email" href="mailto:#"><a href="mailto:jean-pierre.borg@inserm.fr" class="email">jean-pierre.borg@inserm.fr</a> / <a href="mailto:jeanpierre.borg@orange.fr" class="email">jeanpierre.borg@orange.fr</a></a>
 </address>
-<h4 class="date">12/05/2023</h4>
+<h4 class="date">12/13/2023</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 <p>
@@ -571,17 +571,17 @@ of the 6-nodes network described above.<br />
 “MatrCc”), then we call “DrawGraph” to draw the network. The drawing
 quality is manually improved (moving nodes, bending edges).</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>Ret <span class="ot">&lt;-</span> <span class="fu">MRARegress</span> (MatExp1)                 <span class="co"># Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = &quot;TLR&quot;, MapExper = NULL, Verbose = FALSE (default values)</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; START MRARegress ! 2023-12-05 23:12:58.491232 </span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-05 23:12:58.500183</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; START MRARegress ! 2023-12-13 19:31:41.616535 </span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-13 19:31:41.623062</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span> <span class="fu">is.null</span>(Ret)) {</span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    Dg  <span class="ot">&lt;-</span> <span class="fu">DrawGraph</span> (Ret)</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>}</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; START DrawGraph ! 2023-12-05 23:12:58.501056</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; START DrawGraph ! 2023-12-13 19:31:41.623721</span></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; You are connected to Cytoscape!</span></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; Loading data...</span></span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; Applying default style...</span></span>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; Applying preferred layout...</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-05 23:13:06.454641</span></span></code></pre></div>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-13 19:31:49.313882</span></span></code></pre></div>
 <p>  </p>
 </div>
 </div>
@@ -604,22 +604,22 @@ as “MatrCc$r”), then we call “Classify” to detect the edges and
 “DrawDiscr” to draw the discovered network, the missing and the wrong
 edges. The drawing quality is also manually improved.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>Dg  <span class="ot">&lt;-</span> <span class="fu">DrawGraph</span> (Solution)                             <span class="co"># Draws the first image</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; START DrawGraph ! 2023-12-05 23:13:06.53482</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; START DrawGraph ! 2023-12-13 19:31:49.364046</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; You are connected to Cytoscape!</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Loading data...</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; Applying default style...</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; Applying preferred layout...</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-05 23:13:14.438307</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-13 19:31:57.026918</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>Ret <span class="ot">&lt;-</span> <span class="fu">MRARegress</span> (MatExp2, Perturb2)                   <span class="co"># NodeName = NULL, KnlgMap = NULL, Method = &quot;TLR&quot;, MapExper = NULL, Verbose = FALSE (default values)</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; START MRARegress ! 2023-12-05 23:13:14.791206 </span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-05 23:13:14.839437</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; START MRARegress ! 2023-12-13 19:31:57.283171 </span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-13 19:31:57.316165</span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>                                                        <span class="co"># MatExp2 has 10 rows and 21 columns. Perturb is mandatory.</span></span>
 <span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span> <span class="fu">is.null</span>(Ret)) {</span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    MatrCcDiscr <span class="ot">&lt;-</span> <span class="fu">Classify</span>(Ret)                        <span class="co"># Classes = c(0,1), Method = &quot;TLR&quot;, Lbda = NULL (default values)</span></span>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>    <span class="fu">DrawDiscr</span> (MatrCcDiscr, Solution)                   <span class="co"># Draws the second image</span></span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>}</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; START Classify ! 2023-12-05 23:13:14.840423 </span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-05 23:13:14.843313 </span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; START Classify ! 2023-12-13 19:31:57.316892 </span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; DONE ! 2023-12-13 19:31:57.318841 </span></span>
 <span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; this method is not implemented yet !</span></span></code></pre></div>
 <p><br />
 </p>
