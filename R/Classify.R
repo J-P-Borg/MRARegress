@@ -42,29 +42,40 @@
 #'										If MethDiscr = "Top", Lbda values must be in decreasing order.
 #'@param Verbose	Logical				Default	value : FALSE.
 #'										If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
+#'@param NoPrint	Logical				Default	value : FALSE.
+#'										If TRUE, no printings are made. Useful for tests including calls to 'Classify' in a loop.
 #'
-#'@details								Examples : let  Res = MRARegress(MatExp)  (Method = "TLR" : default value)  and  Sqr be a matrix
-#'										- A = Classify(Res) means Classes = c(0,1), A$rDig\[i,j\] = 1 if abs(Res$r\[i,j\] > 0.25 * max(abs(Res$r\[i,j\])) else A$rDig\[i,j\] = 0
-#'										- A = Classify(Res, Lbda=0.5) means Classes = c(0,1), A$rDig\[i,j\] = 1 if abs(Res$r\[i,j\] > 0.5 * max(abs(Res$r\[i,j\])) else A$rDig\[i,j\] = 0
-#'										- A = Classify(Res, MethDiscr="Top", Lbda=10) means Classes = c(0,1), A$rDig\[i,j\] = 1 if Res$r\[i,j\] belongs to the top 10% values, else 0
-#'										(note that, when MethDiscr is NOT NULL, like here, we test Res$r and not abs(Res$r))
-#'										- A = Classify(Res, Classes=c(-1,0,1), Lbda=10)  : incorrect. If there are more than two classes, MethDiscr and Lbda must be defined.
-#'										- A = Classify(Res, Classes=c(-1,0,1), MethDiscr="Threshold", Lbda=0.3)  : incorrect. The length of the vector Lbda needs to equal 2.
-#'										- A = Classify(Res, classes=c(-1,0,1), MethDiscr="Threshold", Lbda=c(-0.3,0.25)) means :
-#'										A$rDig\[i,j\] = -1 if Res$r\[i,j\] <= -0.3  * max(abs(Res$r\[i,j\]))
-#'										A$rDig\[i,j\] =  0 if Res$r\[i,j\] >  -0.3  * max(abs(Res$r\[i,j\])) AND Res$r\[i,j\] <= 0.25 * max(abs(Res$r\[i,j\]))
-#'										A$rDig\[i,j\] =  1 if Res$r\[i,j\] >   0.25 * max(abs(Res$r\[i,j\]))
-#'										- B = Classify(Sqr)  : incorrect. If the parameter "Ret" is a matrix, MethDiscr and Lbda must be specified.
-#'										- B = Classify(Sqr, MethDiscr="Threshold", Lbda=0.3) means Classes = c(0,1), B$rDig\[i,j\] = 1 if Sqr\[i,j\] > 0.3 * max(abs(Sqr\[i,j\])) else 0
-#'										- B = Classify(Sqr, classes=c(-1,0,1), MethDiscr="Threshold", Lbda=c(-0.3,0.25)) means :
-#'										B$rDig\[i,j\] = -1 if Sqr\[i,j\] <= -0.3  * max(abs(Sqr\[i,j\]))
-#'										B$rDig\[i,j\] =  0 if Sqr\[i,j\] >  -0.3  * max(abs(Sqr\[i,j\])) AND Sqr\[i,j\] <= 0.25 * max(abs(Sqr\[i,j\]))
-#'										B$rDig\[i,j\] =  1 if Sqr\[i,j\] >   0.25 * max(abs(Sqr\[i,j\]))
-#'										- B = Classify(Sqr, classes=c(-1,0,1), MethDiscr="Top", Lbda=c(50,10)) means :
-#'										B$rDig\[i,j\] =  1 if Sqr\[i,j\] belongs to the top 10%
-#'										B$rDig\[i,j\] =  0 if Sqr\[i,j\] belongs to the interval \[top 10%, top 50%\[
-#'										otherwise, B$rDig\[i,j\] = -1 
-
+#'@details		
+#'		Examples : let  Res = MRARegress(MatExp)  (Method = "TLR" : default value)  and  Sqr be a matrix
+#'			- A = Classify(Res) means Classes = c(0,1), A$rDig\[i,j\] = 1 if abs(Res$r\[i,j\] > 0.25 * max(abs(Res$r\[i,j\])) else A$rDig\[i,j\] = 0
+#'			- A = Classify(Res, Lbda=0.5) means Classes = c(0,1), A$rDig\[i,j\] = 1 if abs(Res$r\[i,j\] > 0.5 * max(abs(Res$r\[i,j\])) else A$rDig\[i,j\] = 0
+#'			- A = Classify(Res, MethDiscr="Top", Lbda=10) means Classes = c(0,1), A$rDig\[i,j\] = 1 if Res$r\[i,j\] belongs to the top 10% values, else 0
+#'			(note that, when MethDiscr is NOT NULL, like here, we test Res$r and not abs(Res$r))
+#'			- A = Classify(Res, Classes=c(-1,0,1), Lbda=10)  : incorrect. If there are more than two classes, MethDiscr and Lbda must be defined.
+#'			- A = Classify(Res, Classes=c(-1,0,1), MethDiscr="Threshold", Lbda=0.3)  : incorrect. The length of the vector Lbda needs to equal 2.
+#'			- A = Classify(Res, classes=c(-1,0,1), MethDiscr="Threshold", Lbda=c(-0.3,0.25)) means :
+#'			A$rDig\[i,j\] = -1 if Res$r\[i,j\] <= -0.3  * max(abs(Res$r\[i,j\]))
+#'			A$rDig\[i,j\] =  0 if Res$r\[i,j\] >  -0.3  * max(abs(Res$r\[i,j\])) AND Res$r\[i,j\] <= 0.25 * max(abs(Res$r\[i,j\]))
+#'			A$rDig\[i,j\] =  1 if Res$r\[i,j\] >   0.25 * max(abs(Res$r\[i,j\]))
+#'			- B = Classify(Sqr)  : incorrect. If the parameter "Ret" is a matrix, MethDiscr and Lbda must be specified.
+#'			- B = Classify(Sqr, MethDiscr="Threshold", Lbda=0.3) means Classes = c(0,1), B$rDig\[i,j\] = 1 if Sqr\[i,j\] > 0.3 * max(abs(Sqr\[i,j\])) else 0
+#'			- B = Classify(Sqr, classes=c(-1,0,1), MethDiscr="Threshold", Lbda=c(-0.3,0.25)) means :
+#'			B$rDig\[i,j\] = -1 if Sqr\[i,j\] <= -0.3  * max(abs(Sqr\[i,j\]))
+#'			B$rDig\[i,j\] =  0 if Sqr\[i,j\] >  -0.3  * max(abs(Sqr\[i,j\])) AND Sqr\[i,j\] <= 0.25 * max(abs(Sqr\[i,j\]))
+#'			B$rDig\[i,j\] =  1 if Sqr\[i,j\] >   0.25 * max(abs(Sqr\[i,j\]))
+#'			- B = Classify(Sqr, classes=c(-1,0,1), MethDiscr="Top", Lbda=c(50,10)) means :
+#'			B$rDig\[i,j\] =  1 if Sqr\[i,j\] belongs to the top 10%
+#'			B$rDig\[i,j\] =  0 if Sqr\[i,j\] belongs to the interval \[top 10%, top 50%\[
+#'			otherwise, B$rDig\[i,j\] = -1 
+#'
+#'	OUTPUT:
+#'
+#'		rDig	Matrix of numbers		
+#'				Returns the input matrix classified if no error occured, ie, each element of the input matrix is replaced by the class to which
+#'				this item belongs. This matrix has the same number of rows and columns than the input matrix.
+#'  	Input	List					
+#'				list of the input parameters values + "Method" and "ThresholdPar" (used to classify). NULL values are not replaced.
+#'
 #'
 #'@name			Classify
 #'
@@ -72,19 +83,16 @@
 #'				The input data are described above and the outputs below.
 #'
 #'@return		List					NULL in case of error or a list of informations ("rDig", "Input").
-#'	rDig		Matrix of numbers		Returns the input matrix classified if no error occured, ie, each element of the input matrix is replaced by the class to which
-#'										this item belongs. This matrix has the same number of rows and columns than the input matrix.
-#'  Input		List					list of the input parameters values + "Method" and "ThresholdPar" (used to classify). NULL values are not replaced.
-#'
 
 #'@export
 #'
 
 
-Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verbose = FALSE) {
+Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verbose = FALSE, NoPrint=FALSE) {
   tryCatch (
 		expr = {
-		cat ("START Classify !", as.character(Sys.time()), "\n")
+		if (! NoPrint)
+			cat ("START Classify !", as.character(Sys.time()), "\n")
 
 		toReturn	<- list()			# Return values
 		toReturn[["rDig"]]	<- NULL
@@ -94,7 +102,7 @@ Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verb
 			Ret	<- matrix(Ret, nrow=1)		# transformed into a matrix
 	
 		# Check input data
-		err	<-  CheckInputDataCY (Ret, Classes, MethDiscr, Lbda, Verbose)
+		err	<-  CheckInputDataCY (Ret, Classes, MethDiscr, Lbda, Verbose, NoPrint)
 		if (! is.null(err)) {
 			message (err)
 			return (NULL)
@@ -183,7 +191,8 @@ Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verb
 		toReturn$rDig		<- rDig
 		toReturn$Input		<- Input
 
-		cat ("DONE !", as.character(Sys.time()), "\n")
+		if (! NoPrint)
+			cat ("DONE !", as.character(Sys.time()), "\n")
 		return (toReturn)
 	},		# expr
 		
@@ -213,13 +222,14 @@ Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verb
 #'@param MethDiscr	The method to use to classify the matrix. 
 #'@param Lbda		An hyper-parameter specific to the method.
 #'@param Verbose	If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
+#'@param NoPrint	If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.
 #'
 
 #'
 #' @return 			A message if an error is detected and returns NULL otherwise.
 #'
 
-CheckInputDataCY	<- function (Ret, Classes, MethDiscr, Lbda, Verbose) {
+CheckInputDataCY	<- function (Ret, Classes, MethDiscr, Lbda, Verbose, NoPrint) {
   tryCatch (
 	expr = {
 		# Test input data : Ret or Matr
@@ -276,9 +286,19 @@ CheckInputDataCY	<- function (Ret, Classes, MethDiscr, Lbda, Verbose) {
 			if (is.matrix(Ret) || length(Classes) > 2)
 				return ("If Ret is a matrix or nb. classes > 2, Lbda must not be NULL !")
 		}
+		
+		# Verbose
+		if (! (Verbose %in% c("TRUE", "FALSE"))) {
+			return ("Verbose must be TRUE or FALSE !")
+		}
+	
+		# NoPrint
+		if (! (NoPrint %in% c("TRUE", "FALSE"))) {
+			return ("NoPrint must be TRUE or FALSE !")
+		}
 
-		return (NULL)			# No error detected
-	},		# expr
+			return (NULL)			# No error detected
+		},		# expr
 	
 	warning = function (e) {
 		message ("Classify : check input parameters : Warning detected !")

@@ -95,29 +95,61 @@
 #'										If FALSE, Ri,j = Xi(P+∆Pj)-Xi(P). See the document ""Projet de mémoire de thèse - 1° partie".
 #'@param Verbose	Logical				Default	value : FALSE.
 #'										If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
+#'@param NoPrint	Logical				Default	value : FALSE.
+#'										If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.
 #'
 #'@details			
-#'					nbN : number of nodes,
-#'					nbP : number of perturbations, ie nbBase*nbPc, calles éQ" in the document "Projet de mémoire de thèse - 1° partie"
-#'					nbM : number of parameters.
-#'						If MapExper is NULL, it is mandatory that nbP >= nbN
-#'						If MapExper is NOT NULL and perturbations are proportional, it is mandatory that nbP >= nbN - 1 + nbM.
-#'						The rank of the system must be equal to the number of the unknowns (nbN or nbN-1+nbM) : the nbP perturbations must be "independant". 
-#'					See "Projet de mémoire de thèse - 1° partie".
-#'					This document provides many examples to explain these parameters.
+#'		nbN : number of nodes,
+#'		nbP : number of perturbations, ie nbBase*nbPc, calles éQ" in the document "Projet de mémoire de thèse - 1° partie"
+#'		nbM : number of parameters.
+#'			If MapExper is NULL, it is mandatory that nbP >= nbN
+#'			If MapExper is NOT NULL and perturbations are proportional, it is mandatory that nbP >= nbN - 1 + nbM.
+#'			The rank of the system must be equal to the number of the unknowns (nbN or nbN-1+nbM) : the nbP perturbations must be "independant". 
+#'		See "Projet de mémoire de thèse - 1° partie".
+#'		This document provides many examples to explain these parameters.
+#'		
+#'		Imported libraries :
+#'			- stringr		processing of strings, str_replace_all
+#'			- stats			lm, as.formula
+#'			- glmnet		cv.glmnet
+#'			- dplyr			rename
+#'			- BiocManager	may be necessary to import minet
+#'			- minet			aracne, clr, mrnet, build.mim
+#'			- randomForest	randomForest, importance
+#'			- CVXR			convex optimization
+#'			- magrittr		pipes
+#'			- rootSolve		solve for the roots of n nonlinear equations (Order2)
 #'
-#'					Imported libraries :
-#'						- stringr		processing of strings, str_replace_all
-#'						- stats			lm, as.formula
-#'						- glmnet		cv.glmnet
-#'						- dplyr			rename
-#'						- BiocManager	may be necessary to import minet
-#'						- minet			aracne, clr, mrnet, build.mim
-#'						- randomForest	randomForest, importance
-#'						- CVXR			convex optimization
-#'						- magrittr		pipes
-#'						- rootSolve		solve for the roots of n nonlinear equations (Order2)
+#'	OUTPUT:
 #'
+#'		   r		Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
+#'		Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)*(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
+#'						The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :
+#'							- the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i.
+#'							- the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5*si,j,j * (DeltaXi,j)^2 with j != i.
+#'							- the last (nbN-2)*(nbN-1)/2 coefficients correspond to the "product part" (ie. si,j,k) : 
+#'							  si,j,k * (DeltaXi,j)*DeltaXi,k) with j : 1 .. (nbN-1), j != i and k : (j+1) .. nbN, k!= i.
+#'							  For example, if nbN=4 and i=1, this part is : s1,2,3*D1,2*D1,3, s1,2,4*D1,2*D1,4, s1,3,4*D1,3*D1,4 (since s1,2,3 = s1,3,3 etc..).
+#'							  where we note Di,j the term DeltaXi,j.
+#'							  If nbN=4 and i=2, this part is : s2,1,3*D2,1*D2,3, s2,1,4*D2,1*D2,4, s2,3,4*D2,3*D2,4 (idem, s2,1,3 = s2,3,1 etc...).
+#'		ANOVA		Matrix of numbers	Returns the "ANOVA values", as described in "Statistical Design and Analysis of Experiments" (R.L. Mason et al, 2003), for the
+#'							various methods, except "ARACNE", "CLR", "MRNET".		
+#'							- A matrix
+#'								This matrix has 5 rows ("SSR", "SSE", "LOF", "Pure", "TSS") 
+#'								and 11 columns ("df/m", "df/M", "Sum/m", "Sum/M", "Mean/m", "Mean/M", "F/m", "F/M," "pVal/m", "pVal/M", "nbrNdes")
+#'								where : SSR (or SCE) represents the variance explained by the regression, SSE (or SCR) is the estimation error, 
+#'								LOF ("Lack Of Fit") is the error due to maladjustement of the model (linear, polynomial...), Pure is due to measurement noise, 
+#'								TSS (or SCT) is the total variation of error, and
+#'								df stands for degrees of freedom, /m and /M : minimum and maximum value for the different nodes, Sum is the sum designed by the row,
+#'								Mean equals Sum/df, F is a Fisher variable used to compute the p Value of the result (see "Projet de mémoire de thèse - 1° partie", § 4.4.3).
+#'								nbrNdes is the number of nodes whose p Value exceeds a threshold (0.25 for F-SSR and 0.05 for F-LOF).
+#'							- Two sentences explaining the results F-SSR and 0.05 for F-LOF.
+#'		PValN		Vector	A vector giving the coded p values (SSR and LOF) regarding each node.
+#'		Input		List	A list composed of two lists : "Variables" and "InputPar", for internal use and to communicate with the other modules of the package MRARegress.
+#'							"Variables" is a list of important variables used by the program (nbN, nbM, H6, nbBase, nbPc, nbP, PerturbN, PerturbR1, PerturbR2, MatD, 
+#'								MatInc, FirstTrial, Keys, PValN).
+#'							"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
+#'	
 
 #'@import stringr
 #'@import stats
@@ -132,58 +164,33 @@
 #'@import rootSolve
 #'
 
-
 #'
 #'@name			MRARegress
 #'
 #'@description	The function MRARegress computes the connectivity matrix, according to the document "MaRédaction.docx".
 #'				The input data are described above and the outputs below.
 #'
-#'@return		List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :  	
-#'	r			Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
-#'	Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)*(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
-#'					The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :
-#'						- the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i.
-#'									 - the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5*si,j,j * (DeltaXi,j)^2 with j != i.
-#'									 - the last (nbN-2)*(nbN-1)/2 coefficients correspond to the "product part" (ie. si,j,k) : 
-#'										si,j,k * (DeltaXi,j)*DeltaXi,k) with j : 1 .. (nbN-1), j != i and k : (j+1) .. nbN, k!= i.
-#'										For example, if nbN=4 and i=1, this part is : s1,2,3*D1,2*D1,3, s1,2,4*D1,2*D1,4, s1,3,4*D1,3*D1,4 (since s1,2,3 = s1,3,3 etc..).
-#'										where we note Di,j the term DeltaXi,j.
-#'										If nbN=4 and i=2, this part is : s2,1,3*D2,1*D2,3, s2,1,4*D2,1*D2,4, s2,3,4*D2,3*D2,4 (idem, s2,1,3 = s2,3,1 etc...).
-#'	ANOVA		Matrix of numbers	Returns the "ANOVA values", as described in "Statistical Design and Analysis of Experiments" (R.L. Mason et al, 2003), for the
-#'									various methods, except "ARACNE", "CLR", "MRNET".		
-#'									 - A matrix
-#'									This matrix has 5 rows ("SSR", "SSE", "LOF", "Pure", "TSS") 
-#'									and 11 columns ("df/m", "df/M", "Sum/m", "Sum/M", "Mean/m", "Mean/M", "F/m", "F/M," "pVal/m", "pVal/M", "nbrNdes")
-#'									where : SSR (or SCE) represents the variance explained by the regression, SSE (or SCR) is the estimation error, 
-#'									LOF ("Lack Of Fit") is the error due to maladjustement of the model (linear, polynomial...), Pure is due to measurement noise, 
-#'									TSS (or SCT) is the total variation of error, and
-#'									df stands for degrees of freedom, /m and /M : minimum and maximum value for the different nodes, Sum is the sum designed by the row,
-#'									Mean equals Sum/df, F is a Fisher variable used to compute the p Value of the result (see "Projet de mémoire de thèse - 1° partie", § 4.4.3).
-#'									nbrNdes is the number of nodes whose p Value exceeds a threshold (0.25 for F-SSR and 0.05 for F-LOF).
-#'									 - Two sentences explaining the results F-SSR and 0.05 for F-LOF.
-#'	Input		List				A list composed of two lists : "Variables" and "InputPar", for internal use and to communicate with the other modules of the package MRARegress.
-#'									"Variables" is a list of important variables used by the program (nbN, nbM, H6, nbBase, nbPc, nbP, PerturbN, PerturbR1, PerturbR2, MatD, 
-#'									MatInc, FirstTrial, Keys).
-#'									"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
-#'
+#'@return		List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method.
+
 #'@export
 #'
 
 MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = "TLR", Hyp_Lbda = NULL, Hyp_Mu = 1, Hyp_Step = "Fo", 
-						Hyp_Eps = 0, Hyp_Cvx = 0, MapExper = NULL, ParNode = NULL, Relative = TRUE, Verbose = FALSE) {
+						Hyp_Eps = 0, Hyp_Cvx = 0, MapExper = NULL, ParNode = NULL, Relative = TRUE, Verbose = FALSE, NoPrint = FALSE) {
   tryCatch (
 	expr = {
-		cat ("START MRARegress !", as.character(Sys.time()), "\n")
+		if (! NoPrint)
+			cat ("START MRARegress !", as.character(Sys.time()), "\n")
 		
-		toReturn	<- list()			# Return values
+		toReturn				<- list()			# Return values
 		toReturn[["r"]]			<- NULL
 		toReturn[["Order2"]]	<- NULL
 		toReturn[["ANOVA"]]		<- NULL
+		toReturn[["PValN"]]		<- NULL
 		toReturn[["Input"]]		<- NULL
-		
+
 		# Check input data
-		err	<-  CheckInputData (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda, Hyp_Mu, Hyp_Step, Hyp_Eps, Hyp_Cvx, MapExper, ParNode, Relative, Verbose)
+		err	<-  CheckInputData (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda, Hyp_Mu, Hyp_Step, Hyp_Eps, Hyp_Cvx, MapExper, ParNode, Relative, Verbose, NoPrint)
 		if (! is.null(err)) {
 			message (err)
 			return (NULL)
@@ -206,6 +213,13 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		rowAnova	<- c("SSR", "SSE", "LOF", "Pure", "TSS")				# Raw names for Anovas and Anova :
 																			# Variance explained by regression, Residual variance, Lack of fit, Pure error
 		Anovas		<- array(0, dim=c(length(rowAnova), length(colAnovas), nbN)) # Anova computations for each node
+		PValN		<- vector(length=nbN)									# For each node : 
+																			#	A	: pVal[SSR] or pVal[LOF] cannot be computed.
+																			#	B	: Measures are NOT explained by the model : pVal[SSR] >= tlrSSR 
+																			#	C	: Measures are explained by the model, residual errors do not correspond to the noise level :
+																			#				pVal[SSR] < tlrSSR AND  pVal[LOF] < tlrLOF, 
+																			#	D	: Measures are explained by the model, residual errors correspond to the noise level :
+																			#				pVal[SSR] < tlrSSR AND  pVal[LOF] >= tlrLOF. 
 		dimnames(Anovas)	<- list(rowAnova, colAnovas, NULL)
 
 		bSSR		<- TRUE													# TRUE if we can compute SSR F & pValue for each node
@@ -289,7 +303,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		} else {
 			for (iPc in 1:nbPc) {
 				unPert	<- Perturb[cPerturb[iPc]]							# One perturbation
-				unPert	<- str_replace_all(unPert, " ", "")
+				unPert	<- stringr::str_replace_all(unPert, " ", "")
 				unPert	<- strsplit(unPert, "->")							# Mandatory syntax if H6 TRUE :  "Qi  -> Nj" (as many spaces as you like)
 
 				PertName	<- unPert[[1]][1]								# Name of the perturbation
@@ -362,7 +376,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 ###					message ("Some nodes are not perturbed !")
 ###					return (toReturn)
 ###				}
-		
+
 		if (Verbose) {
 			cat("H6 ", H6, "nbN ", nbN, " nbPc ", nbPc, " nbBase ", nbBase, " Nodes ", NodeName, "\n")
 			cat(" Perturb. & nodes \n")
@@ -387,7 +401,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					cc	<- paste(cc, PerturbN[j,1], "; ", sep="")
 				}
 			}
-			cc	<- str_sub(cc, start=1, end=str_length(cc)-2)	# removes the final '; ' 
+			cc	<- stringr::str_sub(cc, start=1, end=stringr::str_length(cc)-2)	# removes the final '; ' 
 			MatrCcCol[iNode]	<- cc
 			
 			if (Verbose) {
@@ -546,7 +560,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 						MatrCc[iNode,col]	<- ((lm(as.formula(Form)))$coefficients)[1:(length(col))]
 					} else {												# We have some informations about the solution
 						constraints	 <- list()
-						beta		 <- Variable(nbN-1)						# ri,j to compute according to this method
+						beta		 <- CVXR::Variable(nbN-1)						# ri,j to compute according to this method
 
 						for (iCol in 1:(nbN-1)) {
 							cc	<- col[iCol]
@@ -567,10 +581,11 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 							}
 						}	# for iCol
 
-						objective			<- Minimize(sum((MatY0 - MatU0 %*% beta)^2))
-						problem				<- Problem(objective, constraints)
-						result				<- solve(problem)
-						MatrCc[iNode,col]	<- result$getValue(beta) %>% round(8)	
+						objective			<- CVXR::Minimize(sum((MatY0 - MatU0 %*% beta)^2))
+						problem				<- CVXR::Problem(objective, constraints)
+						result				<- CVXR::solve(problem)
+#						MatrCc[iNode,col]	<- result$getValue(beta) %>% round(8)
+						MatrCc[iNode,col]	<- round (result$getValue(beta), 8)
 					}		# KnlgMap not NULL
 					
 				} else if (Method == "LASSO") {
@@ -704,6 +719,15 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					cat ("Anovas\n")
 					print (Anovas[ , ,iNode])
 				}
+
+				if (!bSSR || !bLOF)
+					PValN[iNode] = "A"				
+				else if (Anovas["SSR", "pVal", iNode] >= tlrSSR)
+					PValN[iNode] = "B"
+				else if (Anovas["LOF", "pVal", iNode] < tlrLOF)
+					PValN[iNode] = "C"
+				else
+					PValN[iNode] = "D"
 			}		# for iNode
 		}			# else ARACNE ...
 
@@ -778,14 +802,22 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		} else {
 			strLOF	<-	"Residual errors are explained by the noise level !\n"
 		}
-		
+
+		if (Verbose) {
+			for (iNode in 1:nbN) {
+				cat ("iNode : ", iNode, " SSR pVal : ", Anovas["SSR", "pVal", iNode], " LOF pVal : ", Anovas["LOF", "pVal", iNode], " PValN ", PValN[iNode], "\n")
+			}
+		}
+
 		AnovaOut	<- list(Anova, strSSR, strLOF)
 		
-		cat ("DONE !", as.character(Sys.time()), "\n")
+		if (! NoPrint)
+			cat ("DONE !", as.character(Sys.time()), "\n")
 
 		toReturn$r		<- MatrCc	
 		toReturn$Order2	<- MatO2
 		toReturn$ANOVA	<- AnovaOut
+		toReturn$PValN	<- PValN
 		toReturn$Input	<- Input
 
 		return (toReturn)
@@ -797,6 +829,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		toReturn$r		<- MatrCc
 		toReturn$Order2	<- MatO2
 		toReturn$ANOVA	<- AnovaOut
+		toReturn$PValN	<- PValN
 		toReturn$Input	<- Input
 		
 		return (toReturn)
@@ -830,14 +863,15 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 #'@param MapExper	The "Experience Map" matrix
 #'@param ParNode	The "Parameters /Nodes relation" matrix
 #'@param Relative	"Relative or absolute" values for the Global Response Matrix ("R")
-#'@param Verbose	If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
+#'@param Verbose	If TRUE, additional printings are made. These printings are for internal use only, so they are not documented
+#'@param NoPrint	If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.
 #'
 
 #'
 #' @return 			A message if an error is detected and returns NULL otherwise.
 #'
 
-CheckInputData	<- function (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda, Hyp_Mu, Hyp_Step, Hyp_Eps, Hyp_Cvx, MapExper, ParNode, Relative, Verbose) {
+CheckInputData	<- function (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda, Hyp_Mu, Hyp_Step, Hyp_Eps, Hyp_Cvx, MapExper, ParNode, Relative, Verbose, NoPrint) {
 
 	# Variables declaration
 	nbN			<- dim(MatExp)[1]										# Number of nodes
@@ -971,6 +1005,11 @@ CheckInputData	<- function (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda
 		return ("Verbose must be TRUE or FALSE !")
 	}
 
+	# NoPrint
+	if (! (NoPrint %in% c("TRUE", "FALSE"))) {
+		return ("NoPrint must be TRUE or FALSE !")
+	}
+	
 	# Number of perturbations
 	if (nbP < nbN)
 		return ("Not enough perturbations to get result !")

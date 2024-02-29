@@ -18,7 +18,8 @@ MRARegress(
   MapExper = NULL,
   ParNode = NULL,
   Relative = TRUE,
-  Verbose = FALSE
+  Verbose = FALSE,
+  NoPrint = FALSE
 )
 }
 \arguments{
@@ -126,37 +127,13 @@ If FALSE, Ri,j = Xi(P+∆Pj)-Xi(P). See the document ""Projet de mémoire de th�
 
 \item{Verbose}{Logical                Default    value : FALSE.
 If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
+
+\item{NoPrint}{Logical                Default    value : FALSE.
+If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method :  	
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method.
 }\if{html}{\out{</div>}}
-
-r			Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
-Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)\emph{(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
-The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :
-- the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i.
-- the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5}si,j,j * (DeltaXi,j)^2 with j != i.
-- the last (nbN-2)\emph{(nbN-1)/2 coefficients correspond to the "product part" (ie. si,j,k) :
-si,j,k * (DeltaXi,j)\emph{DeltaXi,k) with j : 1 .. (nbN-1), j != i and k : (j+1) .. nbN, k!= i.
-For example, if nbN=4 and i=1, this part is : s1,2,3}D1,2}D1,3, s1,2,4\emph{D1,2}D1,4, s1,3,4\emph{D1,3}D1,4 (since s1,2,3 = s1,3,3 etc..).
-where we note Di,j the term DeltaXi,j.
-If nbN=4 and i=2, this part is : s2,1,3\emph{D2,1}D2,3, s2,1,4\emph{D2,1}D2,4, s2,3,4\emph{D2,3}D2,4 (idem, s2,1,3 = s2,3,1 etc...).
-ANOVA		Matrix of numbers	Returns the "ANOVA values", as described in "Statistical Design and Analysis of Experiments" (R.L. Mason et al, 2003), for the
-various methods, except "ARACNE", "CLR", "MRNET".
-- A matrix
-This matrix has 5 rows ("SSR", "SSE", "LOF", "Pure", "TSS")
-and 11 columns ("df/m", "df/M", "Sum/m", "Sum/M", "Mean/m", "Mean/M", "F/m", "F/M," "pVal/m", "pVal/M", "nbrNdes")
-where : SSR (or SCE) represents the variance explained by the regression, SSE (or SCR) is the estimation error,
-LOF ("Lack Of Fit") is the error due to maladjustement of the model (linear, polynomial...), Pure is due to measurement noise,
-TSS (or SCT) is the total variation of error, and
-df stands for degrees of freedom, /m and /M : minimum and maximum value for the different nodes, Sum is the sum designed by the row,
-Mean equals Sum/df, F is a Fisher variable used to compute the p Value of the result (see "Projet de mémoire de thèse - 1° partie", § 4.4.3).
-nbrNdes is the number of nodes whose p Value exceeds a threshold (0.25 for F-SSR and 0.05 for F-LOF).
-- Two sentences explaining the results F-SSR and 0.05 for F-LOF.
-Input		List				A list composed of two lists : "Variables" and "InputPar", for internal use and to communicate with the other modules of the package MRARegress.
-"Variables" is a list of important variables used by the program (nbN, nbM, H6, nbBase, nbPc, nbP, PerturbN, PerturbR1, PerturbR2, MatD,
-MatInc, FirstTrial, Keys).
-"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
 }
 \description{
 : this function checks the input data and computes the connectivity matrix, according to the document "MaRédaction.docx".
@@ -168,25 +145,56 @@ The function MRARegress computes the connectivity matrix, according to the docum
 The input data are described above and the outputs below.
 }
 \details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{			nbN : number of nodes,
-			nbP : number of perturbations, ie nbBase*nbPc, calles éQ" in the document "Projet de mémoire de thèse - 1° partie"
-			nbM : number of parameters.
-				If MapExper is NULL, it is mandatory that nbP >= nbN
-				If MapExper is NOT NULL and perturbations are proportional, it is mandatory that nbP >= nbN - 1 + nbM.
-				The rank of the system must be equal to the number of the unknowns (nbN or nbN-1+nbM) : the nbP perturbations must be "independant". 
-			See "Projet de mémoire de thèse - 1° partie".
-			This document provides many examples to explain these parameters.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{nbN : number of nodes,
+nbP : number of perturbations, ie nbBase*nbPc, calles éQ" in the document "Projet de mémoire de thèse - 1° partie"
+nbM : number of parameters.
+	If MapExper is NULL, it is mandatory that nbP >= nbN
+	If MapExper is NOT NULL and perturbations are proportional, it is mandatory that nbP >= nbN - 1 + nbM.
+	The rank of the system must be equal to the number of the unknowns (nbN or nbN-1+nbM) : the nbP perturbations must be "independant". 
+See "Projet de mémoire de thèse - 1° partie".
+This document provides many examples to explain these parameters.
 
-			Imported libraries :
-				- stringr		processing of strings, str_replace_all
-				- stats			lm, as.formula
-				- glmnet		cv.glmnet
-				- dplyr			rename
-				- BiocManager	may be necessary to import minet
-				- minet			aracne, clr, mrnet, build.mim
-				- randomForest	randomForest, importance
-				- CVXR			convex optimization
-				- magrittr		pipes
-				- rootSolve		solve for the roots of n nonlinear equations (Order2)
+Imported libraries :
+	- stringr		processing of strings, str_replace_all
+	- stats			lm, as.formula
+	- glmnet		cv.glmnet
+	- dplyr			rename
+	- BiocManager	may be necessary to import minet
+	- minet			aracne, clr, mrnet, build.mim
+	- randomForest	randomForest, importance
+	- CVXR			convex optimization
+	- magrittr		pipes
+	- rootSolve		solve for the roots of n nonlinear equations (Order2)
+}\if{html}{\out{</div>}}
+
+OUTPUT:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{   r		Matrix of numbers	Returns the "Connectivity Matrix" ("r") if no error occured. This matrix has nbN rows and nbN columns.
+Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)*(2+(nbN-2)/2) columns), if Method = "Order2", and NULL otherwise.
+				The "Order2" coefficients are defined like this, for each i in 1:nbN (i is the row number and nbN, the number of nodes) :
+					- the first nbN-1 coefficients correspond to the "linear part" (ie. ri,j) : ri,j * DeltaXi,j with j != i.
+					- the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5*si,j,j * (DeltaXi,j)^2 with j != i.
+					- the last (nbN-2)*(nbN-1)/2 coefficients correspond to the "product part" (ie. si,j,k) : 
+					  si,j,k * (DeltaXi,j)*DeltaXi,k) with j : 1 .. (nbN-1), j != i and k : (j+1) .. nbN, k!= i.
+					  For example, if nbN=4 and i=1, this part is : s1,2,3*D1,2*D1,3, s1,2,4*D1,2*D1,4, s1,3,4*D1,3*D1,4 (since s1,2,3 = s1,3,3 etc..).
+					  where we note Di,j the term DeltaXi,j.
+					  If nbN=4 and i=2, this part is : s2,1,3*D2,1*D2,3, s2,1,4*D2,1*D2,4, s2,3,4*D2,3*D2,4 (idem, s2,1,3 = s2,3,1 etc...).
+ANOVA		Matrix of numbers	Returns the "ANOVA values", as described in "Statistical Design and Analysis of Experiments" (R.L. Mason et al, 2003), for the
+					various methods, except "ARACNE", "CLR", "MRNET".		
+					- A matrix
+						This matrix has 5 rows ("SSR", "SSE", "LOF", "Pure", "TSS") 
+						and 11 columns ("df/m", "df/M", "Sum/m", "Sum/M", "Mean/m", "Mean/M", "F/m", "F/M," "pVal/m", "pVal/M", "nbrNdes")
+						where : SSR (or SCE) represents the variance explained by the regression, SSE (or SCR) is the estimation error, 
+						LOF ("Lack Of Fit") is the error due to maladjustement of the model (linear, polynomial...), Pure is due to measurement noise, 
+						TSS (or SCT) is the total variation of error, and
+						df stands for degrees of freedom, /m and /M : minimum and maximum value for the different nodes, Sum is the sum designed by the row,
+						Mean equals Sum/df, F is a Fisher variable used to compute the p Value of the result (see "Projet de mémoire de thèse - 1° partie", § 4.4.3).
+						nbrNdes is the number of nodes whose p Value exceeds a threshold (0.25 for F-SSR and 0.05 for F-LOF).
+					- Two sentences explaining the results F-SSR and 0.05 for F-LOF.
+PValN		Vector	A vector giving the coded p values (SSR and LOF) regarding each node.
+Input		List	A list composed of two lists : "Variables" and "InputPar", for internal use and to communicate with the other modules of the package MRARegress.
+					"Variables" is a list of important variables used by the program (nbN, nbM, H6, nbBase, nbPc, nbP, PerturbN, PerturbR1, PerturbR2, MatD, 
+						MatInc, FirstTrial, Keys, PValN).
+					"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
 }\if{html}{\out{</div>}}
 }

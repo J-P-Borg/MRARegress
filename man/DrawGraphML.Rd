@@ -22,10 +22,6 @@ An edge is drawn between nodes 'i' and 'j' iff connectivity coefficient is >= Th
 \value{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{List					NULL in case of error or a list of informations ("XML", "theGraph", "Variables").
 }\if{html}{\out{</div>}}
-
-XML			String					The name of the xml file created.
-theGraph	List of dataframes 		nodes (list of nodes), edges (list of edges : source, target, interaction, value).
-Variables	List					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
 }
 \description{
 :  this function creates a XML file, describing "r" as a graph in GraphML format.
@@ -39,7 +35,17 @@ Creates a XML file, describing "r" as a graph in GraphML format.
 The input data are described above and the outputs below.
 }
 \details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{							Imported libraries :
-							- stringr				To use str_detect()
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Imported libraries :
+- stringr				To use str_detect()
+}\if{html}{\out{</div>}}
+
+OUTPUT:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  XML		String					
+			The name of the xml file created.
+theGraph	List of dataframes 		
+			nodes (list of nodes), edges (list of edges : source, target, interaction, value).
+Variables	List					
+			list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
 }\if{html}{\out{</div>}}
 }

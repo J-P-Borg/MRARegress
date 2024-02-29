@@ -4,7 +4,7 @@
 \alias{CheckInputDataCY}
 \title{Checks the input data for function Classify}
 \usage{
-CheckInputDataCY(Ret, Classes, MethDiscr, Lbda, Verbose)
+CheckInputDataCY(Ret, Classes, MethDiscr, Lbda, Verbose, NoPrint)
 }
 \arguments{
 \item{Ret}{list of informations delivered by "MRARegress" or a matrix.}
@@ -16,6 +16,8 @@ CheckInputDataCY(Ret, Classes, MethDiscr, Lbda, Verbose)
 \item{Lbda}{An hyper-parameter specific to the method.}
 
 \item{Verbose}{If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
+
+\item{NoPrint}{If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.}
 }
 \value{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{		A message if an error is detected and returns NULL otherwise.

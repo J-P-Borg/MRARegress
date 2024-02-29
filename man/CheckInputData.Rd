@@ -18,7 +18,8 @@ CheckInputData(
   MapExper,
   ParNode,
   Relative,
-  Verbose
+  Verbose,
+  NoPrint
 )
 }
 \arguments{
@@ -48,7 +49,9 @@ CheckInputData(
 
 \item{Relative}{"Relative or absolute" values for the Global Response Matrix ("R")}
 
-\item{Verbose}{If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
+\item{Verbose}{If TRUE, additional printings are made. These printings are for internal use only, so they are not documented}
+
+\item{NoPrint}{If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.}
 }
 \value{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{		A message if an error is detected and returns NULL otherwise.

@@ -307,7 +307,7 @@ test_that("Functional test - Test 5.2.1/2", {
   expect_equal (Res2 %*% MatD0, MatrCc, tolerance=1E-9)
 })
 
-#	First example (Vignette) : 6 MAP Kinase network
+#	First example (Vignette and Fig. 1 - 1st Document) : 6 MAP Kinase network
 
 data(MatExp1)
 Row1		<- c(-1.000000e+00, -3.520785e-01, -2.006777e-06, -4.043092e-06, -1.815467e-07,  0.02588589)

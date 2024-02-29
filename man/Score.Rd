@@ -4,7 +4,7 @@
 \alias{Score}
 \title{"Score" :  Delivers the "Confusion Matrix" when a reference is available.}
 \usage{
-Score(Ret, Ref, Classes = NULL, Verbose = FALSE)
+Score(Ret, Ref, Classes = NULL, Verbose = FALSE, NoPrint = FALSE)
 }
 \arguments{
 \item{Ret}{list of informations delivered by "Classify" or matrix of integers or discrete values (letters, strings).
@@ -18,15 +18,13 @@ If 'Ret' is a matrix of numbers, the parameter 'Classes' is mandatory.}
 
 \item{Verbose}{Logical        Default    value : FALSE.
 If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
+
+\item{NoPrint}{Logical        Default    value : FALSE.
+If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.}
 }
 \value{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{List	NULL in case of error or a list containing the "Confusion Matrix", classical scoring coefficients and the Input values.
 }\if{html}{\out{</div>}}
-
-ConfMat		the 'Confusion Matrix'
-Scores		the 'scoring coefficients' :  NRi, NDi, Ti, Fi, PrecisionMC, RecallMC, F1MC score (2\emph{PrecisionMC}RecallMC/(PrecisionMC+RecallMC))
-Scores2		the 'scoring coefficients' if nbr. of classes = 2 (else : NULL) : Se, Sp, FPR, Dst, Pr, F1
-Input		List	list of the input parameters values. NULL values are not replaced.
 }
 \description{
 : this function computes the "Confusion Matrix" (CM) by comparing the "Classified Connectivity Matrix" delivered by MRARegress::Classify with the "Reference".\cr
@@ -49,11 +47,19 @@ The input data are described above and the outputs below.
 }
 \details{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{If there are two classes (for instance: c(0,1)), Se(nsitivity) is also called 'Sensibility', 'Recall', 'Hit Rate' or 'TPR' (True Positive Rate), Se =TP/P,
-		Sp(ecificity), 'Selectivity' or 'TNR' (TrueNegative Rate), Sp=TN/N, where P = NR1 and N = NR0,
-		Dst (Distance to the diagonal) Dst = Se+Sp-1, Pr(ecision) Pr=TP/(TP+FP).
-		We use also 1- Sp = FP/N  (Probability that a true negative will be declared positive). Also referred to as False Positive Rate (FPR) or False Positive Fraction (FPF) or Value (FPV)
+Sp(ecificity), 'Selectivity' or 'TNR' (TrueNegative Rate), Sp=TN/N, where P = NR1 and N = NR0,
+Dst (Distance to the diagonal) Dst = Se+Sp-1, Pr(ecision) Pr=TP/(TP+FP).
+We use also 1- Sp = FP/N  (Probability that a true negative will be declared positive). Also referred to as False Positive Rate (FPR) or False Positive Fraction (FPF) or Value (FPV)
 
-		Imported libraries :
-			- upstartr	to use "unaccent"
+Imported libraries :
+	- upstartr	to use "unaccent"
+}\if{html}{\out{</div>}}
+
+OUTPUT:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ConfMat		the 'Confusion Matrix'
+Scores		the 'scoring coefficients' :  NRi, NDi, Ti, Fi, PrecisionMC, RecallMC, F1MC score (2*PrecisionMC*RecallMC/(PrecisionMC+RecallMC))
+Scores2		the 'scoring coefficients' if nbr. of classes = 2 (else : NULL) : Se, Sp, FPR, Dst, Pr, F1
+Input		List	list of the input parameters values. NULL values are not replaced.
 }\if{html}{\out{</div>}}
 }

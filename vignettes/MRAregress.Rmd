@@ -152,7 +152,7 @@ matrices, you might want to use `set.seed()`. In a parallel mode,
 ## How to use the "package"?
 
 1/ After having made the measurements and got the "Expression Matrix", the User must call the MRARegress::MRARegress function, which returns the "Connectivity Matrix" ($r) and other results.\
-2/ Then the User may call a "visualization function", using the previous results as a parameter. This function may be :\
+2/ Then the User may call a "visualization function", using the previous results as a parameter. This function may be:\
 -  MRARegress::rCI, which computes the confidence intervals of the r[i,j],\
 -  MRARegress::DrawHeat, which represents "r" as a "matrix heat chart",\
 -  MRARegress::DrawGraph, which displays "r" as a graph where the nodes are the genes (for instance) and an edge A $\rightarrow$ B reflects the action of node A on node B (amplification),\
@@ -161,7 +161,7 @@ matrices, you might want to use `set.seed()`. In a parallel mode,
 -  MRARegress::Classify, which discretizes the connectivity coefficients, according to a classification rule,\
 -  MRARegress::Score, which computes the performance of the method versus a "reference" got by other ways,\
 -  MRARegress::DrawDiscr, which displays the performance as a graph showing "True Positive", "False Positive", and "False Negative" edges.\
--  MRARegress::RocPR, which displays the ROC curve, the PR curve, the areas under these curves (AuROC and AuPR), the p-value of these areas.\
+-  MRARegress::RocPR, which displays the ROC curve, the PR curve, the areas under these curves (AuROC and AuPR), the p-value AuROC.\
 The availability of these functions will depend on the input data supplied to the package.\
 \
 

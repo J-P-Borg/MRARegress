@@ -19,11 +19,8 @@ or a sequence of numbers if not.}
 An edge is drawn between nodes 'i' and 'j' iff connectivity coefficient is >= Thr (ie \|MatrCc[i,j]\| >= Thr)}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{List					NULL in case of error or a list of informations ("theGraph", "Variables"). For internal use only.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List			NULL in case of error or a list of informations ("theGraph", "Variables"). For internal use only.
 }\if{html}{\out{</div>}}
-
-theGraph	List of dataframes 		nodes (list of nodes), edges (list of edges : source, target, interaction, value).
-Variables	List					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
 }
 \description{
 : this function represents the Connectivity Matrix "r" as a graph where the nodes are the genes (for instance)
@@ -35,11 +32,19 @@ Displays the graph associated with the connectivity matrix.
 The input data are described above and the outputs below.
 }
 \details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{							Imported libraries :
-							- BiocManager (version 1.30.22). To install this version, R version >= 4.3 is mandatory
-							- RCy3							Communication with Cytoscape
-							- utils	compareVersion			To check Cytoscape version
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Imported libraries :
+- BiocManager (version 1.30.22). To install this version, R version >= 4.3 is mandatory
+- RCy3							Communication with Cytoscape
+- utils	compareVersion			To check Cytoscape version
 
-							Cytoscape (version >= 3.6.1) must be installed and running.
+Cytoscape (version >= 3.6.1) must be installed and running.
+}\if{html}{\out{</div>}}
+
+OUTPUT:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{theGraph	List of dataframes 		
+			nodes (list of nodes : name, PValN), edges (list of edges : source, target, interaction, value).
+Variables	List					
+			list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
 }\if{html}{\out{</div>}}
 }

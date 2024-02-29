@@ -24,15 +24,24 @@
 #'@param Classes	Vector		A vector showing the classes (for instance: c(0,1)). Default value : NULL.
 #'@param Verbose	Logical		Default	value : FALSE.
 #'								If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
+#'@param NoPrint	Logical		Default	value : FALSE.
+#'								If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.
 #'
-#'@details		If there are two classes (for instance: c(0,1)), Se(nsitivity) is also called 'Sensibility', 'Recall', 'Hit Rate' or 'TPR' (True Positive Rate), Se =TP/P,
-#'				Sp(ecificity), 'Selectivity' or 'TNR' (TrueNegative Rate), Sp=TN/N, where P = NR1 and N = NR0,
-#'				Dst (Distance to the diagonal) Dst = Se+Sp-1, Pr(ecision) Pr=TP/(TP+FP).
-#'				We use also 1- Sp = FP/N  (Probability that a true negative will be declared positive). Also referred to as False Positive Rate (FPR) or False Positive Fraction (FPF) or Value (FPV)
+#'@details		
+#'		If there are two classes (for instance: c(0,1)), Se(nsitivity) is also called 'Sensibility', 'Recall', 'Hit Rate' or 'TPR' (True Positive Rate), Se =TP/P,
+#'		Sp(ecificity), 'Selectivity' or 'TNR' (TrueNegative Rate), Sp=TN/N, where P = NR1 and N = NR0,
+#'		Dst (Distance to the diagonal) Dst = Se+Sp-1, Pr(ecision) Pr=TP/(TP+FP).
+#'		We use also 1- Sp = FP/N  (Probability that a true negative will be declared positive). Also referred to as False Positive Rate (FPR) or False Positive Fraction (FPF) or Value (FPV)
 #'
-#'				Imported libraries :
-#'					- upstartr	to use "unaccent"
+#'		Imported libraries :
+#'			- upstartr	to use "unaccent"
 #'
+#'	OUTPUT:
+#'
+#'		ConfMat		the 'Confusion Matrix'
+#'		Scores		the 'scoring coefficients' :  NRi, NDi, Ti, Fi, PrecisionMC, RecallMC, F1MC score (2*PrecisionMC*RecallMC/(PrecisionMC+RecallMC))
+#'		Scores2		the 'scoring coefficients' if nbr. of classes = 2 (else : NULL) : Se, Sp, FPR, Dst, Pr, F1
+#'		Input		List	list of the input parameters values. NULL values are not replaced.
 
 #'@importFrom upstartr	unaccent
 
@@ -42,20 +51,16 @@
 #'				The input data are described above and the outputs below.
 #'
 #'@return		List	NULL in case of error or a list containing the "Confusion Matrix", classical scoring coefficients and the Input values.
-#'	ConfMat		the 'Confusion Matrix'
-#'	Scores		the 'scoring coefficients' :  NRi, NDi, Ti, Fi, PrecisionMC, RecallMC, F1MC score (2*PrecisionMC*RecallMC/(PrecisionMC+RecallMC))
-#'	Scores2		the 'scoring coefficients' if nbr. of classes = 2 (else : NULL) : Se, Sp, FPR, Dst, Pr, F1
-#'  Input		List	list of the input parameters values. NULL values are not replaced.
-#'
 
 #'@export
 #'
 
 
-Score <- function (Ret, Ref, Classes=NULL, Verbose = FALSE) {
+Score <- function (Ret, Ref, Classes=NULL, Verbose = FALSE, NoPrint = FALSE) {
   tryCatch (
 		expr = {
-		cat ("START Score !", as.character(Sys.time()), "\n")
+		if (! NoPrint)
+			cat ("START Score !", as.character(Sys.time()), "\n")
 
 		toReturn	<- list()				# Return values
 		toReturn[["ConfMat"]]		<- NULL
@@ -85,7 +90,7 @@ Score <- function (Ret, Ref, Classes=NULL, Verbose = FALSE) {
 		nbClasses	<- length(Classes)									# Number of classes
 
 		# Check input data
-		err	<-  CheckInputDataSC (Ret, Ref, Classes, Verbose)
+		err	<-  CheckInputDataSC (Ret, Ref, Classes, Verbose, NoPrint)
 		if (! is.null(err)) {
 			message (err)
 			return (NULL)
@@ -241,8 +246,8 @@ Score <- function (Ret, Ref, Classes=NULL, Verbose = FALSE) {
 		Scores2_de	<- NULL
 		
 		if (nbClasses == 2) {
-			Cl1		<- str_to_upper(unaccent(Classes[1]))
-			Cl2		<- str_to_upper(unaccent(Classes[2]))
+			Cl1		<- stringr::str_to_upper(upstartr::unaccent(Classes[1]))
+			Cl2		<- stringr::str_to_upper(upstartr::unaccent(Classes[2]))
 			if ((Cl1 %in% list("0", "F", "FAUX", "FALSE", "WRONG", "BAD", "N", "NON", "NO", "A", "NEGATIF", "NEGATIVE", "ECHEC", "FAILURE")) &&
 				(Cl2 %in% list("1", "V", "VRAI", "EXACT", "T", "TRUE", "RIGHT", "GOOD", "O", "OUI", "Y", "YES", "SI", "B", "P", "POSITIF", "POSITIVE", "SUCCES", "SUCCESS"))) {
 				iClN	<- 1		# Index of the "No" class
@@ -289,8 +294,9 @@ Score <- function (Ret, Ref, Classes=NULL, Verbose = FALSE) {
 		toReturn$Scores2	<- Scores2
 		if (nbRows == nbCols)
 			toReturn$Scores2_de	<- Scores2_de
-		
-		cat ("DONE !", as.character(Sys.time()), "\n")
+
+		if (! NoPrint)
+			cat ("DONE !", as.character(Sys.time()), "\n")
 		return (toReturn)
 	},		# expr
 		
@@ -318,14 +324,15 @@ Score <- function (Ret, Ref, Classes=NULL, Verbose = FALSE) {
 #'@param Ret		list of informations delivered by "MRARegress" or a matrix.
 #'@param Ref		Matrix of integers or discrete values	The "Reference Matrix".
 #'@param Classes	Vector		A vector showing the classes (for instance: c(0,1))
-#'@param Verbose	If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.
+#'@param Verbose	If TRUE, additional printings are made. These printings are for internal use only, so they are not documented
+#'@param NoPrint	If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.
 #'
 
 #'
 #' @return 			A message if an error is detected and returns NULL otherwise.
 #'
 
-CheckInputDataSC	<- function (Ret, Ref, Classes, Verbose) {
+CheckInputDataSC	<- function (Ret, Ref, Classes, Verbose, NoPrint) {
   tryCatch (
 	expr = {
 		# Test input data : Ret or Matr
@@ -360,7 +367,17 @@ CheckInputDataSC	<- function (Ret, Ref, Classes, Verbose) {
 		if (! (all(Dig %in% Classes) && all(Ref %in% Classes))) {
 			return ("Some elements of Ret or Ref don't belong to 'Classes' !")
 		}
-		
+
+		# Verbose
+		if (! (Verbose %in% c("TRUE", "FALSE"))) {
+			return ("Verbose must be TRUE or FALSE !")
+		}
+	
+		# NoPrint
+		if (! (NoPrint %in% c("TRUE", "FALSE"))) {
+			return ("NoPrint must be TRUE or FALSE !")
+		}
+
 		return (NULL)			# No error detected
 	},		# expr
 	

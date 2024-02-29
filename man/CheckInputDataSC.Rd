@@ -4,7 +4,7 @@
 \alias{CheckInputDataSC}
 \title{Checks the input data for function Score}
 \usage{
-CheckInputDataSC(Ret, Ref, Classes, Verbose)
+CheckInputDataSC(Ret, Ref, Classes, Verbose, NoPrint)
 }
 \arguments{
 \item{Ret}{list of informations delivered by "MRARegress" or a matrix.}
@@ -13,7 +13,9 @@ CheckInputDataSC(Ret, Ref, Classes, Verbose)
 
 \item{Classes}{Vector        A vector showing the classes (for instance: c(0,1))}
 
-\item{Verbose}{If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
+\item{Verbose}{If TRUE, additional printings are made. These printings are for internal use only, so they are not documented}
+
+\item{NoPrint}{If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.}
 }
 \value{
 \if{html}{\out{<div class="sourceCode">}}\preformatted{		A message if an error is detected and returns NULL otherwise.

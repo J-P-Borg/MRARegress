@@ -18,12 +18,20 @@
 #'									An edge is drawn between nodes 'i' and 'j' iff connectivity coefficient is >= Thr (ie \|MatrCc\[i,j\]\| >= Thr)
 #'
 #'@details	
-#'									Imported libraries :
-#'									- stringr				To use str_detect()
+#'		Imported libraries :
+#'		- stringr				To use str_detect()
+#'
+#'	OUTPUT:
+#'
+#'		  XML		String					
+#'					The name of the xml file created.
+#'  	theGraph	List of dataframes 		
+#'					nodes (list of nodes), edges (list of edges : source, target, interaction, value).
+#'		Variables	List					
+#'					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
 
 #'@import	stringr
-
-
+#'
 #'
 #'@name			DrawGraphML
 #'
@@ -31,10 +39,7 @@
 #'				The input data are described above and the outputs below.
 #'
 #'@return		List					NULL in case of error or a list of informations ("XML", "theGraph", "Variables").
-#'	XML			String					The name of the xml file created.
-#'  theGraph	List of dataframes 		nodes (list of nodes), edges (list of edges : source, target, interaction, value).
-#'	Variables	List					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
-#'
+
 #'@export
 #'
 

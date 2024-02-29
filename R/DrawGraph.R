@@ -15,29 +15,32 @@
 #'									An edge is drawn between nodes 'i' and 'j' iff connectivity coefficient is >= Thr (ie \|MatrCc\[i,j\]\| >= Thr)
 #'	
 #'@details	
-#'									Imported libraries :
-#'									- BiocManager (version 1.30.22). To install this version, R version >= 4.3 is mandatory
-#'									- RCy3							Communication with Cytoscape
-#'									- utils	compareVersion			To check Cytoscape version
-#'	
-#'									Cytoscape (version >= 3.6.1) must be installed and running.
+#'		Imported libraries :
+#'		- BiocManager (version 1.30.22). To install this version, R version >= 4.3 is mandatory
+#'		- RCy3							Communication with Cytoscape
+#'		- utils	compareVersion			To check Cytoscape version
+#'		
+#'		Cytoscape (version >= 3.6.1) must be installed and running.
+#'
+#'	OUTPUT:
+#'
+#'  	theGraph	List of dataframes 		
+#'					nodes (list of nodes : name, PValN), edges (list of edges : source, target, interaction, value).
+#'		Variables	List					
+#'					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
 
 #'@import BiocManager
 #'@import RCy3
 #'@importFrom utils   compareVersion
 #'
-
-
 #'
 #'@name			DrawGraph
 #'
 #'@description	Displays the graph associated with the connectivity matrix.
 #'				The input data are described above and the outputs below.
 #'
-#'@return		List					NULL in case of error or a list of informations ("theGraph", "Variables"). For internal use only.
-#'  theGraph	List of dataframes 		nodes (list of nodes), edges (list of edges : source, target, interaction, value).
-#'	Variables	List					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
-#'
+#'@return		List			NULL in case of error or a list of informations ("theGraph", "Variables"). For internal use only.
+
 #'@export
 #'
 
@@ -75,21 +78,36 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 				nodesName	<- rownames(Ret)							# Name of the nodes
 			}
 			MatrCc		<- Ret											# Connectivity matrix
+			PValN		<- vector(length=nbN)							#  pVal[SSR] or pVal[LOF] cannot be computed for the nodes
+			PValN[]		<- -1
 		} else {
 			nbN			<- Ret$Input$Variables$nbN						# Number of nodes (nb. of rows)
 			nodesName	<- Ret$Input$InputPar$NodeName					# Name of the nodes
 			MatrCc		<- Ret$r										# Connectivity matrix
+			PValN		<- Ret$PValN									# pVal (SSR and LOF) regarding the nodes
+																		#	A	: pVal[SSR] or pVal[LOF] cannot be computed.
+																		#	B	: Measures are NOT explained by the model : pVal[SSR] >= tlrSSR 
+																		#	C	: Measures are explained by the model, residual errors do not correspond to the noise level : pVal[SSR] < tlrSSR AND  pVal[LOF] < tlrLOF, 
+																		#	D	: Measures are explained by the model, residual errors correspond to the noise level : pVal[SSR] < tlrSSR AND  pVal[LOF] >= tlrLOF
 		}
 
+		Id			<- NULL												# Name of the nodes
+		pVal		<- NULL												# pVal regarding the nodes	
+		
 		source		<- NULL												# Source of the edges
 		target		<- NULL												# Target of the edges
 		interaction	<- NULL												# Source action on target : "d" : amplifies, "r" : inhibits
 		value		<- NULL												# Action magnitude
 		
 		# Network construction
-		nodes	<- data.frame(id=nodesName)								# List of the nodes
+		for (iNode in 1:nbN) {
+			Id		<- c(Id, nodesName[iNode])
+			pVal	<- c(pVal, PValN[iNode])
+		}
+
+		nodes	<- data.frame(id=Id, group=pVal, stringsAsFactors=FALSE)														# List of the nodes
+
 		diag(MatrCc)	<- 0
-	
 		for (jCol in 1:nbN) {
 			for (iRow in 1:nbN) {
 				if (abs(MatrCc[iRow,jCol]) < Thr)
@@ -115,7 +133,7 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 		style.name	<- "MRARegress_style"
 	
 		defaults	<- list(
-						NODE_FILL_COLOR = "#89D0F5",
+#						NODE_FILL_COLOR = "#89D0F5",
 						NODE_SIZE		= 35,
 						EDGE_SOURCE_ARROW_SIZE	= 6.0,
 						EDGE_TARGET_ARROW_SIZE	= 6.0,
@@ -123,12 +141,13 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 						EDGE_LABEL_AUTOROTATE	= TRUE,					# The edge label will be automatically rotated so that the label aligns with the edge
 						EDGE_LABEL_POSITION		= "C,C,c,0.00,-8.00")	# The position of the edge label relative to the edge. Centered, vertical offset -8 px
 		nodeLabels 		<- mapVisualProperty('node label','id','p')		# Nodes name comes from "id" and "passthrough"
+		nodeFills		<- mapVisualProperty('node fill color', 'group', 'd', c("A","B","C","D"), c("#FC4E2A","#FC4E2A","#FEB24C","#9ECAE1"))	# Node colour according to PValN
 		arrowShapes		<- mapVisualProperty('Edge Target Arrow Shape','interaction','d',c("d","r"),c("Arrow","T"))
 									# Shape of the arrow, according to discrete values ('d'). Possible values are "d" or "r". Corresponding extremity shape "Arrow" or "T"
 		edgeLabels		<- mapVisualProperty('edge label','value','p','float')
 		edgeLineType	<- mapVisualProperty('edge line type','interaction','d',c("d","r"),c("SOLID","EQUAL_DASH"))
 		
-		createVisualStyle (style.name, defaults, list(nodeLabels,arrowShapes,edgeLabels,edgeLineType))
+		createVisualStyle (style.name, defaults, list(nodeLabels,nodeFills,arrowShapes,edgeLabels,edgeLineType))
 		setVisualStyle (style.name)
 
 		cat ("DONE !", as.character(Sys.time()), "\n")
