@@ -804,8 +804,13 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		}
 
 		if (Verbose) {
+			cat ("\n\nSSR \n")
 			for (iNode in 1:nbN) {
-				cat ("iNode : ", iNode, " SSR pVal : ", Anovas["SSR", "pVal", iNode], " LOF pVal : ", Anovas["LOF", "pVal", iNode], " PValN ", PValN[iNode], "\n")
+				cat ("iNode : ", iNode, " Sum : ",  Anovas["SSR", "Sum", iNode],  " F : ",  Anovas["SSR", "F", iNode], " pVal : ", Anovas["SSR", "pVal", iNode], " Name : ", NodeName[iNode], "\n")
+			}
+			cat ("\nLOF \n")
+			for (iNode in 1:nbN) {
+				cat ("iNode : ", iNode, " Sum : ",  Anovas["LOF", "Sum", iNode],  " F : ",  Anovas["LOF", "F", iNode], " pVal : ", Anovas["LOF", "pVal", iNode], " PValN ", PValN[iNode], "\n")
 			}
 		}
 
