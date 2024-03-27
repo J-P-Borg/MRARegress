@@ -4,42 +4,93 @@
 \alias{rCI}
 \title{"rCI":  Computes the Confidence Intervals of the Connectivity Matrix}
 \usage{
-rCI(nbBase, MapExper, MatExp, NodeNames = NULL, KnlgMap = NULL, percent = 0.95)
+rCI(
+  Ret,
+  Func,
+  St,
+  P0,
+  Perturbs,
+  nbRep,
+  nbD,
+  K,
+  Solution = NULL,
+  Root = NULL,
+  Verbose = FALSE
+)
 }
 \arguments{
-\item{nbBase}{Number                Number of replicas concerning the basal state (ie. non perturbed system). nbBase >= 1.}
+\item{Ret}{List            list of informations delivered by "MRARegress", corresponding to a call from 'MRARegress'. This call is an example of the desired process (Method, hyperparameters etc...).
+The various parameters of this call of 'MRARegress' (number of nodes, names, 'KnlgMap', 'Method', hyperparameters, 'MapExper', 'Relative' etc...) are automatically
+deducted from 'Ret'.}
 
-\item{MapExper}{Matrix of {0, 1, x}    The "Experimental Map". The Nb rows represent the nodes (genes, proteins etc...) and the Np columns represent the perturbations.
-If a perturbation is repeated several times ("replicas"), the corresponding columns must be added and Np increased accordingly.
-MapExper[i,j] = 1 means that the perturbation j perturbs the node i,
-MapExper[i,j] = 0 means that the perturbation j does not perturb the node i,
-MapExper[i,j] = x means that we do not know if the perturbation j perturbs the node i or not.}
+\item{Func}{Function        Function of P (parameters) and X (expression values to compute).}
 
-\item{MatExp}{Matrix of numbers    The "Expression Matrix", Nb rows, Np+nbBase columns.
-MatExp[i,1..nbBase] represents the measurement of node i when no perturbation is applied to the network,
-MatExp[i,j], j>nbBase,  represents the measurement of node i when perturbation j-nbBase is applied to the network.}
+\item{St}{Vector            Multiroot starts from these values, to solve the system of ODE.}
 
-\item{NodeNames}{Vector of strings    The name of the nodes (use HUGO gene symbols, even for proteins). If NULL, the nodes will be named "1", "2", "3" etc...}
+\item{P0}{Vector            Initial value of the parameters to perturb (for example, this value can represent the amount of protein, associated with a gene, present in the cell
+at the beginning of transcription of this gene).}
 
-\item{KnlgMap}{Matrix of {0, 1, x}    The "Knowledge Map". The Nb rows and Nb columns represent the nodes.
-KnlgMap[i,j] = 1 means that we know that there is an edge between node j and node i
-KnlgMap[i,j] = 0 means that we know that there is no edge between node j and node i
-KnlgMap[i,j] = x means that we do not know if there is an edge between node j and node i.
-KnlgMap[i,i] is not defined and may be set to 0.
-Choose NULL if you don't have a priori information about the network connectivity.}
+\item{Perturbs}{Vector        Set of perturbations. The parameters to perturb are multiplied successively by Perturbs[i].
+There are no replicates in this list. The replicates will be generated automatically by 'rCI'.}
 
-\item{percent}{Number                The percentage of confidence required. Default = 95\%.}
+\item{nbRep}{Int (>0)         Number of replicates to generate for every perturbation, including the initial value.
+For example, suppose Perturbs = c(-0.1, 0.3) and nbRep=3. Suppose also that each node Ni has exactly one parameter Pi associated, whose initial value is P0i.
+rCI will generate 6 expression values for node Ni : 3 draws corresponding to 0.9\emph{P0i and 3 draws corresponding to 1.3}P0i.}
+
+\item{nbD}{Int (>0)        Number of random draws to compute the "Confidence Intervals" ('CI').}
+
+\item{K}{Number (>=0)    Used to compute the simulated noise (independant gaussian variables N (0, k*XMoy) added to every measure, perturbed or not.
+Xmoy is the mean of the undisturbed data expressions, computed automatically by 'rCI'.}
+
+\item{Solution}{String        If NOT NULL, name of a '.rda' file ('***/xxx.rda'), containing the exact values of the connectivity coefficients.
+These coefficients must be in a square matrix (nbN, nbN), named 'xxx' (same as 'xxx.rda'), and stored with the R command : "save ('xxx', file='xxx.rda')".
+Must be NOT NULL if Root is NOT NULL.
+Default value is NULL.}
+
+\item{Root}{String        Name of a writable directory ('yyyy'). Must be NOT NULL if Solution is NOT NULL.
+If 'Solution' and 'Root' are not null, 'rCI' generates a graph showing the IC and exact values of the connectivity coefficients and stores it as a '.pdf' file,
+called 'yyyy/xxx.pdf'. Default value is NULL.}
+
+\item{Verbose}{Logical        Default    value : FALSE.
+If TRUE, additional printings are made. These printings are for internal use only, so they are not documented.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{		Dataframe
-Returns a dataframe of Nb*(Nb-1) rows and 5 columns:
-- name of the origin node of the edge
-- name of the destination node of the edge
-- min. value of the Confidence Interval (CI)
-- max. value of the CI
-- mean value of the CI.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List		NULL in case of error or a list of informations ("IC95", "Input").
 }\if{html}{\out{</div>}}
 }
 \description{
 : this function computes the Confidence Intervals for each coefficient of the Connextivity Matrix, except the diagonal
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{This function applies only to networks that can be simulated from ODE (that one integrates from a starting point 'St').
+}\if{html}{\out{</div>}}
+
+It carries out 'nbD' random draws. For each of them, it realizes the planned perturbations (vector 'Perturbs') and the 'nbRep' desired replicates, by simulating a noise N (0, k\emph{XMoy),
+where Xmoy is the mean of the undisturbed data expressions (positive numbers).
+For each trial, 'rCI' computes the connection matrix 'r' (dimension nbN}nbN) using 'MRARegress', with all parameters provided on call ('KnlgMap', 'Method', hyperparameters, 'MapExper', 'Relative').
+These parameters are directly transmitted to 'MRARegress', and therefore have the same meaning as for this program.
+From the nbD matrices 'r' obtained, 'rCI' calculates the '95\% confidence interval' (min, mean and max), for every coefficient (nbN*(nbN-1) : the diagonal, the value of which is fixed to -1, is excluded).
+These values are returned as three square matrices (nbN, nbN), called 'ValMean', 'ValMin' and 'ValMax', whose diagonals are set to 0.
+In addition, if the exact solution is provided as a '.rda' file (parameter 'Solution' not NULL : Solution = '\emph{\strong{.rda'), the program stores in a file called '}}.pdf', located in the directory indicated 'Root'
+(which must be writable), a graph showing the 95\% confidence intervals (dark segment) and the exact value (green dot) for each connectivity coefficient. The abscissa of this graph consists of two lines.
+The first one represents the destination nodes numbers and the last one, the original node names. This last line may have to be modified by hand, to adapt to the resolution of the screen or the figure to print.
+
+Computes the Confidence Intervals for each coefficient of the Connextivity Matrix.
+The input data are described above and the outputs below.
+}
+\details{
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Imported libraries :
+- 'ggplot2'		To draw the graph
+- 'stringr'		To split names
+- 'grDevices'	To create pdf files
+}\if{html}{\out{</div>}}
+
+OUTPUT:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{IC95	Dataframe containing three square matrices (nbN, nbN), called 'ValMean', 'ValMin' and 'ValMax', whose diagonals are set to 0.
+		ValMean\[i,j\] : mean value of the r\[i,j\] got by the 'nbD' draws
+		ValMin\[i,j\]  : min. value of the 2.5\% - 97.5\% quantile of the r\[i,j\] got by the 'nbD' draws (95\% Confidence Interval)
+		ValMax\[i,j\]  : max. value of the 2.5\% - 97.5\% quantile of the r\[i,j\] got by the 'nbD' draws (95\% Confidence Interval)
+Input	A list containing the Input Parameters, for internal use only.
+file	A graph showing the IC and exact values of the connectivity coefficients, saved as a '.pdf' file, if Solution and Root are NOT NULL.
+}\if{html}{\out{</div>}}
 }

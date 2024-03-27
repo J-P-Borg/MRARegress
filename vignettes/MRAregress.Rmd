@@ -203,6 +203,8 @@ data(Solution_10_1)
 ```  
 and we call again "MRARegress" to get the Connectivity Matrix (saved as "MatrCc$r"), then we call "Classify" to detect the edges and "DrawDiscr" to draw 
 the discovered network, the missing and the wrong edges. The drawing quality is also manually improved.
+To see the results, you need to launch "Cytoscape" (version >= 3.6.1), then execute the following commands with RStudio :
+The graph will be visible in "Cytoscape". Black solid lines correspond to "True Positive" edges, red solid lines correspond to "False Positive" and green solid lines to "False Negative" edges .
 
 ```{r }
 Dg	<- DrawGraph (Solution)								# Draws the first image
@@ -210,7 +212,7 @@ Ret	<- MRARegress (MatExp2, Perturb2)					# NodeName = NULL, KnlgMap = NULL, Met
 														# MatExp2 has 10 rows and 21 columns. Perturb is mandatory.
 if (! is.null(Ret)) {
 	MatrCcDiscr	<- Classify(Ret)						# Classes = c(0,1), Method = "TLR", Lbda = NULL (default values)
-	DrawDiscr (MatrCcDiscr, Solution)					# Draws the second image
+	Trash <- DrawDiscr (MatrCcDiscr, Solution)			# Draws the second image
 }
 ```
 

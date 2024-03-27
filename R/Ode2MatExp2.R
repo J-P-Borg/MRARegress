@@ -5,7 +5,8 @@
 #'@description	This function is an utility intended to compute the matrices MatExp and Perturb,
 #'				necessary to use MRARegress. For internal use only.
 #'				Computation of MatExp is done directly from the equation of system dynamics.
-#'				Only one perturbation level is allowed, but perturbations may act on many parameters (H6 FALSE)
+#'				Only one perturbation level is allowed, but perturbations may act on many parameters (H6 FALSE).
+#'				This is the difference between Ode2MatExp and Ode2MatExp2.
 #'
 #'@param nbN		Number			Number of nodes.
 #'@param MapExper	Matrix			The matrix used by MRARegress

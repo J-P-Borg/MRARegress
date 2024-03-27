@@ -4,16 +4,68 @@
 \alias{DrawHeat}
 \title{"DrawHeat" :   represents "r" as a "matrix heat chart"}
 \usage{
-DrawHeat(r)
+DrawHeat(
+  Ret,
+  Absolute = FALSE,
+  Title = NULL,
+  FontSize = 10,
+  Colour = "RdYlBu",
+  Legend = TRUE,
+  DisplayNumbers = TRUE,
+  DecNumbers = 2,
+  FileName = NULL,
+  NoPrint = FALSE
+)
 }
 \arguments{
-\item{r}{Matrix of numbers        The connectivity matrix (delivered by "MRARegress")}
+\item{Ret}{List or Matrix        list of informations delivered by "MRARegress" or square matrix of numbers.
+If 'Ret' is a list of informations delivered by "MRARegress", DrawHeat uses 'Ret$r' (connectivity matrix)
+and 'Ret$InputPar$NodeName' (name of the nodes).
+If 'Ret' is a square matrix, it corresponds to a connectivity matrix, and the names of the nodes are the names of the columns if defined,
+or a sequence of numbers if not.}
+
+\item{Absolute}{Logical                If TRUE, the heatmap relates to the absolute value of the data (ie : we are interested only in the force of action from node A to node B,
+regardless of amplification or inhibition).        Default value is FALSE.}
+
+\item{Title}{String                Title of the plot. Default value is NULL.}
+
+\item{FontSize}{Number                 Base fontsize for the plot. Default value is 10}
+
+\item{Colour}{Vector of 100 RGB values    Defines the colour palette. Default is 'RdYlBu'. Possible values : 'Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'
+See : https://www.datanovia.com/en/blog/the-a-z-of-rcolorbrewer-palette/    "Diverging palettes"}
+
+\item{Legend}{Logical                To determine if legend should be drawn or not.        Default value is TRUE}
+
+\item{DisplayNumbers}{Logical     If TRUE, the numeric values are printed in the cells.    Default value is TRUE}
+
+\item{DecNumbers}{Number             The number of decimal places of the numbers displayed in the cells (if any).    Default value is 2}
+
+\item{FileName}{String                Default value is NULL
+If Not NULL, the plot is saved in a .pdf file, whose name is "FileName.pdf"}
+
+\item{NoPrint}{Logical                Default    value : FALSE.
+If TRUE, no printings are made. Useful for tests including calls to 'DrawHeat' in a loop.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{No return
-Displays the "matrix heat chart" associated with the connectivity matrix.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List			NULL in case of error or a list of the input parameters values. For internal use only.
 }\if{html}{\out{</div>}}
 }
 \description{
-: this function represents the Connectivity Matrix "r" as a "matrix heat chart", where the colours are a function of the absolute value of r[i,j]
+: this function represents the Connectivity Matrix "r" as a "matrix heat chart", where the colours are a function of the (absolute) value of r[i,j]
+
+Displays the "matrix heat chart" associated with the connectivity matrix.
+The input data are described above.
+}
+\details{
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Imported libraries :
+- pheatmap						Drawing of a heatmap
+- RColorBrewer					Used by colour palette
+- stringr						str_replace_all
+- grDevices						colorRampPalette, dev.cur, dev.off
+}\if{html}{\out{</div>}}
+
+OUTPUT:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Variables	list of the input parameters values. NULL values are set to their default values
+}\if{html}{\out{</div>}}
 }

@@ -74,7 +74,7 @@
 #'				Returns the input matrix classified if no error occured, ie, each element of the input matrix is replaced by the class to which
 #'				this item belongs. This matrix has the same number of rows and columns than the input matrix.
 #'  	Input	List					
-#'				list of the input parameters values + "Method" and "ThresholdPar" (used to classify). NULL values are not replaced.
+#'				list of the input parameters values + "Method" and "ThresholdPar" (used to classify) + nodesName. NULL values are not replaced.
 #'
 #'
 #'@name			Classify
@@ -82,7 +82,7 @@
 #'@description	Classifies the connectivity coefficients.
 #'				The input data are described above and the outputs below.
 #'
-#'@return		List					NULL in case of error or a list of informations ("rDig", "Input").
+#'@return		List	NULL in case of error or a list of informations ("rDig", "Input").
 
 #'@export
 #'
@@ -114,10 +114,16 @@ Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verb
 		if (is.matrix(Ret)) {
 			nbN			<- dim(Ret)[1]									# Number of nodes (nb. of rows)
 			nbCol		<- dim(Ret)[2]									# Number of columns
+			if (is.null (rownames(Ret))) {
+				nodesName	<- as.character(seq(1:nbN))					# Name of the nodes
+			} else {
+				nodesName	<- rownames(Ret)							# Name of the nodes
+			}
 			MatrCc		<- Ret											# Connectivity matrix to classify
 		} else {
 			nbN			<- Ret$Input$Variables$nbN						# Number of nodes (nb. of rows)
 			nbCol		<- nbN											# Number of columns
+			nodesName	<- Ret$Input$InputPar$NodeName					# Name of the nodes
 			MatrCc		<- Ret$r										# Connectivity matrix to classify
 			diag(MatrCc) <- 0
 		}
@@ -155,28 +161,26 @@ Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verb
 		if (Method == "Threshold") {
 			if (! all(ThresholdPar == cummax(ThresholdPar))) {
 				message ("Method = 'Threshold' -- Lbda must be in increasing order !")
-				print(message)
 				return (NULL)
 			}
 		} else {
 			if (! all(ThresholdPar == cummin(ThresholdPar))) {
 				message ("Method = 'Top' -- Lbda must be in decreasing order !")
-				print(message)
 				return (NULL)
 			}
 		}		
 
-		InputPar	<- list (MatrCc=MatrCc, Classes=Classes, MethDiscr=MethDiscr, Lbda=Lbda, Verbose=Verbose)
+		InputPar	<- list (MatrCc=MatrCc, Classes=Classes, MethDiscr=MethDiscr, Lbda=Lbda, Verbose=Verbose, NodeName=nodesName)
 
 		if (Method == "Threshold") {
 			fThresh <- function (x) {Thresh (x, ThresholdPar)}
-			Input		<- list (InputPar, Method=Method, Thresholds=ThresholdPar)
+			Input		<- list (InputPar=InputPar, Method=Method, Thresholds=ThresholdPar)
 			if (Verbose) {
 				cat ("Method :", Method, " Thresholds :", ThresholdPar, "\n")
 			}
 		} else {
 			QSeuils	<- quantile(MatrCc, probs=(1-ThresholdPar/100), names=FALSE)		# Thresholds corresponding to quantiles
-			Input		<- list (InputPar, Method=Method, Thresholds=QSeuils)
+			Input		<- list (InputPar=InputPar, Method=Method, Thresholds=QSeuils)
 			if (Verbose) {
 				cat ("Method :", Method, " Thresholds :", QSeuils, "\n")
 			}
@@ -199,6 +203,8 @@ Classify <- function (Ret, Classes = c(0,1), MethDiscr = NULL, Lbda = NULL, Verb
 	warning = function (e) {
 		message ("Warning detected !")
 		print(e)
+		toReturn$rDig		<- rDig
+		toReturn$Input		<- Input
 		return (toReturn)
 	},		# warning
 	

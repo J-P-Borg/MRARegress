@@ -9,6 +9,7 @@ Vect	<- c(1, 2, 3, 4)
 MatExp		<- matrix(c(1, 1.1, 1.25, 0, 0, 1.32, 1.25, 1.54, 2.03, 0.025, 0, 0.001), nrow=3)
 MatrArr	<- array(c(0, 0, 1.32, 1.25, 1.54, 2.03, 0.025, 0), dim=c(2,2,2))
 
+cat ("MRARgress MatExp is a matrix -1 \n")
 test_that("MatExp is a matrix -1", {
   expect_null (MRARegress (Vect)$r)										# Not a matrix
 })
@@ -47,6 +48,18 @@ test_that("NodeName is null or a vector -1", {
 
 test_that("NodeName is null or a vector -2", {
   expect_null (MRARegress (MatExp, NodeName=MatrArr)$r)					# Not a vector
+})
+
+test_that("Relative is logical", {
+  expect_null (MRARegress (MatExp, Relative="faux")$r)					# Not a logical (TRUE, FALSE)
+})
+
+test_that("Verbose is logical", {
+  expect_null (MRARegress (MatExp, Verbose="faux")$r)					# Not a logical (TRUE, FALSE)
+})
+
+test_that("NoPrint is logical", {
+  expect_null (MRARegress (MatExp, NoPrint="faux")$r)					# Not a logical (TRUE, FALSE)
 })
 
 

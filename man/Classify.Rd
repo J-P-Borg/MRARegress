@@ -62,7 +62,7 @@ If TRUE, additional printings are made. These printings are for internal use onl
 If TRUE, no printings are made. Useful for tests including calls to 'Classify' in a loop.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{List					NULL in case of error or a list of informations ("rDig", "Input").
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List	NULL in case of error or a list of informations ("rDig", "Input").
 }\if{html}{\out{</div>}}
 }
 \description{
@@ -102,6 +102,6 @@ OUTPUT:
 		Returns the input matrix classified if no error occured, ie, each element of the input matrix is replaced by the class to which
 		this item belongs. This matrix has the same number of rows and columns than the input matrix.
 Input	List					
-		list of the input parameters values + "Method" and "ThresholdPar" (used to classify). NULL values are not replaced.
+		list of the input parameters values + "Method" and "ThresholdPar" (used to classify) + nodesName. NULL values are not replaced.
 }\if{html}{\out{</div>}}
 }

@@ -107,8 +107,7 @@ In the document "Projet de mémoire de thèse - 1° partie", a strong asumption 
 -  nbM = nbN  (the number of parameters equals the number of nodes),
 -  Every perturbation acts exactly upon one different node (ie.  ∂φ_i/∂p_j ≠ 0 if and only if i = j),
 -  A set of such perturbations acting upon every node is available.
-If "H6" is true, MapExper must be NULL. If "H6" is false, MapExper must be filled, and the perturbations
-"proportional" to a reference pertubation,
+If "H6" is true, MapExper must be NULL. If "H6" is false, MapExper must be filled, and the perturbations "proportional" to a reference pertubation,
 ie the coordinates of the perturbations (vs. parameters) be 0 or proportional to those of the reference.
 If NOT NULL, this matrix contains the coordinates of the perturbations on the base of the parameters regarding those of a perturbation
 chosen as a reference. For instance, if "Q0" is the reference, with coordinates (x0_1, x0_2, ... x0_M), the coordinates of perturbation "Q1"
@@ -116,7 +115,7 @@ must be 0 or proportional to those of Q0 (ie : x1_j = 0 or x1_j = k1*x0_j). Idem
 The column of MapExper corresponding to    "Q0" must contain (1, 1, .. 1), the column corresponding to "Q1" must contain (k1, 0, k1, .., k1) if
 we assume that x1_2 equals 0 and the other coordinates are not null etc...}
 
-\item{ParNode}{Matrix of numbers    The "Parameters /Nodes relation" matrix : nbN rows (number of nodes) and nbM columns (number of parameters). Default value is Identity matrix.
+\item{ParNode}{Matrix of numbers    The "Parameters / Nodes relation" matrix : nbN rows (number of nodes) and nbM columns (number of parameters). Default value is Identity matrix.
 If NOT NULL, the only values allowed are 0 and 1.
 - ParNode[i,j] =  0 means  (∂φ_i)/(∂p_j ) = 0
 - ParNode[i,j] =  1 means  (∂φ_i)/(∂p_j ) ≠ 0}
@@ -132,7 +131,7 @@ If TRUE, additional printings are made. These printings are for internal use onl
 If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA","pValN", "Input", "IC95") whose content depends on the chosen method.
 }\if{html}{\out{</div>}}
 }
 \description{
@@ -165,6 +164,7 @@ Imported libraries :
 	- CVXR			convex optimization
 	- magrittr		pipes
 	- rootSolve		solve for the roots of n nonlinear equations (Order2)
+	- broom			broom::tidy
 }\if{html}{\out{</div>}}
 
 OUTPUT:
@@ -196,5 +196,8 @@ Input		List	A list composed of two lists : "Variables" and "InputPar", for inter
 					"Variables" is a list of important variables used by the program (nbN, nbM, H6, nbBase, nbPc, nbP, PerturbN, PerturbR1, PerturbR2, MatD, 
 						MatInc, FirstTrial, Keys, PValN).
 					"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
+IC95		List	A list composed of three square matrices (nbN, nbN) : ValMean, ValMin and ValMax.
+					If Method = "TLR" (without 'a priori' knowledge), ValMean, ValMin and ValMax provide the mean value and the confidence interval (95\%) of each connectivity coefficient r\[i,j\],
+					else, these matrices are set to 0 and are not usable.
 }\if{html}{\out{</div>}}
 }

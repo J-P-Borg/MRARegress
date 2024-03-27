@@ -78,15 +78,14 @@
 #'										-  nbM = nbN  (the number of parameters equals the number of nodes),
 #'										-  Every perturbation acts exactly upon one different node (ie.  ∂φ_i/∂p_j ≠ 0 if and only if i = j),
 #'										-  A set of such perturbations acting upon every node is available.
-#'										If "H6" is true, MapExper must be NULL. If "H6" is false, MapExper must be filled, and the perturbations 
-#'										"proportional" to a reference pertubation,
+#'										If "H6" is true, MapExper must be NULL. If "H6" is false, MapExper must be filled, and the perturbations "proportional" to a reference pertubation,
 #'										ie the coordinates of the perturbations (vs. parameters) be 0 or proportional to those of the reference.
 #'										If NOT NULL, this matrix contains the coordinates of the perturbations on the base of the parameters regarding those of a perturbation
 #'										chosen as a reference. For instance, if "Q0" is the reference, with coordinates (x0_1, x0_2, ... x0_M), the coordinates of perturbation "Q1"
 #'										must be 0 or proportional to those of Q0 (ie : x1_j = 0 or x1_j = k1*x0_j). Idem for "Q2" etc.
 #'										The column of MapExper corresponding to	"Q0" must contain (1, 1, .. 1), the column corresponding to "Q1" must contain (k1, 0, k1, .., k1) if
 #'										we assume that x1_2 equals 0 and the other coordinates are not null etc...
-#'@param ParNode	Matrix of numbers	The "Parameters /Nodes relation" matrix : nbN rows (number of nodes) and nbM columns (number of parameters). Default value is Identity matrix.
+#'@param ParNode	Matrix of numbers	The "Parameters / Nodes relation" matrix : nbN rows (number of nodes) and nbM columns (number of parameters). Default value is Identity matrix.
 #'										If NOT NULL, the only values allowed are 0 and 1.
 #'										- ParNode\[i,j\] =  0 means  (∂φ_i)/(∂p_j ) = 0
 #'										- ParNode\[i,j\] =  1 means  (∂φ_i)/(∂p_j ) ≠ 0
@@ -119,6 +118,7 @@
 #'			- CVXR			convex optimization
 #'			- magrittr		pipes
 #'			- rootSolve		solve for the roots of n nonlinear equations (Order2)
+#'			- broom			broom::tidy
 #'
 #'	OUTPUT:
 #'
@@ -149,6 +149,9 @@
 #'							"Variables" is a list of important variables used by the program (nbN, nbM, H6, nbBase, nbPc, nbP, PerturbN, PerturbR1, PerturbR2, MatD, 
 #'								MatInc, FirstTrial, Keys, PValN).
 #'							"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
+#'		IC95		List	A list composed of three square matrices (nbN, nbN) : ValMean, ValMin and ValMax.
+#'							If Method = "TLR" (without 'a priori' knowledge), ValMean, ValMin and ValMax provide the mean value and the confidence interval (95%) of each connectivity coefficient r\[i,j\],
+#'							else, these matrices are set to 0 and are not usable.
 #'	
 
 #'@import stringr
@@ -162,6 +165,7 @@
 #'@description Warnings may be generated during the CVXR library import.
 #'@import magrittr
 #'@import rootSolve
+#'@import broom
 #'
 
 #'
@@ -170,7 +174,7 @@
 #'@description	The function MRARegress computes the connectivity matrix, according to the document "MaRédaction.docx".
 #'				The input data are described above and the outputs below.
 #'
-#'@return		List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA", "Input") whose content depends on the chosen method.
+#'@return		List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA","pValN", "Input", "IC95") whose content depends on the chosen method.
 
 #'@export
 #'
@@ -188,6 +192,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		toReturn[["ANOVA"]]		<- NULL
 		toReturn[["PValN"]]		<- NULL
 		toReturn[["Input"]]		<- NULL
+		toReturn[["IC95"]]		<- NULL
 
 		# Check input data
 		err	<-  CheckInputData (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda, Hyp_Mu, Hyp_Step, Hyp_Eps, Hyp_Cvx, MapExper, ParNode, Relative, Verbose, NoPrint)
@@ -234,6 +239,9 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		dimnames(Anova)	<- list(rowAnova, colAnova)
 		AnovaOut	<- list()												# Results of ANOVA
 		
+		Input		<- list()												# Input data and variables
+		IC95		<- list()												# Confidence intervals
+		
 		Keys		<- vector(length=4)										# Keys used to check the connection between the modules of the package.
 
 		if (is.null(MapExper)) {
@@ -262,6 +270,9 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 
 		# Results
 		MatrCc		<- array(dim=c(nbN,nbN))								# Computed Connectivity Matrix (toReturn "r")
+		ValMean		<- array(0, dim=c(nbN,nbN))								# Mean value of rij
+		ValMin		<- array(0, dim=c(nbN,nbN))								# Min value at IC95 of rij
+		ValMax		<- array(0, dim=c(nbN,nbN))								# Max value at IC95 of rij
 		FirstTrial	<- TRUE													# If TRUE, results have been got without use of (∂φi)/(∂pj)
 		MatrCcCol	<- vector(length=nbN)									# Columns' names of the connectivity matrix (MatrCc)
 		
@@ -558,9 +569,13 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					if (is.null(KnlgMap)) {
 						Form	<- "MatY0~MatU0+0"
 						MatrCc[iNode,col]	<- ((lm(as.formula(Form)))$coefficients)[1:(length(col))]
+						pQ <- lm(as.formula(Form))
+						ValMean	[iNode,col]  	<- broom::tidy(pQ)$estimate
+						ValMin  [iNode,col]  	<- broom::tidy(pQ)$estimate - 1.96*broom::tidy(pQ)$std.error	# 1.96 to get an IC 95%
+						ValMax  [iNode,col]  	<- broom::tidy(pQ)$estimate + 1.96*broom::tidy(pQ)$std.error
 					} else {												# We have some informations about the solution
 						constraints	 <- list()
-						beta		 <- CVXR::Variable(nbN-1)						# ri,j to compute according to this method
+						beta		 <- CVXR::Variable(nbN-1)				# ri,j to compute according to this method
 
 						for (iCol in 1:(nbN-1)) {
 							cc	<- col[iCol]
@@ -734,6 +749,9 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		# Rows and columns name
 		rownames(MatrCc)	<- NodeName
 		colnames(MatrCc)	<- MatrCcCol
+
+		# IC95
+		IC95	<- list (ValMean=ValMean, ValMin=ValMin, ValMax=ValMax)
 		
 		# Results of ANOVA
 		Anova["SSR", "df/m"]	<-	min(Anovas["SSR", "df", ])
@@ -824,6 +842,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		toReturn$ANOVA	<- AnovaOut
 		toReturn$PValN	<- PValN
 		toReturn$Input	<- Input
+		toReturn$IC95	<- IC95
 
 		return (toReturn)
 	},		# expr
@@ -836,6 +855,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		toReturn$ANOVA	<- AnovaOut
 		toReturn$PValN	<- PValN
 		toReturn$Input	<- Input
+		toReturn$IC95	<- IC95
 		
 		return (toReturn)
 	},		# warning
@@ -884,6 +904,9 @@ CheckInputData	<- function (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda
 	nbPc		<- dim(MatExp)[2] - nbBase								# Number of conducted perturbations
 	nbP			<- nbBase*nbPc											# Number of "perturbations" taken into account	
 
+	IdentM		<- matrix(0, nrow=nbN, ncol=nbN)						# Identity matrix
+	diag(IdentM)	<- 1
+	
 	# Test Input Variables
 	if (is.null(MapExper)) {
 		H6		<- TRUE
@@ -1018,7 +1041,8 @@ CheckInputData	<- function (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda
 	# Number of perturbations
 	if (nbP < nbN)
 		return ("Not enough perturbations to get result !")
-	if (! is.null(MapExper) && (nbP < (nbN-1+nbM)))
+
+	if (! is.null(MapExper) && ! (dim(MapExper)[1] == nbN && dim(MapExper)[2] == nbN && all(MapExper == IdentM)) 	&& (nbP < (nbN-1+nbM)))
 		return ("Not enough perturbations to get result !")
 
 	return (NULL)			# No error detected

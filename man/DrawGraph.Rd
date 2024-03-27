@@ -42,9 +42,9 @@ Cytoscape (version >= 3.6.1) must be installed and running.
 
 OUTPUT:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{theGraph	List of dataframes 		
+\if{html}{\out{<div class="sourceCode">}}\preformatted{theGraph	List of dataframes
 			nodes (list of nodes : name, PValN), edges (list of edges : source, target, interaction, value).
-Variables	List					
-			list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
+Variables	list of the input parameters values. NULL values are set to their default values.
+			list of important variables used by the program (Thr, nbN, MatrCc, nodesName).
 }\if{html}{\out{</div>}}
 }

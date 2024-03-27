@@ -13,6 +13,7 @@ Ret			<- MRARegress (MatExp, Relative=FALSE)
 
 Ret1		<- Ret
 Ret1$Input$Variables	<- NULL
+cat ("DrawGraph Incorrect Ret -1 \n")
 test_that("Incorrect Ret -1", {
   expect_null (DrawGraph(Ret1))										# Data missing in the list
 })

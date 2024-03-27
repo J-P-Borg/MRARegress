@@ -7,6 +7,7 @@
 MatExp		<- matrix(c(1,2,3, 11,21,31, 12,22,32, 13,23,33),nrow=3)	# 3 nodes, 3 perturbations, Base : 1st column
 Ret			<- MRARegress (MatExp, Relative=FALSE)
 
+cat ("Classify Incorrect Ret -1 \n")
 Ret1		<- Ret
 Ret1$Input$Variables	<- NULL
 test_that("Incorrect Ret -1", {
@@ -76,11 +77,11 @@ test_that("Lbda NULL -15", {
 })
 
 test_that("Threshold, Lbda decreasing -16", {
-  expect_null (Classify(Ret, Classes=c(-1,0,1), Lbda=c(0.5, 0.2)))	# Method = 'Threshold' -- Lbda must be in increasing order
+  expect_null (Classify(Ret, Classes=c(-1,0,1), MethDiscr = 'Threshold', Lbda=c(0.5, 0.2)))	# MethDiscr = 'Threshold' -- Lbda must be in increasing order
 })
 
 test_that("Top, Lbda increasing -17", {
-  expect_null (Classify(Ret, Classes=c(-1,0,1), MethDiscr="Top", Lbda=c(10, 50)))	# Method = 'Top' -- Lbda must be in decreasing order
+  expect_null (Classify(Ret, Classes=c(-1,0,1), MethDiscr="Top", Lbda=c(10, 50)))	# MethDiscr = 'Top' -- Lbda must be in decreasing order
 })
 
 

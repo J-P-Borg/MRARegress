@@ -10,6 +10,7 @@ MatExp		<- matrix(c(1,2,3, 11,21,31, 12,22,32, 13,23,33),nrow=3)	# 3 nodes, 3 pe
 Res			<- MRARegress (MatExp, Relative=FALSE)
 ResC		<- Classify(Res)
 
+cat ("Score - Missing Parameter \n")
 ResC1		<- ResC
 test_that("Missing Parameter", {
   expect_null (Score(ResC1))										# Parameter missing

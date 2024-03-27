@@ -24,10 +24,10 @@
 #'
 #'	OUTPUT:
 #'
-#'  	theGraph	List of dataframes 		
+#'  	theGraph	List of dataframes
 #'					nodes (list of nodes : name, PValN), edges (list of edges : source, target, interaction, value).
-#'		Variables	List					
-#'					list of important variables used by the program (Thr, nbN, nodesName, MatrCc)
+#'		Variables	list of the input parameters values. NULL values are set to their default values.
+#'					list of important variables used by the program (Thr, nbN, MatrCc, nodesName).
 
 #'@import BiocManager
 #'@import RCy3
@@ -98,7 +98,7 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 		target		<- NULL												# Target of the edges
 		interaction	<- NULL												# Source action on target : "d" : amplifies, "r" : inhibits
 		value		<- NULL												# Action magnitude
-		
+
 		# Network construction
 		for (iNode in 1:nbN) {
 			Id		<- c(Id, nodesName[iNode])
@@ -127,7 +127,7 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 		createNetworkFromDataFrames (nodes,edges, title=Title, collection="MRARegress_tests")
 		
 		toReturn$theGraph	<- list (nodes, edges)
-		toReturn$Variables	<- list (Thr, nbN, MatrCc)
+		toReturn$Variables	<- list (Thr, nbN, MatrCc, nodesName)
 
 		# Style definition
 		style.name	<- "MRARegress_style"
