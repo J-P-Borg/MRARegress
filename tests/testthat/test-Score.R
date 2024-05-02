@@ -395,13 +395,17 @@ nbK		<- 2			# KO, KD50
 nbN		<- 2*30			# Number of nodes
 MatDif	<- matrix(0, nrow=2, ncol=nbN*nbN)
 
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R1.rda")	# MatRN2,   k=0.1
-A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Sol_TF30_TA30_1 vs Solution
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R1.rda")	# Mat_TF30_TA30_1_R1 vs MatRN2,   k=0.1
+A		<-	MatR2MatExp	(Mat_TF30_TA30_1_R1, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
+MatDif[1, ]	<- Sol_TF30_TA30_1
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.3285881
+X	<- as.numeric(dist(MatDif))		# 0.3285881
+test_that("Frank_TF30_TA0_1_R1", {
+	expect_equal (X, 0.3285881, tolerance=1E-6)
+})
+
 
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_2_Sol.rda")	# Solution
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_2_R1.rda")	# MatRN2,   k=0.1
@@ -409,7 +413,10 @@ A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
 MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.6141877
+X	<- as.numeric(dist(MatDif))			# 0.6141877
+test_that("Frank_TF30_TA0_2_R1", {
+	expect_equal (X, 0.6141877, tolerance=1E-6)
+})
 
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_3_Sol.rda")	# Solution
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_3_R1.rda")	# MatRN2,   k=0.1
@@ -417,7 +424,10 @@ A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
 MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.8553274
+X	<- as.numeric(dist(MatDif))			# 0.8553274
+test_that("Frank_TF30_TA0_3_R1", {
+	expect_equal (X, 0.8553274, tolerance=1E-6)
+})
 
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_4_Sol.rda")	# Solution
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_4_R1.rda")	# MatRN2,   k=0.1
@@ -425,7 +435,10 @@ A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
 MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.3880909
+X	<- as.numeric(dist(MatDif))			# 0.3880909
+test_that("Frank_TF30_TA0_4_R1", {
+	expect_equal (X, 0.3880909, tolerance=1E-6)
+})
 
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_5_Sol.rda")	# Solution
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_5_R1.rda")	# MatRN2,   k=0.1
@@ -433,7 +446,10 @@ A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
 MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.4655604
+X	<- as.numeric(dist(MatDif))			# 0.4655604
+test_that("Frank_TF30_TA0_5_R1", {
+	expect_equal (X, 0.4655604, tolerance=1E-6)
+})
 
 mean (c(0.3285881, 0.6141877, 0.8553274, 0.3880909, 0.4655604))		# 0.5303509
 sd	 (c(0.3285881, 0.6141877, 0.8553274, 0.3880909, 0.4655604))		# 0.2108212
@@ -444,13 +460,16 @@ sd	 (c(0.3285881, 0.6141877, 0.8553274, 0.3880909, 0.4655604))		# 0.2108212
 Knlg	<- matrix ("x", nrow=nbN, ncol=nbN)
 Knlg[ , (nbN/2 +1):nbN]	 <- 0
 
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R1.rda")	# MatRN2,   k=0.1
-A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Sol_TF30_TA30_1 vs Solution
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R1.rda")	# Mat_TF30_TA30_1_R1 vs MatRN2,   k=0.1
+A		<-	MatR2MatExp	(Mat_TF30_TA30_1_R1, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
+MatDif[1, ]	<- Sol_TF30_TA30_1
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.2427032
+X	<- as.numeric(dist(MatDif))			# 0.2427032
+test_that("Frank_TF30_TA0_1_R1  Knlg", {
+	expect_equal (X, 0.2427032, tolerance=1E-6)
+})
 
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_2_Sol.rda")	# Solution
 load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_2_R1.rda")	# MatRN2,   k=0.1
@@ -458,31 +477,34 @@ A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
 MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.4567236
+X	<- as.numeric(dist(MatDif))			# 0.4567236
+test_that("Frank_TF30_TA0_2_R1  Knlg", {
+	expect_equal (X, 0.4567236, tolerance=1E-6)
+})
 
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_3_Sol.rda")	# Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_3_R1.rda")	# MatRN2,   k=0.1
-A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
-MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
-MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.637722
-
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_4_Sol.rda")	# Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_4_R1.rda")	# MatRN2,   k=0.1
-A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
-MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
-MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.2969855
-
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_5_Sol.rda")	# Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_5_R1.rda")	# MatRN2,   k=0.1
-A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
-MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
-MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.3482446
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_3_Sol.rda")	# Solution
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_3_R1.rda")	# MatRN2,   k=0.1
+###		A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
+###		MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
+###		MatDif[1, ]	<- Solution
+###		MatDif[2, ]	<- MatrCc
+###		dist(MatDif)			# 0.637722
+###		
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_4_Sol.rda")	# Solution
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_4_R1.rda")	# MatRN2,   k=0.1
+###		A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
+###		MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
+###		MatDif[1, ]	<- Solution
+###		MatDif[2, ]	<- MatrCc
+###		dist(MatDif)			# 0.2969855
+###		
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_5_Sol.rda")	# Solution
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_5_R1.rda")	# MatRN2,   k=0.1
+###		A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
+###		MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
+###		MatDif[1, ]	<- Solution
+###		MatDif[2, ]	<- MatrCc
+###		dist(MatDif)			# 0.3482446
 
 mean (c(0.2427032, 0.4567236, 0.637722,  0.2969855, 0.3482446))		# 0.3964758 vs. 0.5303509
 sd	 (c(0.2427032, 0.4567236, 0.637722,  0.2969855, 0.3482446))		# 0.1562851 vs. 0.2108212
@@ -490,50 +512,56 @@ sd	 (c(0.2427032, 0.4567236, 0.637722,  0.2969855, 0.3482446))		# 0.1562851 vs. 
 #
 #	Contribution of knowledge if the noise level is stronger
 #
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R2.rda")	# MatRN2,   k=0.5
-A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Sol_TF30_TA30_1 vs Solution
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R2.rda")	# Mat_TF30_TA30_1_R2 vs MatRN2,   k=0.5
+A		<-	MatR2MatExp	(Mat_TF30_TA30_1_R2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert)$r						# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
+MatDif[1, ]	<- Sol_TF30_TA30_1
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 1.636543
+X	<- as.numeric(dist(MatDif))			# 1.636543
+test_that("Frank_TF30_TA0_1_R2", {
+	expect_equal (X, 1.636543, tolerance=1E-6)
+})
 
 MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r			# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
+MatDif[1, ]	<- Sol_TF30_TA30_1
 MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 1.192742 vs. 1.636543
+X	<- as.numeric(dist(MatDif))			# 1.192742 vs. 1.636543
+test_that("Frank_TF30_TA0_1_R2  Knlg", {
+	expect_equal (X, 1.192742, tolerance=1E-6)
+})
 
 #
 #	Contribution of knowledge if the number of nodes is larger
 #
-nbN		<- 2*100			# Number of nodes
-MatDif	<- matrix(0, nrow=2, ncol=nbN*nbN)
-Knlg	<- matrix ("x", nrow=nbN, ncol=nbN)
-Knlg[ , (nbN/2 +1):nbN]	 <- 0
-
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF100_TA100_1_Sol.rda")	# Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF100_TA100_1_R1.rda")		# MatRN2,   k=0.1
-A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
-MatrCc	<-	MRARegress (A$Exp, A$Pert)$r						# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
-MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 1.195933
-
-MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r			# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
-MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 0.9045669
-
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF100_TA100_1_R2.rda")		# MatRN2,   k=0.5
-A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
-MatrCc	<-	MRARegress (A$Exp, A$Pert)$r						# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
-MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 5.824652
-
-MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r			# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Solution
-MatDif[2, ]	<- MatrCc
-dist(MatDif)			# 4.406507
+###		nbN		<- 2*100			# Number of nodes
+###		MatDif	<- matrix(0, nrow=2, ncol=nbN*nbN)
+###		Knlg	<- matrix ("x", nrow=nbN, ncol=nbN)
+###		Knlg[ , (nbN/2 +1):nbN]	 <- 0
+###		
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF100_TA100_1_Sol.rda")	# Solution
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF100_TA100_1_R1.rda")		# MatRN2,   k=0.1
+###		A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
+###		MatrCc	<-	MRARegress (A$Exp, A$Pert)$r						# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
+###		MatDif[1, ]	<- Solution
+###		MatDif[2, ]	<- MatrCc
+###		dist(MatDif)			# 1.195933
+###		
+###		MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r			# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
+###		MatDif[1, ]	<- Solution
+###		MatDif[2, ]	<- MatrCc
+###		dist(MatDif)			# 0.9045669
+###		
+###		load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF100_TA100_1_R2.rda")		# MatRN2,   k=0.5
+###		A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
+###		MatrCc	<-	MRARegress (A$Exp, A$Pert)$r						# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
+###		MatDif[1, ]	<- Solution
+###		MatDif[2, ]	<- MatrCc
+###		dist(MatDif)			# 5.824652
+###		
+###		MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r			# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
+###		MatDif[1, ]	<- Solution
+###		MatDif[2, ]	<- MatrCc
+###		dist(MatDif)			# 4.406507
 
 #	https://orcid.org/0009-0007-6193-1019

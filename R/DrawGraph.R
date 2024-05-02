@@ -79,7 +79,7 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 			}
 			MatrCc		<- Ret											# Connectivity matrix
 			PValN		<- vector(length=nbN)							#  pVal[SSR] or pVal[LOF] cannot be computed for the nodes
-			PValN[]		<- -1
+			PValN[]		<- "A"
 		} else {
 			nbN			<- Ret$Input$Variables$nbN						# Number of nodes (nb. of rows)
 			nodesName	<- Ret$Input$InputPar$NodeName					# Name of the nodes
@@ -146,8 +146,9 @@ DrawGraph <- function (Ret, Title=NULL, Thr=0.1) {
 									# Shape of the arrow, according to discrete values ('d'). Possible values are "d" or "r". Corresponding extremity shape "Arrow" or "T"
 		edgeLabels		<- mapVisualProperty('edge label','value','p','float')
 		edgeLineType	<- mapVisualProperty('edge line type','interaction','d',c("d","r"),c("SOLID","EQUAL_DASH"))
-		
+
 		createVisualStyle (style.name, defaults, list(nodeLabels,nodeFills,arrowShapes,edgeLabels,edgeLineType))
+
 		setVisualStyle (style.name)
 
 		cat ("DONE !", as.character(Sys.time()), "\n")

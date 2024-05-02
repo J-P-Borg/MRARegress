@@ -1,5 +1,5 @@
 #
-#	Classify unit tests
+#	rCI unit tests
 #
 
 KC1	 <- 1			# Catalytic rate (s-1)

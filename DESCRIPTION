@@ -1,6 +1,6 @@
 Package: MRARegress
 Title: Tools to infer connectivity in biological networks
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person("Jean-Pierre", "BORG", , "jean-pierre.borg@inserm.fr", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))

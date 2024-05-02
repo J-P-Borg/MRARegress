@@ -162,7 +162,7 @@ test_that("Bon affichage sur l'écran", {
 	expect_equal (names(dev.cur()), "RStudioGD")
 })
 
-#	Big networks (100 nodes)
+#	Big networks (100 nodes - Dream Challenge 4)
 
 vRoot		<- "C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRAregress/data/"
 Fics		<- c("100_1", "100_2", "100_3", "100_4", "100_5")		# Files to study

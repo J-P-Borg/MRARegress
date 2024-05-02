@@ -3,7 +3,8 @@
 #'@description: this function computes the Confidence Intervals for each coefficient of the Connextivity Matrix, except the diagonal
 #'
 #' 	This function applies only to networks that can be simulated from ODE (that one integrates from a starting point 'St').
-#'	It carries out 'nbD' random draws. For each of them, it realizes the planned perturbations (vector 'Perturbs') and the 'nbRep' desired replicates, by simulating a noise N (0, k*XMoy), 
+#'	For other cases, you can use the return value of MRARegress (Ret$IC95).
+#'	This function carries out 'nbD' random draws. For each of them, it realizes the planned perturbations (vector 'Perturbs') and the 'nbRep' desired replicates, by simulating a noise N (0, k*XMoy), 
 #'	where Xmoy is the mean of the undisturbed data expressions (positive numbers).
 #'	For each trial, 'rCI' computes the connection matrix 'r' (dimension nbN*nbN) using 'MRARegress', with all parameters provided on call ('KnlgMap', 'Method', hyperparameters, 'MapExper', 'Relative').
 #'	These parameters are directly transmitted to 'MRARegress', and therefore have the same meaning as for this program.

@@ -161,7 +161,6 @@ matrices, you might want to use `set.seed()`. In a parallel mode,
 -  MRARegress::Classify, which discretizes the connectivity coefficients, according to a classification rule,\
 -  MRARegress::Score, which computes the performance of the method versus a "reference" got by other ways,\
 -  MRARegress::DrawDiscr, which displays the performance as a graph showing "True Positive", "False Positive", and "False Negative" edges.\
--  MRARegress::RocPR, which displays the ROC curve, the PR curve, the areas under these curves (AuROC and AuPR), the p-value AuROC.\
 The availability of these functions will depend on the input data supplied to the package.\
 \
 

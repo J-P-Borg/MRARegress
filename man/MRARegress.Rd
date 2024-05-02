@@ -131,7 +131,7 @@ If TRUE, additional printings are made. These printings are for internal use onl
 If TRUE, no printings are made. Useful for tests including calls to 'MRARegress' in a loop.}
 }
 \value{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA","pValN", "Input", "IC95") whose content depends on the chosen method.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA","pValN", "Input", "IC95", "IC95_O2") whose content depends on the chosen method.
 }\if{html}{\out{</div>}}
 }
 \description{
@@ -176,11 +176,12 @@ Order2		Matrix of numbers	Returns the "Order2" coefficients (nbN rows, (nbN-1)*(
 					- the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5*si,j,j * (DeltaXi,j)^2 with j != i.
 					- the last (nbN-2)*(nbN-1)/2 coefficients correspond to the "product part" (ie. si,j,k) : 
 					  si,j,k * (DeltaXi,j)*DeltaXi,k) with j : 1 .. (nbN-1), j != i and k : (j+1) .. nbN, k!= i.
+					  For example, if nbN=3 and i=1, the first row of Order2 means : r1,2, r1,3, 0.5*s1,2,2, 0.5*s1,3,3, s1,2,3
 					  For example, if nbN=4 and i=1, this part is : s1,2,3*D1,2*D1,3, s1,2,4*D1,2*D1,4, s1,3,4*D1,3*D1,4 (since s1,2,3 = s1,3,3 etc..).
 					  where we note Di,j the term DeltaXi,j.
 					  If nbN=4 and i=2, this part is : s2,1,3*D2,1*D2,3, s2,1,4*D2,1*D2,4, s2,3,4*D2,3*D2,4 (idem, s2,1,3 = s2,3,1 etc...).
 ANOVA		Matrix of numbers	Returns the "ANOVA values", as described in "Statistical Design and Analysis of Experiments" (R.L. Mason et al, 2003), for the
-					various methods, except "ARACNE", "CLR", "MRNET".		
+					various methods, except "ARACNE", "CLR", "MRNET".	
 					- A matrix
 						This matrix has 5 rows ("SSR", "SSE", "LOF", "Pure", "TSS") 
 						and 11 columns ("df/m", "df/M", "Sum/m", "Sum/M", "Mean/m", "Mean/M", "F/m", "F/M," "pVal/m", "pVal/M", "nbrNdes")
@@ -190,6 +191,7 @@ ANOVA		Matrix of numbers	Returns the "ANOVA values", as described in "Statistica
 						df stands for degrees of freedom, /m and /M : minimum and maximum value for the different nodes, Sum is the sum designed by the row,
 						Mean equals Sum/df, F is a Fisher variable used to compute the p Value of the result (see "Projet de mémoire de thèse - 1° partie", § 4.4.3).
 						nbrNdes is the number of nodes whose p Value exceeds a threshold (0.25 for F-SSR and 0.05 for F-LOF).
+						Warning : The LOF is computed only if "H6" is TRUE.
 					- Two sentences explaining the results F-SSR and 0.05 for F-LOF.
 PValN		Vector	A vector giving the coded p values (SSR and LOF) regarding each node.
 Input		List	A list composed of two lists : "Variables" and "InputPar", for internal use and to communicate with the other modules of the package MRARegress.
@@ -197,7 +199,10 @@ Input		List	A list composed of two lists : "Variables" and "InputPar", for inter
 						MatInc, FirstTrial, Keys, PValN).
 					"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
 IC95		List	A list composed of three square matrices (nbN, nbN) : ValMean, ValMin and ValMax.
-					If Method = "TLR" (without 'a priori' knowledge), ValMean, ValMin and ValMax provide the mean value and the confidence interval (95\%) of each connectivity coefficient r\[i,j\],
-					else, these matrices are set to 0 and are not usable.
+					If Method = "TLR" (without 'a priori' knowledge) or "Order2", ValMean, ValMin and ValMax provide the mean value and the confidence interval (95\%) 
+					of each connectivity coefficient r\[i,j\], else, these matrices are set to 0 and are not usable.
+IC95_O2		List	A list composed of three matrices (nbN, (nbN-1)*(2+(nbN-2)/2)) : ValMean2, ValMin2 and ValMax2.
+					If Method = "Order2", ValMean2, ValMin2 and ValMax2 provide the mean value and the confidence interval (95\%) 
+					of each coefficient Order2\[i,j\], else, these matrices are set to 0 and are not usable.
 }\if{html}{\out{</div>}}
 }

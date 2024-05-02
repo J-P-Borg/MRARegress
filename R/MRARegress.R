@@ -129,11 +129,12 @@
 #'							- the next nbN-1 coefficients correspond to the "quadratic part" (ie. si,j,j) : 0.5*si,j,j * (DeltaXi,j)^2 with j != i.
 #'							- the last (nbN-2)*(nbN-1)/2 coefficients correspond to the "product part" (ie. si,j,k) : 
 #'							  si,j,k * (DeltaXi,j)*DeltaXi,k) with j : 1 .. (nbN-1), j != i and k : (j+1) .. nbN, k!= i.
+#'							  For example, if nbN=3 and i=1, the first row of Order2 means : r1,2, r1,3, 0.5*s1,2,2, 0.5*s1,3,3, s1,2,3
 #'							  For example, if nbN=4 and i=1, this part is : s1,2,3*D1,2*D1,3, s1,2,4*D1,2*D1,4, s1,3,4*D1,3*D1,4 (since s1,2,3 = s1,3,3 etc..).
 #'							  where we note Di,j the term DeltaXi,j.
 #'							  If nbN=4 and i=2, this part is : s2,1,3*D2,1*D2,3, s2,1,4*D2,1*D2,4, s2,3,4*D2,3*D2,4 (idem, s2,1,3 = s2,3,1 etc...).
 #'		ANOVA		Matrix of numbers	Returns the "ANOVA values", as described in "Statistical Design and Analysis of Experiments" (R.L. Mason et al, 2003), for the
-#'							various methods, except "ARACNE", "CLR", "MRNET".		
+#'							various methods, except "ARACNE", "CLR", "MRNET".	
 #'							- A matrix
 #'								This matrix has 5 rows ("SSR", "SSE", "LOF", "Pure", "TSS") 
 #'								and 11 columns ("df/m", "df/M", "Sum/m", "Sum/M", "Mean/m", "Mean/M", "F/m", "F/M," "pVal/m", "pVal/M", "nbrNdes")
@@ -143,6 +144,7 @@
 #'								df stands for degrees of freedom, /m and /M : minimum and maximum value for the different nodes, Sum is the sum designed by the row,
 #'								Mean equals Sum/df, F is a Fisher variable used to compute the p Value of the result (see "Projet de mémoire de thèse - 1° partie", § 4.4.3).
 #'								nbrNdes is the number of nodes whose p Value exceeds a threshold (0.25 for F-SSR and 0.05 for F-LOF).
+#'								Warning : The LOF is computed only if "H6" is TRUE.
 #'							- Two sentences explaining the results F-SSR and 0.05 for F-LOF.
 #'		PValN		Vector	A vector giving the coded p values (SSR and LOF) regarding each node.
 #'		Input		List	A list composed of two lists : "Variables" and "InputPar", for internal use and to communicate with the other modules of the package MRARegress.
@@ -150,8 +152,11 @@
 #'								MatInc, FirstTrial, Keys, PValN).
 #'							"InputPar" : list of the input parameters values. NULL values are set to their default values (except for "KnlgMap" and "Hyp_Lbda").
 #'		IC95		List	A list composed of three square matrices (nbN, nbN) : ValMean, ValMin and ValMax.
-#'							If Method = "TLR" (without 'a priori' knowledge), ValMean, ValMin and ValMax provide the mean value and the confidence interval (95%) of each connectivity coefficient r\[i,j\],
-#'							else, these matrices are set to 0 and are not usable.
+#'							If Method = "TLR" (without 'a priori' knowledge) or "Order2", ValMean, ValMin and ValMax provide the mean value and the confidence interval (95%) 
+#'							of each connectivity coefficient r\[i,j\], else, these matrices are set to 0 and are not usable.
+#'		IC95_O2		List	A list composed of three matrices (nbN, (nbN-1)*(2+(nbN-2)/2)) : ValMean2, ValMin2 and ValMax2.
+#'							If Method = "Order2", ValMean2, ValMin2 and ValMax2 provide the mean value and the confidence interval (95%) 
+#'							of each coefficient Order2\[i,j\], else, these matrices are set to 0 and are not usable.
 #'	
 
 #'@import stringr
@@ -174,7 +179,7 @@
 #'@description	The function MRARegress computes the connectivity matrix, according to the document "MaRédaction.docx".
 #'				The input data are described above and the outputs below.
 #'
-#'@return		List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA","pValN", "Input", "IC95") whose content depends on the chosen method.
+#'@return		List		NULL in case of error or a list of informations ("r", "Order2", "ANOVA","pValN", "Input", "IC95", "IC95_O2") whose content depends on the chosen method.
 
 #'@export
 #'
@@ -193,6 +198,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		toReturn[["PValN"]]		<- NULL
 		toReturn[["Input"]]		<- NULL
 		toReturn[["IC95"]]		<- NULL
+		toReturn[["IC95_O2"]]	<- NULL
 
 		# Check input data
 		err	<-  CheckInputData (MatExp, Perturb, NodeName, KnlgMap, Method, Hyp_Lbda, Hyp_Mu, Hyp_Step, Hyp_Eps, Hyp_Cvx, MapExper, ParNode, Relative, Verbose, NoPrint)
@@ -241,6 +247,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		
 		Input		<- list()												# Input data and variables
 		IC95		<- list()												# Confidence intervals
+		IC95_O2		<- list()												# Confidence intervals of Order2 coefficients
 		
 		Keys		<- vector(length=4)										# Keys used to check the connection between the modules of the package.
 
@@ -279,6 +286,9 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		rL 			<- vector(length=nbN)									# Result of Lasso method (ie sol. of Yi = Ai * Ui)		
 		MatV		<- matrix(0, nrow=nbP, ncol=(nbN-1)*(2+(nbN-2)/2))		# Used by the method "Order2" : Y as a function of V			
 		MatO2		<- matrix(0, nrow=nbN, ncol=(nbN-1)*(2+(nbN-2)/2))		# Coefficients to return (toReturn "Order2")
+		ValMean2	<- array(0, dim=c(nbN,(nbN-1)*(2+(nbN-2)/2)))			# Mean value of Order2ij
+		ValMin2		<- array(0, dim=c(nbN,(nbN-1)*(2+(nbN-2)/2)))			# Min value at IC95 of Order2ij
+		ValMax2		<- array(0, dim=c(nbN,(nbN-1)*(2+(nbN-2)/2)))			# Max value at IC95 of Order2ij
 
 		# We analyze the input data
 		if (is.null(Perturb)) {
@@ -535,16 +545,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 				} else {
 					MatU0	<- MatU0[-row]
 				}
-
-				if (Verbose) {
-					cat("row", row, "Mat0 \n")
-					print(Mat0)
-					cat("MatY0 \n")
-					print(MatY0)
-					cat("MatU0 \n")
-					print(MatU0)
-				}
-				
+		
 				# Test of the rank of the system
 				if (qr(MatU0)$rank < nbN-1) {
 					# Second trial : we use all the rows
@@ -559,10 +560,11 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 				}			
 
 				if (Verbose) {
-					cat ("FirstTrial", FirstTrial, "iNode ", iNode, "Rang", qr(MatU0)$rank, "MatY0 \n")
-					print (MatY0)
-					cat ("MatU0 \n")
-					print (MatU0)
+					cat ("FirstTrial", FirstTrial, "iNode ", iNode, "Rang", qr(MatU0)$rank, "\n")
+					cat("row", row, "\n Mat0 \n")
+					print(Mat0)
+					cat ("MatY0 \n"); print (MatY0)
+					cat ("MatU0 \n"); print (MatU0)
 				}
 
 				if (Method == "TLR") {
@@ -570,9 +572,14 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 						Form	<- "MatY0~MatU0+0"
 						MatrCc[iNode,col]	<- ((lm(as.formula(Form)))$coefficients)[1:(length(col))]
 						pQ <- lm(as.formula(Form))
-						ValMean	[iNode,col]  	<- broom::tidy(pQ)$estimate
-						ValMin  [iNode,col]  	<- broom::tidy(pQ)$estimate - 1.96*broom::tidy(pQ)$std.error	# 1.96 to get an IC 95%
-						ValMax  [iNode,col]  	<- broom::tidy(pQ)$estimate + 1.96*broom::tidy(pQ)$std.error
+						ValMean	[iNode,col]  	<- broom::tidy(pQ)$estimate[1:(length(col))]
+						ValMin  [iNode,col]  	<- broom::tidy(pQ)$estimate[1:(length(col))] - 1.96*broom::tidy(pQ)$std.error[1:(length(col))]	# 1.96 to get an IC 95%
+						ValMax  [iNode,col]  	<- broom::tidy(pQ)$estimate[1:(length(col))] + 1.96*broom::tidy(pQ)$std.error[1:(length(col))]
+						
+						if (Verbose) {
+							R_Anova	<-	anova(pQ)
+							cat ("iNode : ", iNode, " ANOVA computed by R \n"); print (R_Anova)
+						}
 					} else {												# We have some informations about the solution
 						constraints	 <- list()
 						beta		 <- CVXR::Variable(nbN-1)				# ri,j to compute according to this method
@@ -599,7 +606,6 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 						objective			<- CVXR::Minimize(sum((MatY0 - MatU0 %*% beta)^2))
 						problem				<- CVXR::Problem(objective, constraints)
 						result				<- CVXR::solve(problem)
-#						MatrCc[iNode,col]	<- result$getValue(beta) %>% round(8)
 						MatrCc[iNode,col]	<- round (result$getValue(beta), 8)
 					}		# KnlgMap not NULL
 					
@@ -640,7 +646,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					}
 					
 					if (Verbose) {
-						cat ("iNode ", iNode, "MatY0 \n")
+						cat ("ORDER 2  iNode ", iNode, "MatY0 \n")
 						print (MatY0)
 						cat ("MatV0 \n")
 						print (MatV0)
@@ -652,8 +658,23 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					MatO2[iNode,nbN:(2*(nbN-1))]	<-	2*MatO2[iNode,nbN:(2*(nbN-1))]		# To be consistent with Taylor's development
 																							# (quadratic terms are multiplied by 0.5)
 
+					pQ <- lm(as.formula(Form))
+
+					ValMean	[iNode,col]  	<- (broom::tidy(pQ)$estimate)[1:(nbN-1)]
+					ValMin  [iNode,col]  	<- (broom::tidy(pQ)$estimate)[1:(nbN-1)] - 1.96*(broom::tidy(pQ)$std.error)[1:(nbN-1)]	# 1.96 to get an IC 95%
+					ValMax  [iNode,col]  	<- (broom::tidy(pQ)$estimate)[1:(nbN-1)] + 1.96*(broom::tidy(pQ)$std.error)[1:(nbN-1)]
+
+					ValMean2 [iNode, ]  	<- (broom::tidy(pQ)$estimate)
+					ValMin2  [iNode, ]  	<- (broom::tidy(pQ)$estimate) - 1.96*(broom::tidy(pQ)$std.error)	# 1.96 to get an IC 95%
+					ValMax2  [iNode, ]  	<- (broom::tidy(pQ)$estimate) + 1.96*(broom::tidy(pQ)$std.error)
+					ValMean2 [iNode,nbN:(2*(nbN-1))]  	<- 2*ValMean2 [iNode,nbN:(2*(nbN-1))] 	# To be consistent with Taylor's development
+					ValMin2  [iNode,nbN:(2*(nbN-1))]  	<- 2*ValMin2  [iNode,nbN:(2*(nbN-1))]	# (quadratic terms are multiplied by 0.5)
+					ValMax2  [iNode,nbN:(2*(nbN-1))]  	<- 2*ValMax2  [iNode,nbN:(2*(nbN-1))]
+
 					if (Verbose) {
 						cat("iNode ", iNode, " Coefficients ", 	(lm(as.formula(Form)))$coefficients, "\n")
+						R_Anova	<-	anova(pQ)
+						cat ("iNode : ", iNode, " ANOVA computed by R \n"); print (R_Anova)
 					}	
 				}		# Order2
 
@@ -664,14 +685,17 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 				}
 
 				# ANOVA
+#				if (! H6)
+#					next										# We don't compute ANOVA if H6 is FALSE
+
 				# 1/ Degrees of freedom
 				Anovas["SSR","df",iNode]	<- nbN-1			# Mason notation : p
-				idPerts	<- which(PerturbN[ ,2] == iNode)		# Id of the perturbations acting on this node, including replicates
-				nbPerts	<- length(idPerts)						# Nbr. of perturbations acting on this node. 
+				idPertsA	<- which(PerturbN[ ,2] == iNode)	# Id of the perturbations acting on this node, including replicates
+				nbPerts		<- length(idPertsA)					# Nbr. of perturbations acting on this node. 
 				nbRowsY0<- length(MatY0)						# Nbr. of equations for this node. Mason notation : n
 				Anovas["SSE","df",iNode]	<- nbRowsY0-nbN+1	# Mason notation : n-p
-				Meas	<- setdiff(PerturbR1, PerturbN[idPerts, 1]) # Equations acting on this node, excluding replicates.
-				nbMeas	<- length(Meas)							# Nbr. of perturbations acting on this node, excluding replicates. Mason notation : m
+				Meas		<- setdiff(PerturbR1, PerturbN[idPertsA, 1]) # Perturbations used to compute this node, excluding replicates.
+				nbMeas		<- length(Meas)							# Nbr. of perturbations used to compute this node, excluding replicates. Mason notation : m
 				Anovas["Pure","df",iNode]	<- nbRowsY0-nbMeas 	# Mason notation : fp = n-m
 				Anovas["LOF","df",iNode]	<- nbMeas-nbN+1		# Mason notation :n-p-fp = m-p
 				Anovas["TSS","df",iNode]	<- nbRowsY0			# Mason notation : n
@@ -682,10 +706,12 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					bLOF	<- FALSE
 			
 				# 2/ Sums
-				ZMean	<- mean(MatY0)							# Mason notation : Zmean
+#				ZMean	<- mean(MatY0)							# Mason notation : Zmean if intercept != 0
+				ZMean	<- 0									# with zero intercept, which is our case
 				
 				ZEst	<- MatY0								# To define this vector. Mason notation : Zhat
 				ZEst[ ]	<- 0
+		
 				for (j in 1:(nbN-1)) {
 					if (is.matrix(MatU0)) {
 						ZEst[ ]	<- ZEst[ ] + MatrCc[iNode,col[j]]*MatU0[ ,j]
@@ -693,36 +719,85 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 						ZEst[ ]	<- ZEst[ ] + MatrCc[iNode,col[j]]*MatU0[ ]
 					}
 				}
+				if (Verbose) {
+					cat ("\nZEst \n"); print (ZEst)
+				}
 
 				Anovas["SSR","Sum",iNode]	<- sum(sapply(ZEst-ZMean, fcarre))		# df=p
 				Anovas["SSE","Sum",iNode]	<- sum(sapply(MatY0-ZEst, fcarre))		# df=n-p
 
 				ZIMes	<- vector(length=nbMeas)				# Sum (yij - yi moy)^2
+				ZHIMes	<- vector(length=nbMeas)				# Sum (yi moy - yi hat)^2
 				names(ZIMes)	<- Meas
-				for (Mes in Meas) {								# Name of one perturbation acting on this node, excluding replicas
+				names(ZHIMes)	<- Meas
+
+				for (Mes in Meas) {								# Name of one perturbation used to compute this node, excluding replicates
 					iPert	<- which(PerturbR1 == Mes)
 					idPert	<- PerturbR2[[iPert]]				# Id of these perturbations in MatD
 					ZMes	<- MatD[idPert,iNode]				# Measures of these perturbations. Mason notation : yij
-					ZMesMean	<- mean(ZMes)
+					ZMesMean	<- mean(ZMes)					# Mason notation : yi moy
+					XMes	<- MatD[idPert, col]				# The X of all explanatory variables (there are nbN-1) corresponding to the perturbations idPert
+					XMesMoy	<- vector(length=nbN-1)
+					for (j in 1:(nbN-1)) {
+						if (is.matrix(XMes))
+							XMesMoy[j]	<- mean(XMes[ ,j])
+						else
+							XMesMoy[j]	<- XMes[j]
+					}
+
+					ZHMes	<- 0	# Estimated values of these perturbations. Mason notation : yi hat
+					for (j in 1:(nbN-1)) {
+						ZHMes	<- ZHMes + MatrCc[iNode,col[j]]*XMesMoy[j]
+					}
+
 					ZIMes[Mes]	<- sum(sapply(ZMes-ZMesMean, fcarre))
+					ZHIMes[Mes]	<- (sapply(ZHMes-ZMesMean, fcarre))*length(idPert)
+					if (Verbose) {
+						cat ("\nMes : ", Mes, "idPert ; ", idPert, " ZMesMean : ", ZMesMean, "\n")
+						cat ("ZMes \n"); 	print (ZMes)
+						cat ("XMes \n"); 	print (XMes)
+						cat ("XMesMoy \n"); print (XMesMoy)
+						cat ("ZHMes \n"); 	print (ZHMes)
+						cat ("ZIMes \n"); 	print (ZIMes)
+						cat ("ZHIMes \n"); 	print (ZHIMes)
+					}
 				}
 
 				Anovas["Pure","Sum",iNode]	<- sum(ZIMes[ ])
-				Anovas["LOF","Sum",iNode]	<- Anovas["SSE","Sum",iNode] - Anovas["Pure","Sum",iNode]
+				Anovas["LOF","Sum",iNode]	<- sum(ZHIMes[ ])
 				Anovas["TSS","Sum",iNode]	<- sum(sapply(MatY0-ZMean, fcarre))		# df=n
 
 				# 3/ Means
-				Anovas[ ,"Mean",iNode]	<- Anovas[ ,"Sum",iNode] / Anovas[ ,"df",iNode]
+				if (Anovas["SSR","df",iNode] > 0)
+					Anovas["SSR","Mean",iNode]	<- Anovas["SSR","Sum",iNode] / Anovas["SSR","df",iNode]
+				else
+					Anovas["SSR","Mean",iNode]	<- NaN
+				if (Anovas["SSE","df",iNode] > 0)
+					Anovas["SSE","Mean",iNode]	<- Anovas["SSE","Sum",iNode] / Anovas["SSE","df",iNode]
+				else
+					Anovas["SSE","Mean",iNode]	<- NaN
+				if (Anovas["LOF","df",iNode] > 0)
+					Anovas["LOF","Mean",iNode]	<- Anovas["LOF","Sum",iNode] / Anovas["LOF","df",iNode]
+				else
+					Anovas["LOF","Mean",iNode]	<- NaN
+				if (Anovas["Pure","df",iNode] > 0)
+					Anovas["Pure","Mean",iNode]	<- Anovas["Pure","Sum",iNode] / Anovas["Pure","df",iNode]
+				else
+					Anovas["Pure","Mean",iNode]	<- NaN
+				if (Anovas["TSS","df",iNode] > 0)
+					Anovas["TSS","Mean",iNode]	<- Anovas["TSS","Sum",iNode] / Anovas["TSS","df",iNode]
+				else
+					Anovas["TSS","Mean",iNode]	<- NaN
 				
 				# 4/ F  (Fisher/Snedecor) and pVal
 				Anovas["SSR","F",iNode]	<- Anovas["SSR","Mean",iNode] / Anovas["SSE","Mean",iNode]
-				if ((Anovas["SSR","df",iNode]>0) && (Anovas["SSE","df",iNode]>0))
+				if (bSSR && (Anovas["SSR","df",iNode]>0) && (Anovas["SSE","df",iNode]>0))
 					Anovas["SSR","pVal",iNode]	<- 	pf(Anovas["SSR","F",iNode], Anovas["SSR","df",iNode], Anovas["SSE","df",iNode], lower.tail=FALSE)
 				else
 					bSSR	<- FALSE
 
 				Anovas["LOF","F",iNode]	<- Anovas["LOF","Mean",iNode] / Anovas["Pure","Mean",iNode]
-				if ((Anovas["LOF","df",iNode]>0) && (Anovas["Pure","df",iNode]>0))
+				if (bLOF && (Anovas["LOF","df",iNode]>0) && (Anovas["Pure","df",iNode]>0))
 					Anovas["LOF","pVal",iNode]	<- 	pf(Anovas["LOF","F",iNode], Anovas["LOF","df",iNode], Anovas["Pure","df",iNode], lower.tail=FALSE)
 				else
 					bLOF	<- FALSE
@@ -751,7 +826,8 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		colnames(MatrCc)	<- MatrCcCol
 
 		# IC95
-		IC95	<- list (ValMean=ValMean, ValMin=ValMin, ValMax=ValMax)
+		IC95	<- list (ValMean=ValMean,   ValMin=ValMin,  ValMax=ValMax)
+		IC95_O2	<- list (ValMean2=ValMean2, ValMin2=ValMin2, ValMax2=ValMax2)
 		
 		# Results of ANOVA
 		Anova["SSR", "df/m"]	<-	min(Anovas["SSR", "df", ])
@@ -843,6 +919,7 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		toReturn$PValN	<- PValN
 		toReturn$Input	<- Input
 		toReturn$IC95	<- IC95
+		toReturn$IC95_O2<- IC95_O2
 
 		return (toReturn)
 	},		# expr
@@ -856,7 +933,8 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		toReturn$PValN	<- PValN
 		toReturn$Input	<- Input
 		toReturn$IC95	<- IC95
-		
+		toReturn$IC95_O2<- IC95_O2
+
 		return (toReturn)
 	},		# warning
 
@@ -1107,7 +1185,7 @@ fSTEP	<- function (MatU, MatY, Meth, nbN, Verbose) {
 		
 		Donnees  <- data.frame(MatY, MatU)
 		if (Verbose) {
-			cat(" Data ", colnames(Donnees), "\n")
+			cat("fSTEP  Data ", colnames(Donnees), "\n")
 		}
 		Donnees	 <- rename(Donnees, "Y" ="MatY")			# The follow-up is clearer like this
 		cc 		 <- colnames(Donnees)						# Name of the columns "Data". The first one is "Y"
@@ -1140,7 +1218,7 @@ fSTEP	<- function (MatU, MatY, Meth, nbN, Verbose) {
 		}
 
 		if (Verbose) {
-			cat (" ll ", ll, " nn ", nn, " rij ", rij, "\n")
+			cat ("fSTEP  ll ", ll, " nn ", nn, " rij ", rij, "\n")
 		}
 		return(rij[1, ])
 	},		# expr

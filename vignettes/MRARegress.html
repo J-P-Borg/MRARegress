@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2024-03-27" />
+<meta name="date" content="2024-05-01" />
 
 <title>‘MRARegress’  Tools to infer connectivity in biological networks</title>
 
@@ -354,7 +354,7 @@ connectivity in biological networks</h1>
 Institut de Recherche en Cancérologie de Montpellier, Inserm,
 Montpellier, France<br><a class="author_email" href="mailto:#"><a href="mailto:jean-pierre.borg@inserm.fr" class="email">jean-pierre.borg@inserm.fr</a> / <a href="mailto:jeanpierre.borg@orange.fr" class="email">jeanpierre.borg@orange.fr</a></a>
 </address>
-<h4 class="date">03/27/2024</h4>
+<h4 class="date">05/01/2024</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 <p>
@@ -369,12 +369,16 @@ the nodes are gene transcripts, for instance, these measurements may
 represent their abundance.</p>
 <p>Many visualization and data summary functions are proposed to help
 represent biological networks.<br /><br /> MRARegress package version:
-0.0.0.9000</p>
+1.0.0</p>
 </div>
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(MRARegress)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(MRARegress)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt; Warning: remplacement de l&#39;importation précédente &#39;ggplot2::margin&#39; par</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; &#39;randomForest::margin&#39; lors du chargement de &#39;MRARegress&#39;</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Warning: remplacement de l&#39;importation précédente &#39;CVXR::power&#39; par</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; &#39;stats::power&#39; lors du chargement de &#39;MRARegress&#39;</span></span></code></pre></div>
 <p><br />
 </p>
 <div id="introduction" class="section level1">
@@ -549,8 +553,6 @@ a “reference” got by other ways,<br />
 - MRARegress::DrawDiscr, which displays the performance as a graph
 showing “True Positive”, “False Positive”, and “False Negative”
 edges.<br />
-- MRARegress::RocPR, which displays the ROC curve, the PR curve, the
-areas under these curves (AuROC and AuPR), the p-value AuROC.<br />
 The availability of these functions will depend on the input data
 supplied to the package.<br />
 <br />
@@ -570,17 +572,14 @@ of the 6-nodes network described above.<br />
 “MatrCc”), then we call “DrawGraph” to draw the network. The drawing
 quality is manually improved (moving nodes, bending edges).</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>Ret <span class="ot">&lt;-</span> <span class="fu">MRARegress</span> (MatExp1)                 <span class="co"># Perturb = NULL, NodeName = NULL, KnlgMap = NULL, Method = &quot;TLR&quot;, MapExper = NULL, Verbose = FALSE (default values)</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; START MRARegress ! 2024-03-27 17:11:38.216245 </span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-03-27 17:11:38.242408</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; START MRARegress ! 2024-05-01 23:55:40.531142 </span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-05-01 23:55:40.562975</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span> <span class="fu">is.null</span>(Ret)) {</span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    Dg  <span class="ot">&lt;-</span> <span class="fu">DrawGraph</span> (Ret)</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>}</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; START DrawGraph ! 2024-03-27 17:11:38.243091</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; You are connected to Cytoscape!</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; Loading data...</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; Applying default style...</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; Applying preferred layout...</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-03-27 17:11:46.78707</span></span></code></pre></div>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; START DrawGraph ! 2024-05-01 23:55:40.56369</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; Error detected !</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; &lt;simpleError in cyrestGET(&quot;version&quot;, base.url = base.url): objet &#39;res&#39; introuvable&gt;</span></span></code></pre></div>
 <p>  </p>
 </div>
 </div>
@@ -608,28 +607,22 @@ in “Cytoscape”. Black solid lines correspond to “True Positive” edges,
 red solid lines correspond to “False Positive” and green solid lines to
 “False Negative” edges .</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>Dg  <span class="ot">&lt;-</span> <span class="fu">DrawGraph</span> (Solution)                             <span class="co"># Draws the first image</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; START DrawGraph ! 2024-03-27 17:11:46.835519</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; You are connected to Cytoscape!</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Loading data...</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; Applying default style...</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; Applying preferred layout...</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-03-27 17:11:54.615566</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>Ret <span class="ot">&lt;-</span> <span class="fu">MRARegress</span> (MatExp2, Perturb2)                   <span class="co"># NodeName = NULL, KnlgMap = NULL, Method = &quot;TLR&quot;, MapExper = NULL, Verbose = FALSE (default values)</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; START MRARegress ! 2024-03-27 17:11:54.873632 </span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-03-27 17:11:54.945589</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>                                                        <span class="co"># MatExp2 has 10 rows and 21 columns. Perturb is mandatory.</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span> <span class="fu">is.null</span>(Ret)) {</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    MatrCcDiscr <span class="ot">&lt;-</span> <span class="fu">Classify</span>(Ret)                        <span class="co"># Classes = c(0,1), Method = &quot;TLR&quot;, Lbda = NULL (default values)</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>    Trash <span class="ot">&lt;-</span> <span class="fu">DrawDiscr</span> (MatrCcDiscr, Solution)          <span class="co"># Draws the second image</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>}</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; START Classify ! 2024-03-27 17:11:54.9463 </span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-03-27 17:11:54.948424 </span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; START DrawDiscr ! 2024-03-27 17:11:54.948538</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; You are connected to Cytoscape!</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; Loading data...</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; Applying default style...</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; Applying preferred layout...</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-03-27 17:12:02.599564</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; START DrawGraph ! 2024-05-01 23:55:42.665808</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Error detected !</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; &lt;simpleError in cyrestGET(&quot;version&quot;, base.url = base.url): objet &#39;res&#39; introuvable&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>Ret <span class="ot">&lt;-</span> <span class="fu">MRARegress</span> (MatExp2, Perturb2)                   <span class="co"># NodeName = NULL, KnlgMap = NULL, Method = &quot;TLR&quot;, MapExper = NULL, Verbose = FALSE (default values)</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; START MRARegress ! 2024-05-01 23:55:45.186152 </span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-05-01 23:55:45.281481</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>                                                        <span class="co"># MatExp2 has 10 rows and 21 columns. Perturb is mandatory.</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span> <span class="fu">is.null</span>(Ret)) {</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>    MatrCcDiscr <span class="ot">&lt;-</span> <span class="fu">Classify</span>(Ret)                        <span class="co"># Classes = c(0,1), Method = &quot;TLR&quot;, Lbda = NULL (default values)</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    Trash <span class="ot">&lt;-</span> <span class="fu">DrawDiscr</span> (MatrCcDiscr, Solution)          <span class="co"># Draws the second image</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>}</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; START Classify ! 2024-05-01 23:55:45.282226 </span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; DONE ! 2024-05-01 23:55:45.286397 </span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; START DrawDiscr ! 2024-05-01 23:55:45.286499</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; Error detected !</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; &lt;simpleError in cyrestGET(&quot;version&quot;, base.url = base.url): objet &#39;res&#39; introuvable&gt;</span></span></code></pre></div>
 <p><br />
 </p>
 </div>
