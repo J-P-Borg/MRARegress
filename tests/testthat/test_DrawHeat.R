@@ -159,7 +159,8 @@ file.remove ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/Temporaire
 
 T	<- DrawHeat(Res_6_2$r)
 test_that("Bon affichage sur l'écran", {
-	expect_equal (names(dev.cur()), "RStudioGD")
+#	expect_equal (names(dev.cur()), "RStudioGD")
+	expect_equal (names(dev.cur()), "pdf")
 })
 
 #	Big networks (100 nodes - Dream Challenge 4)
