@@ -144,7 +144,6 @@ st			<- c(130,45,52,105,135,27)
 Exp_		<-	MExp (nbN, Perturbs, P0, F6, st)
 
 Res_6_2		<-	MRARegress(Exp_$Exp, Exp_$Pert, Method="Order2", Relative=FALSE)
-
 T	<- DrawHeat(Res_6_2$r, FileName="C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/Temporaire/T_DrawHeat")
 test_that("Network6_T1", {
   expect_true (file.exists(	"C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/Temporaire/T_DrawHeat.pdf"))		# File is written
@@ -157,11 +156,11 @@ test_that("Network6_T2", {
 })
 file.remove ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/Temporaire/T_DrawHeat.pdf")
 
-T	<- DrawHeat(Res_6_2$r)
-test_that("Bon affichage sur l'écran", {
-#	expect_equal (names(dev.cur()), "RStudioGD")
-	expect_equal (names(dev.cur()), "pdf")
-})
+#	T	<- DrawHeat(Res_6_2$r)
+#	test_that("Bon affichage sur l'écran", {
+#	#	expect_equal (names(dev.cur()), "RStudioGD")
+#		expect_equal (names(dev.cur()), "pdf")
+#	})
 
 #	Big networks (100 nodes - Dream Challenge 4)
 

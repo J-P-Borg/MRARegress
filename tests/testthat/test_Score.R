@@ -395,11 +395,11 @@ nbK		<- 2			# KO, KD50
 nbN		<- 2*30			# Number of nodes
 MatDif	<- matrix(0, nrow=2, ncol=nbN*nbN)
 
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Sol_TF30_TA30_1 vs Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R1.rda")	# Mat_TF30_TA30_1_R1 vs MatRN2,   k=0.1
-A		<-	MatR2MatExp	(Mat_TF30_TA30_1_R1, nbN, nbK)
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Solution
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R1.rda")	# MatRN2,   k=0.1
+A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Sol_TF30_TA30_1
+MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
 X	<- as.numeric(dist(MatDif))		# 0.3285881
 test_that("Frank_TF30_TA0_1_R1", {
@@ -460,11 +460,11 @@ sd	 (c(0.3285881, 0.6141877, 0.8553274, 0.3880909, 0.4655604))		# 0.2108212
 Knlg	<- matrix ("x", nrow=nbN, ncol=nbN)
 Knlg[ , (nbN/2 +1):nbN]	 <- 0
 
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Sol_TF30_TA30_1 vs Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R1.rda")	# Mat_TF30_TA30_1_R1 vs MatRN2,   k=0.1
-A		<-	MatR2MatExp	(Mat_TF30_TA30_1_R1, nbN, nbK)
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Solution
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R1.rda")	# MatRN2,   k=0.1
+A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r					# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Sol_TF30_TA30_1
+MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
 X	<- as.numeric(dist(MatDif))			# 0.2427032
 test_that("Frank_TF30_TA0_1_R1  Knlg", {
@@ -512,11 +512,11 @@ sd	 (c(0.2427032, 0.4567236, 0.637722,  0.2969855, 0.3482446))		# 0.1562851 vs. 
 #
 #	Contribution of knowledge if the noise level is stronger
 #
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Sol_TF30_TA30_1 vs Solution
-load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R2.rda")	# Mat_TF30_TA30_1_R2 vs MatRN2,   k=0.5
-A		<-	MatR2MatExp	(Mat_TF30_TA30_1_R2, nbN, nbK)
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_Sol.rda")	# Solution
+load ("C:/Users/jean-pierre.borg/IRCM/These/Recherche/Packages/MRARegress/data/Frank_TF30_TA30_1_R2.rda")	# MatRN2,   k=0.5
+A		<-	MatR2MatExp	(MatRN2, nbN, nbK)
 MatrCc	<-	MRARegress (A$Exp, A$Pert)$r						# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Sol_TF30_TA30_1
+MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
 X	<- as.numeric(dist(MatDif))			# 1.636543
 test_that("Frank_TF30_TA0_1_R2", {
@@ -524,7 +524,7 @@ test_that("Frank_TF30_TA0_1_R2", {
 })
 
 MatrCc	<-	MRARegress (A$Exp, A$Pert, KnlgMap=Knlg)$r			# Mode : 'Relative', Method : 'TLR', Parameter : 0.25	(default values)
-MatDif[1, ]	<- Sol_TF30_TA30_1
+MatDif[1, ]	<- Solution
 MatDif[2, ]	<- MatrCc
 X	<- as.numeric(dist(MatDif))			# 1.192742 vs. 1.636543
 test_that("Frank_TF30_TA0_1_R2  Knlg", {

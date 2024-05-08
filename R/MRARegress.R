@@ -571,11 +571,12 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 					if (is.null(KnlgMap)) {
 						Form	<- "MatY0~MatU0+0"
 						MatrCc[iNode,col]	<- ((lm(as.formula(Form)))$coefficients)[1:(length(col))]
+
 						pQ <- lm(as.formula(Form))
 						ValMean	[iNode,col]  	<- broom::tidy(pQ)$estimate[1:(length(col))]
 						ValMin  [iNode,col]  	<- broom::tidy(pQ)$estimate[1:(length(col))] - 1.96*broom::tidy(pQ)$std.error[1:(length(col))]	# 1.96 to get an IC 95%
 						ValMax  [iNode,col]  	<- broom::tidy(pQ)$estimate[1:(length(col))] + 1.96*broom::tidy(pQ)$std.error[1:(length(col))]
-						
+					
 						if (Verbose) {
 							R_Anova	<-	anova(pQ)
 							cat ("iNode : ", iNode, " ANOVA computed by R \n"); print (R_Anova)

@@ -713,14 +713,14 @@ test_that("MatR2MatExp", {
 #	of the size of the data (20.3 Mb) :
 #	00:01:23 (500 nodes) and 00:20:54 (1000 nodes).
 #	
-load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Frank_TF100_TA0_1_R1.rda")#	MatRN100, noise 10%
-v	<- MatR2MatExp(MatRN100, 100, 2)					# Computes the MatExp and Perturb matrices, used by MRARegress
+load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Frank_TF100_TA0_1_R1.rda")#	MatRN2 noise 10%
+v	<- MatR2MatExp(MatRN2, 100, 2)						# Computes the MatExp and Perturb matrices, used by MRARegress
 test_that("100 nodes network", {
   expect_vector(MRARegress(v$Exp, v$Pert)$r, size=100)
 })
 
-load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Frank_TF300_TA0_1_R1.rda")#	MatRN300, noise 10%
-v	<- MatR2MatExp(MatRN300, 300, 2)					# Computes the MatExp and Perturb matrices, used by MRARegress
+load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Frank_TF300_TA0_1_R1.rda")#	MatRN2, noise 10%
+v	<- MatR2MatExp(MatRN2, 300, 2)						# Computes the MatExp and Perturb matrices, used by MRARegress
 test_that("300 nodes network", {
   expect_vector(MRARegress(v$Exp, v$Pert)$r, size=300)
 })
@@ -728,13 +728,13 @@ test_that("300 nodes network", {
 ###	These two tests have been discarded, because of the time necessary to process them.
 ###
 ###	load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Frank_TF500_TA0_1_R1.rda")#	MatRN500, noise 10%
-###	v	<- MatR2MatExp(MatRN500, 500, 2)					# Computes the MatExp and Perturb matrices, used by MRARegress
+###	v	<- MatR2MatExp(MatRN2, 500, 2)					# Computes the MatExp and Perturb matrices, used by MRARegress
 ###	test_that("500 nodes network", {
 ###	  expect_vector(MRARegress(v$Exp, v$Pert), size=500)
 ###	})
 ###	
 ###	load("C:\\Users\\jean-pierre.borg\\IRCM\\These\\Recherche\\Packages\\MRAregress\\data\\Frank_TF1000_TA0_1_R1.rda")#	MatRN1000, noise 10%
-###	v	<- MatR2MatExp(MatRN1000, 1000, 2)					# Computes the MatExp and Perturb matrices, used by MRARegress
+###	v	<- MatR2MatExp(MatRN2, 1000, 2)					# Computes the MatExp and Perturb matrices, used by MRARegress
 ###	test_that("1000 nodes network", {
 ###	  expect_vector(MRARegress(v$Exp, v$Pert), size=1000)
 ###	})
