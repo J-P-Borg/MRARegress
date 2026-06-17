@@ -1,0 +1,17 @@
+Chers amis,
+
+J'ai le plaisir de vous annoncer que le package "MRARegress" est maintenant terminé et disponible sur github.
+Vous trouverez en PJ la vignette et un pdf avec quelques informations pour l'installer et l'utiliser. N'hésitez pas à l'essayer et vous en servir sans restriction. 
+Vos remarques et commentaires seront bienvenues et très appréciées.
+
+Merci et à bientôt,
+Jean-Pierre
+
+
+Dear friends,
+I am pleased to announce that the "MRARegress" package is now complete and available on github.
+You will find enclosed the thumbnail and a pdf with some information to install and use it. Feel free to try it and use it without restriction. 
+Your remarks and comments will be welcome and very much appreciated.
+
+Many thanks,
+Jean-Pierre

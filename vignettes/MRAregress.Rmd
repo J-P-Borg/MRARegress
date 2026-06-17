@@ -6,7 +6,7 @@ author:
     affiliation:
     - Institut de Recherche en Cancérologie de Montpellier, Inserm, Montpellier, France 
     email: jean-pierre.borg@inserm.fr   /   jeanpierre.borg@orange.fr
-date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+date: "`r format(Sys.Date(), '%Y/%m/%d')`"
 abstract: > 
  <p> MRARegress is used to infer connectivity in biological networks, able of achieving a steady state after being perturbed.
    The inference is obtained by using methods based on Multilinear Regression applied to Modular Response Analysis (MRA) principles (Kholodenko, PNAS, 2002).

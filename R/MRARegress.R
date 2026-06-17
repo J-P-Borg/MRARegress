@@ -435,8 +435,11 @@ MRARegress <- function (MatExp, Perturb = NULL, NodeName = NULL, KnlgMap = NULL,
 		for (iBase in 1:nbBase) {
 			for (iPc in 1:nbPc) {
 				for (iNode in 1:nbN) {
-					if (Relative)
+					if (Relative){
+						AA = cat("iBase ", iBase, " iPC ", iPc, " cPerturb ",  cPerturb[iPc], " MatP ", MatExp[iNode, cPerturb[iPc]], " MatB ", MatExp[iNode, cBase[iBase]], " Res ", MatExp[iNode, cPerturb[iPc]] + MatExp[iNode, cBase[iBase]], "FIN ", 2*(MatExp[iNode, cPerturb[iPc]] - MatExp[iNode, cBase[iBase]]) / (MatExp[iNode, cPerturb[iPc]] + MatExp[iNode, cBase[iBase]]))
+						print(AA)
 						MatD[(iBase-1)*nbPc+iPc, iNode]		<- 2*(MatExp[iNode, cPerturb[iPc]] - MatExp[iNode, cBase[iBase]]) / (MatExp[iNode, cPerturb[iPc]] + MatExp[iNode, cBase[iBase]])
+					}
 					else
 						MatD[(iBase-1)*nbPc+iPc, iNode]		<-   MatExp[iNode, cPerturb[iPc]] - MatExp[iNode, cBase[iBase]]
 				}
